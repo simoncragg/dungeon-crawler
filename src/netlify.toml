@@ -3,14 +3,14 @@
   port = 8888
 
 [context.dev.environment]
-  VITE_PUBLIC_URL = ""
+  VITE_PUBLIC_URL = "https://localhost:8888/"
 
 [build]
   command = "npm run build"
   publish = "dist"
 
 [build.environment]
-  VITE_PUBLIC_URL = "https://dungeon-crawler.netlify.app"
+  VITE_PUBLIC_URL = "https://play-dungeon-crawler.netlify.app"
 
 [[redirects]]
   from = "/assets/*"
