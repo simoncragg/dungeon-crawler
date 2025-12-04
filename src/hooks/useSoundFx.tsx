@@ -1,7 +1,21 @@
 
-
-
 let globalAudioCtx: AudioContext | null = null;
+const bufferCache: Record<string, AudioBuffer> = {};
+
+const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => {
+  if (bufferCache[key]) return bufferCache[key];
+
+  const bufferSize = ctx.sampleRate * duration;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+
+  bufferCache[key] = buffer;
+  return buffer;
+};
+
 
 const useSoundFx = () => {
   const getAudioContext = () => {
@@ -23,10 +37,7 @@ const useSoundFx = () => {
     const t = ctx.currentTime;
 
     // White Noise Footstep
-    const bufferSize = ctx.sampleRate * 0.1;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const buffer = createNoiseBuffer(ctx, 0.1, "shuffle");
 
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
@@ -53,10 +64,7 @@ const useSoundFx = () => {
 
     const t = ctx.currentTime;
 
-    const bufferSize = ctx.sampleRate * 0.3;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const buffer = createNoiseBuffer(ctx, 0.3, "item");
 
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
@@ -86,10 +94,7 @@ const useSoundFx = () => {
     const t = ctx.currentTime;
 
     // 1. Tiny Impact Click (Immediate attack)
-    const bufferSize = ctx.sampleRate * 0.01;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const buffer = createNoiseBuffer(ctx, 0.01, "sword_impact");
 
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
