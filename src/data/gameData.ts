@@ -49,7 +49,7 @@ export const ITEMS: Record<string, Item> = {
   },
 };
 
-export let WORLD: Record<string, Room> = {
+export const WORLD: Record<string, Room> = {
   "start": {
     id: "start",
     name: "Damp Cell",
