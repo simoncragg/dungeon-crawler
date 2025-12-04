@@ -1,12 +1,13 @@
 import { useRef } from "react";
 
+
 const useSoundFx = () => {
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   const getAudioContext = () => {
     if (typeof window === "undefined") return null;
     if (!audioCtxRef.current) {
-      const AudioCtor = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioCtor = window.AudioContext || window.webkitAudioContext;
       if (AudioCtor) {
         audioCtxRef.current = new AudioCtor();
       }
