@@ -10,23 +10,16 @@ export default function FeedbackOverlay({ message, delay = 0 }: FeedbackOverlayP
   const [currentMessage, setCurrentMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const showMessage = () => {
-      setCurrentMessage(message);
-      setIsVisible(true);
-    };
-
-    if (message) {
-      if (delay > 0) {
-        const timer = setTimeout(() => {
-          showMessage();
-        }, delay);
-        return () => clearTimeout(timer);
+    const timer = setTimeout(() => {
+      if (message) {
+        setCurrentMessage(message);
+        setIsVisible(true);
       } else {
-        showMessage();
+        setIsVisible(false);
       }
-    } else {
-      setIsVisible(false);
-    }
+    }, message ? delay : 0);
+
+    return () => clearTimeout(timer);
   }, [message, delay]);
 
   if (!currentMessage) return null;

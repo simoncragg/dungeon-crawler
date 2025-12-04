@@ -13,9 +13,14 @@ export default function SceneNarrator({ currentRoom, onContinue }: SceneNarrator
   const [showNarrative, setShowNarrative] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true);
-    setIsExpanded(false);
-    return () => setIsVisible(false);
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+      setIsExpanded(false);
+    }, 0);
+    return () => {
+      clearTimeout(timer);
+      setIsVisible(false);
+    };
   }, [currentRoom.id]);
 
   useEffect(() => {
@@ -27,8 +32,11 @@ export default function SceneNarrator({ currentRoom, onContinue }: SceneNarrator
         clearTimeout(narrativeTimer);
       };
     } else {
-      setIsScrollable(false);
-      setShowNarrative(false);
+      const timer = setTimeout(() => {
+        setIsScrollable(false);
+        setShowNarrative(false);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isExpanded]);
 
