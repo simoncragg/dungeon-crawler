@@ -16,8 +16,8 @@ const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => 
   return buffer;
 };
 
-
 const useSoundFx = () => {
+
   const getAudioContext = () => {
     if (typeof window === "undefined") return null;
     if (!globalAudioCtx) {
@@ -129,7 +129,47 @@ const useSoundFx = () => {
     });
   };
 
-  return { playShuffleSound, playItemSound, playSwordSound };
-}
+  const playAudioFromUrl = async (url: string, volume: number = 1.0): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
+    const ctx = await getAudioContext();
+    if (!ctx) return null;
+
+    if (ctx.state === "suspended") {
+      await ctx.resume();
+    }
+
+    try {
+      let audioBuffer = bufferCache[url];
+
+      if (!audioBuffer) {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+        bufferCache[url] = audioBuffer;
+      }
+
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+
+      source.connect(gain);
+      gain.connect(ctx.destination);
+
+      source.start(0);
+
+      return { source, gain };
+    } catch (error) {
+      console.error(`Failed to play audio from ${url}:`, error);
+      return null;
+    }
+  };
+
+  return {
+    playShuffleSound,
+    playItemSound,
+    playSwordSound
+  };
+};
 
 export default useSoundFx;
