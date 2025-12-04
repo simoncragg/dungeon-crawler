@@ -1,18 +1,18 @@
-import { useRef } from "react";
 
+
+
+let globalAudioCtx: AudioContext | null = null;
 
 const useSoundFx = () => {
-  const audioCtxRef = useRef<AudioContext | null>(null);
-
   const getAudioContext = () => {
     if (typeof window === "undefined") return null;
-    if (!audioCtxRef.current) {
+    if (!globalAudioCtx) {
       const AudioCtor = window.AudioContext || window.webkitAudioContext;
       if (AudioCtor) {
-        audioCtxRef.current = new AudioCtor();
+        globalAudioCtx = new AudioCtor();
       }
     }
-    return audioCtxRef.current;
+    return globalAudioCtx;
   };
 
   const playShuffleSound = () => {
