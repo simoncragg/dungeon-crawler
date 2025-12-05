@@ -33,6 +33,7 @@ export type Room = {
   coordinates: { x: number; y: number };
   shortName?: string;
   image: string;
+  audioLoop?: string;
   enemy?: {
     name: string;
     maxHp: number;

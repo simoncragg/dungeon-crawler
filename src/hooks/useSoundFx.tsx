@@ -1,6 +1,7 @@
 
 let globalAudioCtx: AudioContext | null = null;
 const bufferCache: Record<string, AudioBuffer> = {};
+let currentAmbientSource: AudioBufferSourceNode | null = null;
 
 const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => {
   if (bufferCache[key]) return bufferCache[key];
@@ -130,11 +131,11 @@ const useSoundFx = () => {
   };
 
   const playAudioFromUrl = async (url: string, volume: number = 1.0, loop: boolean = false): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
-    const ctx = await getAudioContext();
+    const ctx = getAudioContext();
     if (!ctx) return null;
 
     if (ctx.state === "suspended") {
-      await ctx.resume();
+      ctx.resume();
     }
 
     try {
@@ -166,11 +167,26 @@ const useSoundFx = () => {
     }
   };
 
+  const playAmbientLoop = async (audioLoop: string | null) => {
+    if (currentAmbientSource) {
+      currentAmbientSource.stop();
+      currentAmbientSource = null;
+    }
+
+    if (!audioLoop) return;
+
+    const result = await playAudioFromUrl(audioLoop, 0.3, true);
+    if (result) {
+      currentAmbientSource = result.source;
+    }
+  };
+
   const playBoomSound = async () => {
     await playAudioFromUrl("/audio/boom.mp3", 0.5);
   };
 
   return {
+    playAmbientLoop,
     playShuffleSound,
     playItemSound,
     playSwordSound,

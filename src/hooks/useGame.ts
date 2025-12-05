@@ -46,7 +46,13 @@ export const useGame = () => {
     return () => clearTimeout(timer);
   }, [gameState.feedback]);
 
-  const { playShuffleSound, playItemSound, playSwordSound } = useSoundFx();
+  const { playAmbientLoop, playShuffleSound, playItemSound, playSwordSound } = useSoundFx();
+
+  useEffect(() => {
+    const room = gameState.rooms[gameState.currentRoomId];
+    const timer = setTimeout(() => playAmbientLoop(room.audioLoop || null), 1000);
+    return () => clearTimeout(timer);
+  }, [gameState.currentRoomId, gameState.rooms]);
 
   const attackPower = 5 + (gameState.equippedItems.weapon ? (ITEMS[gameState.equippedItems.weapon].stats?.attack || 0) : 0);
   const defensePower = 0 + (gameState.equippedItems.armor ? (ITEMS[gameState.equippedItems.armor].stats?.defense || 0) : 0);
