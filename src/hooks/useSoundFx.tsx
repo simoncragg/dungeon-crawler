@@ -2,6 +2,7 @@
 let globalAudioCtx: AudioContext | null = null;
 const bufferCache: Record<string, AudioBuffer> = {};
 let currentAmbientSource: AudioBufferSourceNode | null = null;
+let currentAmbientUrl: string | null = null;
 
 const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => {
   if (bufferCache[key]) return bufferCache[key];
@@ -168,6 +169,9 @@ const useSoundFx = () => {
   };
 
   const playAmbientLoop = async (audioLoop: string | null) => {
+    if (currentAmbientUrl === audioLoop) return;
+    currentAmbientUrl = audioLoop;
+
     if (currentAmbientSource) {
       currentAmbientSource.stop();
       currentAmbientSource = null;
@@ -176,6 +180,14 @@ const useSoundFx = () => {
     if (!audioLoop) return;
 
     const result = await playAudioFromUrl(audioLoop, 0.3, true);
+
+    if (currentAmbientUrl !== audioLoop) {
+      if (result) {
+        result.source.stop();
+      }
+      return;
+    }
+
     if (result) {
       currentAmbientSource = result.source;
     }
