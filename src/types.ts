@@ -1,4 +1,4 @@
-export type Direction = "north" | "south" | "east" | "west";
+﻿export type Direction = "north" | "south" | "east" | "west";
 
 export type ItemType = "item" | "weapon" | "armor" | "consumable" | "key";
 
@@ -10,16 +10,6 @@ export type Item = {
   stats?: { attack?: number; defense?: number };
   effect?: (gameState: GameState) => Partial<GameState>;
   icon?: React.ElementType;
-  enemy?: {
-    name: string;
-    maxHp: number;
-    hp: number;
-    damage: number;
-    description: string;
-    defeatMessage: string;
-    drop?: string;
-    image?: string;
-  };
 };
 
 export type Room = {
