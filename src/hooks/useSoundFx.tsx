@@ -129,7 +129,7 @@ const useSoundFx = () => {
     });
   };
 
-  const playAudioFromUrl = async (url: string, volume: number = 1.0): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
+  const playAudioFromUrl = async (url: string, volume: number = 1.0, loop: boolean = false): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
     const ctx = await getAudioContext();
     if (!ctx) return null;
 
@@ -149,6 +149,7 @@ const useSoundFx = () => {
 
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
+      source.loop = loop;
 
       const gain = ctx.createGain();
       gain.gain.value = volume;
