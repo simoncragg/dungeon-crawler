@@ -88,6 +88,7 @@ export const WORLD: Record<string, Room> = {
       east: { keyId: "rusty-key", lockedMessage: "The heavy oak door is locked." }
     },
     image: "/images/scenes/dark-hallway.png",
+    audioLoop: "/audio/eerie-echoes.mp3",
   },
   "archives": {
     id: "archives",
