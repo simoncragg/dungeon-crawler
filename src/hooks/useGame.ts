@@ -50,8 +50,7 @@ export const useGame = () => {
 
   useEffect(() => {
     const room = gameState.rooms[gameState.currentRoomId];
-    const timer = setTimeout(() => playAmbientLoop(room.audioLoop || null), 1000);
-    return () => clearTimeout(timer);
+    playAmbientLoop(room.audioLoop || null)
   }, [gameState.currentRoomId, gameState.rooms]);
 
   const attackPower = 5 + (gameState.equippedItems.weapon ? (ITEMS[gameState.equippedItems.weapon].stats?.attack || 0) : 0);
