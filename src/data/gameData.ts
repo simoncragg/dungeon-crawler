@@ -66,6 +66,7 @@ export const WORLD: Record<string, Room> = {
     coordinates: { x: 0, y: 0 },
     shortName: "CELL",
     image: "/images/scenes/damp-cell.png",
+    audioLoop: "/audio/dripping-water.mp3",
   },
   "hallway": {
     id: "hallway",
