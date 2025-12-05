@@ -165,10 +165,15 @@ const useSoundFx = () => {
     }
   };
 
+  const playBoomSound = async () => {
+    await playAudioFromUrl("/audio/boom.mp3", 0.5);
+  };
+
   return {
     playShuffleSound,
     playItemSound,
-    playSwordSound
+    playSwordSound,
+    playBoomSound
   };
 };
 

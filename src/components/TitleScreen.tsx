@@ -1,10 +1,17 @@
 import { Volume2, Monitor } from "lucide-react";
+import useSoundFx from "../hooks/useSoundFx";
 
 interface TitleScreenProps {
   onStart: () => void;
 }
 
 export default function TitleScreen({ onStart }: TitleScreenProps) {
+  const { playBoomSound } = useSoundFx();
+
+  const handleEnter = () => {
+    playBoomSound();
+    onStart();
+  };
 
   return (
     <div className="absolute inset-0 z-50 flex flex-col h-full bg-slate-950/90 text-slate-100 font-sans overflow-hidden items-center justify-center">
@@ -37,7 +44,7 @@ export default function TitleScreen({ onStart }: TitleScreenProps) {
         </div>
 
         <button
-          onClick={onStart}
+          onClick={handleEnter}
           className="text-slate-200 hover:text-white transition-colors cursor-pointer p-2 mt-4"
         >
           <span className="text-2xl tracking-[0.2em] uppercase border-b border-transparent hover:border-white/50 pb-1">
