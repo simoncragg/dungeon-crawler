@@ -52,11 +52,11 @@ export default function TitleScreen({ onStart }: TitleScreenProps) {
           </span>
         </button>
 
-        <div className="flex items-center gap-2 text-emerald-500/60 text-xs font-sans tracking-widest uppercase mt-4">
+        <div className="flex items-center gap-2 text-emerald-500 text-xs font-sans tracking-widest uppercase mt-4">
           Optimised for desktop <Monitor size={16} className="-ml-0.5 -mt-0.5" /> • Better with sound <Volume2 size={16} className="-ml-0.5 -mt-0.5" />
         </div>
 
-        <div className="text-slate-600 text-sm font-mono uppercase tracking-widest">
+        <div className="text-slate-500 text-sm font-mono uppercase tracking-widest">
           v1.0.0 • Simon Cragg • 2025
         </div>
       </div>
