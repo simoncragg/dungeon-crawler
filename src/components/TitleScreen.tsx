@@ -22,7 +22,7 @@ export default function TitleScreen({ onStart }: TitleScreenProps) {
 
     setTimeout(() => {
       setIsScalingDown(true);
-    }, 1000);
+    }, 1200);
 
     setTimeout(() => {
       onStart();
@@ -42,9 +42,9 @@ export default function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)]" />
       </div>
 
-      {/* Gem Animation Layer - Fixed on top of everything */}
+      {/* Gem Animation Layer */}
       <div
-        className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-opacity duration-500 ease-in-out ${isExiting ? "opacity-100" : "opacity-0"
+        className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-opacity duration-800 ease-in-out ${isExiting ? "opacity-100" : "opacity-0"
           }`}
       >
         <Gem
