@@ -88,48 +88,7 @@ const useSoundFx = () => {
     noise.start(t);
   };
 
-  const playSwordSound = () => {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    if (ctx.state === "suspended") ctx.resume();
 
-    const t = ctx.currentTime;
-
-    // 1. Tiny Impact Click (Immediate attack)
-    const buffer = createNoiseBuffer(ctx, 0.01, "sword_impact");
-
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.15, t);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.01);
-
-    noise.connect(noiseGain);
-    noiseGain.connect(ctx.destination);
-    noise.start(t);
-
-    // 2. The "Ring" - High pitched sines (Original)
-    const freqs = [1200, 2500, 4500];
-
-    freqs.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, t);
-
-      // Faster attack for "velocity"
-      gain.gain.setValueAtTime(0.01, t);
-      gain.gain.linearRampToValueAtTime(0.08, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6 + (i * 0.2));
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(t);
-      osc.stop(t + 1);
-    });
-  };
 
   const playAudioFromUrl = async (url: string, volume: number = 1.0, loop: boolean = false): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
     const ctx = getAudioContext();
@@ -193,16 +152,15 @@ const useSoundFx = () => {
     }
   };
 
-  const playBoomSound = async () => {
-    await playAudioFromUrl("/audio/boom.mp3", 0.5);
-  };
+  const playSoundFile = async (audioFilename: string, volume: number = 0.5) => {
+    playAudioFromUrl(`/audio/${audioFilename}`, volume);
+  }
 
   return {
     playAmbientLoop,
     playShuffleSound,
     playItemSound,
-    playSwordSound,
-    playBoomSound
+    playSoundFile,
   };
 };
 

@@ -24,9 +24,16 @@ export const ITEMS: Record<string, Item> = {
     type: "weapon",
     icon: Sword,
     stats: { attack: 15 },
+    sounds: {
+      take: "sword-take.wav",
+      attack: "sword-combat-attack.wav",
+      block: "sword-combat-block.wav",
+      crit: "sword-combat-crit.wav",
+      clash: "sword-combat-clash.wav",
+    }
   },
-  "shield": {
-    id: "shield",
+  "wooden-shield": {
+    id: "wooden-shield",
     name: "Wooden Shield",
     description: "A splintered wooden shield. Adds +5 Defense.",
     type: "armor",
@@ -80,7 +87,7 @@ export const WORLD: Record<string, Room> = {
       "You are a rat in a maze, and the walls are murmuring your name. Which path will you choose?"
     ],
     exits: { south: "start", east: "archives", west: "armory", north: "forest" },
-    items: [],
+    items: ["wooden-shield"],
     coordinates: { x: 0, y: 1 },
     shortName: "HALL",
     lockedExits: {
@@ -105,16 +112,17 @@ export const WORLD: Record<string, Room> = {
     name: "Abandoned Armory",
     description: "Weapon racks line the walls.",
     exits: { east: "hallway" },
-    items: ["shield"],
+    items: [],
     enemy: {
+      id: "skeleton-guard",
       name: "Skeleton Guard",
-      maxHp: 60,
-      hp: 60,
-      damage: 10,
+      maxHp: 100,
+      hp: 100,
+      attack: 10,
+      defense: 5,
       description: "A skeleton in rusted armor blocks the room!",
       defeatMessage: "The skeleton falls apart, bones scattering across the floor.",
       drop: "rusty-key",
-      image: "/images/enemies/skeleton-guard.png",
     },
     coordinates: { x: -1, y: 1 },
     shortName: "ARMORY",

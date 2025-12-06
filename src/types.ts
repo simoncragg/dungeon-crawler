@@ -2,56 +2,6 @@
 
 export type ItemType = "item" | "weapon" | "armor" | "consumable" | "key";
 
-export type Item = {
-  id: string;
-  name: string;
-  description: string;
-  type: ItemType;
-  stats?: { attack?: number; defense?: number };
-  effect?: (gameState: GameState) => Partial<GameState>;
-  icon?: React.ElementType;
-};
-
-export type Room = {
-  id: string;
-  name: string;
-  description: string;
-  narrative?: string[];
-  exits: Partial<Record<Direction, string>>;
-  items: string[];
-  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string }>>;
-  coordinates: { x: number; y: number };
-  shortName?: string;
-  image: string;
-  audioLoop?: string;
-  enemy?: {
-    name: string;
-    maxHp: number;
-    hp: number;
-    damage: number;
-    description: string;
-    defeatMessage: string;
-    drop?: string;
-    image?: string;
-  };
-};
-
-export type LogEntry = {
-  id: number;
-  type: "room-title" | "room-description" | "info" | "warning" | "danger" | "success" | "combat" | "system" | "damage";
-  text: string;
-};
-
-export type Feedback = {
-  message: string | null;
-  type: string | null;
-  id: number;
-};
-
-export type Inventory = {
-  items: (string | null)[];
-};
-
 export type GameState = {
   currentRoomId: string;
   inventory: Inventory;
@@ -68,18 +18,104 @@ export type GameState = {
   questLog: LogEntry[];
   feedback: Feedback | null;
   isNarratorVisible: boolean;
+  combat: CombatState | null;
+  // Stats
+  attack: number;
+  defense: number;
+};
+
+export type Item = {
+  id: string;
+  name: string;
+  description: string;
+  type: ItemType;
+  stats?: { attack?: number; defense?: number };
+  effect?: (gameState: GameState) => Partial<GameState>;
+  icon?: React.ElementType;
+  sounds?: {
+    take?: string;
+    attack?: string;
+    block?: string;
+    crit?: string;
+    clash?: string;
+  };
+};
+
+export type Room = {
+  id: string;
+  name: string;
+  description: string;
+  narrative?: string[];
+  exits: Partial<Record<Direction, string>>;
+  items: string[];
+  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string }>>;
+  coordinates: { x: number; y: number };
+  shortName?: string;
+  image: string;
+  audioLoop?: string;
+  enemy?: {
+    id: string;
+    name: string;
+    maxHp: number;
+    hp: number;
+    attack: number;
+    defense: number;
+    description: string;
+    defeatMessage: string;
+    drop?: string;
+  };
+};
+
+export type LogEntry = {
+  id: number;
+  type: "room-title" | "room-description" | "info" | "warning" | "danger" | "success" | "combat" | "system" | "damage" | "clash" | "miss";
+  text: string;
+};
+
+export type Feedback = {
+  message: string | null;
+  type: string | null;
+  id: number;
+};
+
+export type Inventory = {
+  items: (string | null)[];
+};
+
+export type CombatAction = "ATTACK" | "BLOCK" | "IDLE" | "DAMAGE" | "DEFEAT";
+
+export type CombatResultType = "crit" | "hit" | "block" | "clash" | "parry" | "miss";
+
+export type CombatResult = {
+  type: CombatResultType;
+  message: string;
+};
+
+export type CombatState = {
+  inCombat: boolean;
+  round: number;
+  isProcessing: boolean;
+  enemyAction: CombatAction;
+  enemyId: string;
+  enemyImage: string;
+  lastResult: CombatResult | null;
 };
 
 export type GameAction =
-  | { type: 'MOVE'; direction: Direction; nextRoomId: string }
-  | { type: 'TAKE_ITEM'; itemId: string; autoEquip: boolean; logMessage: string }
-  | { type: 'DROP_ITEM'; itemId: string; logMessage: string }
-  | { type: 'EQUIP_ITEM'; itemId: string; logMessage: string }
-  | { type: 'USE_CONSUMABLE'; itemId: string; effect: (state: GameState) => Partial<GameState>; logMessage: string }
-  | { type: 'UNLOCK_DOOR'; direction: Direction; keyId: string; logMessage: string }
-  | { type: 'COMBAT_ROUND'; damageDealt: number; damageTaken: number; enemyName: string; logMessage: string; playerDied: boolean }
-  | { type: 'ENEMY_DEFEAT'; enemyName: string; dropId?: string; logMessage: string; damageDealt: number }
-  | { type: 'ADD_LOG'; message: string; logType?: LogEntry['type'] }
-  | { type: 'SET_QUEST_LOG'; log: LogEntry[] }
-  | { type: 'CLEAR_FEEDBACK' }
-  | { type: 'SET_NARRATOR_VISIBLE'; visible: boolean };
+  | { type: "MOVE"; direction: Direction; nextRoomId: string }
+  | { type: "TAKE_ITEM"; itemId: string; autoEquip: boolean; logMessage: string }
+  | { type: "DROP_ITEM"; itemId: string; logMessage: string }
+  | { type: "EQUIP_ITEM"; itemId: string; logMessage: string }
+  | { type: "USE_CONSUMABLE"; itemId: string; effect: (state: GameState) => Partial<GameState>; logMessage: string }
+  | { type: "UNLOCK_DOOR"; direction: Direction; keyId: string; logMessage: string }
+  | { type: "COMBAT_ROUND"; damageDealt: number; damageTaken: number; enemyName: string; logMessage: string; playerDied: boolean }
+  | { type: "ENEMY_DEFEAT"; enemyName: string; dropId?: string; logMessage: string; damageDealt: number }
+  | { type: "ADD_LOG"; message: string; logType?: LogEntry["type"] }
+  | { type: "SET_QUEST_LOG"; log: LogEntry[] }
+  | { type: "CLEAR_FEEDBACK" }
+  | { type: "SET_NARRATOR_VISIBLE"; visible: boolean }
+  | { type: "START_COMBAT" }
+  | { type: "COMBAT_ROUND_END" }
+  | { type: "SET_COMBAT_PROCESSING"; processing: boolean }
+  | { type: "SET_ENEMY_ACTION"; action: CombatAction }
+  | { type: "SET_COMBAT_RESULT"; result: CombatResult };

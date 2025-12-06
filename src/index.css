@@ -117,3 +117,17 @@ button:not(:disabled) {
 .animate-glow-pulse {
   animation: glow-pulse 2s ease-in-out infinite;
 }
+
+@keyframes defeat {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    transform: translateY(100%) scale(0.9);
+  }
+}
+
+.animate-defeat {
+  animation: defeat 0.8s forwards ease-in;
+}

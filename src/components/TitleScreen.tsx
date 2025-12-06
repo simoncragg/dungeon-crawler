@@ -7,13 +7,13 @@ interface TitleScreenProps {
 }
 
 export default function TitleScreen({ onStart }: TitleScreenProps) {
-  const { playBoomSound } = useSoundFx();
+  const { playSoundFile } = useSoundFx();
   const [isExiting, setIsExiting] = useState(false);
   const [isScalingDown, setIsScalingDown] = useState(false);
   const [isGemVisible, setIsGemVisible] = useState(false);
 
   const handleEnter = () => {
-    playBoomSound();
+    playSoundFile("boom.mp3");
     setIsExiting(true);
 
     setTimeout(() => {

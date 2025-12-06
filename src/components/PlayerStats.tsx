@@ -24,7 +24,7 @@ const PlayerStats: React.FC<PlayerStatsProps> = ({
         />
         <Heart size={16} className="text-red-400 relative z-10" fill="currentColor" />
         <div className="flex flex-col leading-none relative z-10">
-          <span className="text-xs font-bold text-red-100">{health}/{maxHealth}</span>
+          <span className="text-xs font-bold text-red-100">{health}</span>
           <span className="text-[10px] opacity-70 uppercase text-red-200">HP</span>
         </div>
       </div>

@@ -12,6 +12,8 @@ import DirectionPad from "./DirectionPad";
 import PlayerStats from "./PlayerStats";
 import FeedbackOverlay from "./FeedbackOverlay";
 
+import CombatOverlay from "./CombatOverlay";
+
 export default function Game() {
   const {
     gameState,
@@ -30,13 +32,17 @@ export default function Game() {
     takeItem,
     dropItem,
     equipItem,
-    attackEnemy,
+    startCombat,
+    handleCombatAction,
     useItem,
     feedback,
     setNarratorVisible
   } = useGame();
 
+  const inCombat = gameState.combat?.inCombat;
   const showStats = !gameState.isNarratorVisible;
+
+  const isShakeEffect = ["damage", "warning", "clash"].includes(feedback?.type || "");
 
   return (
     <div className="flex flex-col h-full bg-slate-950 text-slate-100 font-sans overflow-hidden relative">
@@ -53,7 +59,9 @@ export default function Game() {
 
           <div
             key={feedback?.id || "no-feedback"}
-            className={`relative z-10 h-full aspect-video shadow-2xl overflow-hidden ${["damage", "warning"].includes(feedback?.type || "") ? "animate-shake" : ""}`}
+            className={`relative z-10 h-full aspect-video shadow-2xl overflow-hidden ${isShakeEffect
+              ? "animate-shake" : ""
+              }`}
           >
             <img
               src={currentRoom.image}
@@ -61,12 +69,14 @@ export default function Game() {
               className="w-full h-full object-cover"
             />
 
-            <FeedbackOverlay
-              message={feedback?.message || null}
-              delay={["damage", "warning"].includes(feedback?.type || "") ? 500 : 0}
-            />
+            {!inCombat && (
+              <FeedbackOverlay
+                message={feedback?.message || null}
+                delay={["damage", "warning"].includes(feedback?.type || "") ? 500 : 0}
+              />
+            )}
 
-            <div className={`absolute top-4 left-4 z-30 transition-opacity duration-1000 ${showStats ? "opacity-100" : "opacity-0"}`}>
+            <div className={`absolute top-4 left-4 z-30 transition-opacity duration-1000 ${showStats && !inCombat ? "opacity-100" : "opacity-0"}`}>
               <PlayerStats
                 health={gameState.health}
                 maxHealth={gameState.maxHealth}
@@ -75,8 +85,7 @@ export default function Game() {
               />
             </div>
 
-            {/* Restore Narrator Button */}
-            {!gameState.isNarratorVisible && (
+            {!gameState.isNarratorVisible && !inCombat && (
               <button
                 onClick={() => setNarratorVisible(true)}
                 className="absolute top-4 left-1/2 -translate-x-1/2 z-50 p-2 bg-black/50 hover:bg-black/70 text-emerald-400 hover:text-emerald-300 rounded-full border border-emerald-900/50 transition-all hover:scale-110 shadow-lg backdrop-blur-sm"
@@ -86,57 +95,61 @@ export default function Game() {
               </button>
             )}
 
-            <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${showStats ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+            {!inCombat && (
+              <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${showStats ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
 
-              <div className="absolute bottom-12 left-8 w-32 h-32">
-                <DirectionPad
-                  currentRoom={currentRoom}
-                  isWalking={isWalking}
-                  lastMoveDirection={walkingDirection || gameState.lastMoveDirection}
-                  walkStepScale={walkStepScale}
-                  onMove={handleMove}
-                />
-              </div>
+                <div className="absolute bottom-12 left-8 w-32 h-32">
+                  <DirectionPad
+                    currentRoom={currentRoom}
+                    isWalking={isWalking}
+                    lastMoveDirection={walkingDirection || gameState.lastMoveDirection}
+                    walkStepScale={walkStepScale}
+                    onMove={handleMove}
+                  />
+                </div>
 
-              <div className="absolute top-8 right-8 w-64">
-                <ActionPanel
-                  currentRoom={currentRoom}
-                  isEnemyRevealed={isEnemyRevealed}
-                  hasInspected={hasInspected}
-                  isWalking={isWalking}
-                  onInspectRoom={inspectRoom}
-                  onTakeItem={takeItem}
-                  onAttack={attackEnemy}
-                />
-              </div>
+                <div className="absolute top-8 right-8 w-64">
+                  <ActionPanel
+                    currentRoom={currentRoom}
+                    isEnemyRevealed={isEnemyRevealed}
+                    hasInspected={hasInspected}
+                    isWalking={isWalking}
+                    onInspectRoom={inspectRoom}
+                    onTakeItem={takeItem}
+                    onAttack={startCombat}
+                  />
+                </div>
 
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-end h-16">
-                <EquippedItems
-                  equippedItems={gameState.equippedItems}
-                  isWalking={isWalking}
-                  onInspect={setViewingItemId}
-                />
-                <Inventory
-                  items={gameState.inventory.items}
-                  isWalking={isWalking}
-                  onInspect={setViewingItemId}
-                />
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-end h-16">
+                  <EquippedItems
+                    equippedItems={gameState.equippedItems}
+                    isWalking={isWalking}
+                    onInspect={setViewingItemId}
+                  />
+                  <Inventory
+                    items={gameState.inventory.items}
+                    isWalking={isWalking}
+                    onInspect={setViewingItemId}
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {
-              currentRoom.enemy && currentRoom.enemy.image && isEnemyRevealed && (
+              currentRoom.enemy && (isEnemyRevealed || inCombat) && (
                 <div className="absolute inset-0 z-20 flex items-end justify-center pointer-events-none">
-                  <img
-                    src={currentRoom.enemy.image}
-                    alt={currentRoom.enemy.name}
-                    className="h-4/5 object-contain drop-shadow-2xl animate-idle"
-                  />
+                  <div key="enemy-sprite" className={`transition-all duration-1000 ease-in ${(gameState.combat?.enemyAction === 'DAMAGE') ? 'drop-shadow-[0_0_20px_rgba(255,0,0,0.8)]' : (gameState.combat?.enemyAction === 'DEFEAT' ? 'animate-defeat drop-shadow-2xl' : (gameState.combat?.enemyAction === 'IDLE' ? 'drop-shadow-2xl animate-idle' : 'drop-shadow-2xl'))}`}>
+                    <img
+                      src={gameState.combat?.enemyImage || `/images/enemies/${currentRoom.enemy.id}-idle.png`}
+                      alt={currentRoom.enemy.name}
+                      className="h-[80vh] object-contain transition-all duration-100"
+                    />
+                  </div>
                 </div>
               )
             }
 
-            < div className="absolute bottom-4 right-4 z-30 opacity-80 hover:opacity-100 transition-opacity" >
+            <div className={`absolute bottom-4 right-4 z-30 opacity-80 hover:opacity-100 transition-opacity ${inCombat ? 'hidden' : ''}`}>
               <WorldMap
                 currentRoomId={gameState.currentRoomId}
                 visitedRooms={gameState.visitedRooms || []}
@@ -145,11 +158,25 @@ export default function Game() {
 
             {/* Vignette filter */}
             <div
-              className={`absolute inset-0 z-20 pointer-events-none transition-colors duration-300 ${["damage"].includes(feedback?.type || "")
+              className={`absolute inset-0 z-20 pointer-events-none transition-colors duration-300 ${(["damage"].includes(feedback?.type || ""))
                 ? "bg-gradient-to-t from-red-900/60 via-red-900/10 to-red-900/30"
                 : "bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/30"
                 }`}
             />
+
+            {gameState.combat && gameState.combat.inCombat && currentRoom.enemy && (
+              <CombatOverlay
+                combat={gameState.combat}
+                enemy={currentRoom.enemy}
+                player={{
+                  hp: gameState.health,
+                  maxHp: gameState.maxHealth,
+                  attack: attackPower,
+                  defense: defensePower
+                }}
+                onAction={handleCombatAction}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -179,6 +206,8 @@ export default function Game() {
         )
       }
 
-    </div >
+
+
+    </div>
   );
 }

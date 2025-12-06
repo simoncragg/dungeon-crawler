@@ -1,5 +1,6 @@
 import { useReducer, useState, useEffect } from "react";
-import type { LogEntry as LogEntryType, Direction } from "../types";
+
+import type { CombatResult, Direction, LogEntry, } from "../types";
 import { ITEMS, WORLD, DIRECTIONS } from "../data/gameData";
 import useSoundFx from "./useSoundFx";
 import { gameReducer } from "../reducers/gameReducer";
@@ -25,36 +26,36 @@ export const useGame = () => {
       { id: 1, type: "room-description", text: WORLD["start"].description },
     ],
     feedback: null,
-    isNarratorVisible: true
+    isNarratorVisible: true,
+    combat: null,
+    attack: 5,
+    defense: 0
   });
 
   const [hasInspected, setHasInspected] = useState(false);
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
   const [isWalking, setIsWalking] = useState(false);
+  const [walkingDirection, setWalkingDirection] = useState<Direction | null>(null);
   const [walkStepScale, setWalkStepScale] = useState(1);
   const [isEnemyRevealed, setIsEnemyRevealed] = useState(true);
-
-  const [walkingDirection, setWalkingDirection] = useState<Direction | null>(null);
 
   useEffect(() => {
     if (!gameState.feedback) return;
 
     const timer = setTimeout(() => {
-      dispatch({ type: 'CLEAR_FEEDBACK' });
+      dispatch({ type: "CLEAR_FEEDBACK" });
     }, 3000);
 
     return () => clearTimeout(timer);
   }, [gameState.feedback]);
 
-  const { playAmbientLoop, playShuffleSound, playItemSound, playSwordSound } = useSoundFx();
+  const { playAmbientLoop, playShuffleSound, playItemSound, playSoundFile } = useSoundFx();
 
   useEffect(() => {
     const room = gameState.rooms[gameState.currentRoomId];
     playAmbientLoop(room.audioLoop || null)
-  }, [gameState.currentRoomId, gameState.rooms]);
+  }, [gameState.currentRoomId, gameState.rooms, playAmbientLoop]);
 
-  const attackPower = 5 + (gameState.equippedItems.weapon ? (ITEMS[gameState.equippedItems.weapon].stats?.attack || 0) : 0);
-  const defensePower = 0 + (gameState.equippedItems.armor ? (ITEMS[gameState.equippedItems.armor].stats?.defense || 0) : 0);
   const currentRoom = gameState.rooms[gameState.currentRoomId];
 
   const hasItem = (itemId: string) => {
@@ -62,9 +63,8 @@ export const useGame = () => {
     if (gameState.equippedItems.armor === itemId) return true;
     return gameState.inventory.items.includes(itemId);
   };
-
-  const addToLog = (text: string, type: LogEntryType["type"] = "system") => {
-    dispatch({ type: 'ADD_LOG', message: text, logType: type });
+  const addToLog = (text: string, type: LogEntry["type"] = "system") => {
+    dispatch({ type: "ADD_LOG", message: text, logType: type });
   };
 
   const executeMove = (direction: Direction) => {
@@ -77,14 +77,14 @@ export const useGame = () => {
     }
 
     if (room.lockedExits && room.lockedExits[direction]) {
-      dispatch({ type: 'MOVE', direction, nextRoomId: gameState.currentRoomId });
+      dispatch({ type: "MOVE", direction, nextRoomId: gameState.currentRoomId });
       addToLog(room.lockedExits[direction].lockedMessage, "warning");
       setIsWalking(false);
       setWalkingDirection(null);
       return;
     }
 
-    dispatch({ type: 'MOVE', direction, nextRoomId });
+    dispatch({ type: "MOVE", direction, nextRoomId });
 
     setHasInspected(false);
     const nextRoom = gameState.rooms[nextRoomId];
@@ -108,7 +108,7 @@ export const useGame = () => {
           setTimeout(() => {
             addToLog(`A ${enemyName} blocks your path!`, "danger");
             setIsEnemyRevealed(true);
-            dispatch({ type: 'SET_NARRATOR_VISIBLE', visible: false });
+            dispatch({ type: "SET_NARRATOR_VISIBLE", visible: false });
           }, delay);
         }
       }
@@ -135,7 +135,7 @@ export const useGame = () => {
     }
 
     if (!isLocked) {
-      dispatch({ type: 'SET_QUEST_LOG', log: [] });
+      dispatch({ type: "SET_QUEST_LOG", log: [] });
     }
 
     setIsWalking(true);
@@ -199,8 +199,10 @@ export const useGame = () => {
       return;
     }
 
-    if (item.type === "weapon") {
-      playSwordSound();
+    if (item.sounds?.take) {
+      playSoundFile(item.sounds.take);
+    } else if (item.type === "weapon") {
+      playSoundFile("sword-take.wav");
     } else {
       playItemSound();
     }
@@ -212,18 +214,18 @@ export const useGame = () => {
       logMessage = `Taken: ${item.name}`;
     }
 
-    dispatch({ type: 'TAKE_ITEM', itemId: item.id, autoEquip, logMessage });
+    dispatch({ type: "TAKE_ITEM", itemId: item.id, autoEquip, logMessage });
   };
 
   const dropItem = (itemId: string) => {
     if (gameState.equippedItems.weapon === itemId) {
-      dispatch({ type: 'DROP_ITEM', itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
+      dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
     } else if (gameState.equippedItems.armor === itemId) {
-      dispatch({ type: 'DROP_ITEM', itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
+      dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
     } else {
       const itemIndex = gameState.inventory.items.findIndex(id => id === itemId);
       if (itemIndex !== -1) {
-        dispatch({ type: 'DROP_ITEM', itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
+        dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
       }
     }
   };
@@ -245,52 +247,153 @@ export const useGame = () => {
       equipMessage = `You equip the ${item.name}.`;
     }
 
-    dispatch({ type: 'EQUIP_ITEM', itemId, logMessage: equipMessage });
+    dispatch({ type: "EQUIP_ITEM", itemId, logMessage: equipMessage });
   };
 
-  const attackEnemy = () => {
+  const startCombat = () => {
+    dispatch({ type: "START_COMBAT" });
+  };
+
+  const handleCombatAction = (action: "ATTACK" | "BLOCK" | "IDLE") => {
+    if (!gameState.combat || gameState.combat.isProcessing) return;
+
+    dispatch({ type: "SET_COMBAT_PROCESSING", processing: true });
+
     const room = gameState.rooms[gameState.currentRoomId];
-    if (!room.enemy) {
-      addToLog("There is nothing here to fight.", "system");
-      return;
-    }
+    if (!room.enemy) return;
 
-    const damageDealt = attackPower + Math.floor(Math.random() * 3);
-    const incomingRaw = room.enemy.damage + Math.floor(Math.random() * 2);
-    const damageTaken = Math.max(0, incomingRaw - defensePower);
+    const enemy = room.enemy;
+    const moves = ["ATTACK", "ATTACK", "ATTACK", "BLOCK", "IDLE"];
+    const enemyAction = moves[Math.floor(Math.random() * moves.length)] as "ATTACK" | "BLOCK" | "IDLE";
 
-    if (room.enemy.hp - damageDealt <= 0) {
-      const defeatMessage = room.enemy.defeatMessage;
-      const dropId = room.enemy.drop;
+    dispatch({ type: "SET_ENEMY_ACTION", action: enemyAction });
 
-      dispatch({ type: 'ENEMY_DEFEAT', enemyName: room.enemy.name, dropId, logMessage: defeatMessage, damageDealt });
+    const pMove = action;
+    const eMove = enemyAction;
 
-      if (dropId) {
-        const delay = defeatMessage.length * 10 + 500;
-        setTimeout(() => {
-          addToLog(`Dropped: ${ITEMS[dropId].name}`, "info");
-        }, delay);
+    const pAtk = gameState.attack;
+    const pDef = gameState.defense;
+    const eAtk = room.enemy.attack || 10;
+    const eDef = room.enemy.defense || 5;
+
+    let logMsg = "";
+    let playerDamageTaken = 0;
+    let enemyDamageTaken = 0;
+    let logType: LogEntry["type"] = "combat";
+    let combatResult: CombatResult | null = null;
+
+    const playerWeaponId = gameState.equippedItems.weapon;
+    const playerWeapon = playerWeaponId ? ITEMS[playerWeaponId] : null;
+
+    if (pMove === "ATTACK") {
+      switch (eMove) {
+        case "IDLE":
+          enemyDamageTaken = pAtk;
+          logMsg = `CRIT! You hit for ${enemyDamageTaken} damage!`;
+          logType = "success";
+          combatResult = { type: "crit", message: logMsg };
+
+          if (playerWeapon?.sounds?.crit) {
+            playSoundFile(playerWeapon.sounds.crit);
+          } else {
+            playSoundFile("sword-combat-attack.wav");
+          }
+          break;
+
+        case "BLOCK":
+          enemyDamageTaken = Math.max(0, pAtk - eDef);
+          if (enemyDamageTaken > 0) {
+            logMsg = `Blocked! You hit for ${enemyDamageTaken} damage.`;
+            logType = "info";
+          } else {
+            logMsg = "Blocked! No damage.";
+            logType = "info";
+          }
+          combatResult = { type: "block", message: logMsg };
+
+          if (playerWeapon?.sounds?.block) {
+            playSoundFile(playerWeapon.sounds.block);
+          } else {
+            playItemSound();
+          }
+          break;
+
+        case "ATTACK": {
+          const pClashDmg = Math.floor(eAtk * 0.5);
+          const eClashDmg = Math.floor(pAtk * 0.5);
+
+          playerDamageTaken = pClashDmg;
+          enemyDamageTaken = eClashDmg;
+
+          logMsg = "CLASH! Weapons collide!";
+          logType = "clash";
+          combatResult = { type: "clash", message: logMsg };
+
+          if (playerWeapon?.sounds?.clash) {
+            playSoundFile(playerWeapon.sounds.clash);
+          } else {
+            playSoundFile("sword-combat-attack.wav");
+          }
+          break;
+        }
       }
+    } else if (pMove === "BLOCK") {
+      if (eMove === "ATTACK") {
+        const mitigatedDmg = Math.floor(eAtk * 0.5);
+        playerDamageTaken = Math.max(0, mitigatedDmg - pDef);
 
-    } else {
-      let logMessage = "";
-      if (defensePower > 0) {
-        logMessage = `${room.enemy.name} hits you: -${damageTaken} HP (Blocked ${defensePower})`;
+        if (playerDamageTaken > 0) {
+          logMsg = `Blocked! Took ${playerDamageTaken} damage.`;
+          logType = "warning";
+        } else {
+          logMsg = "Perfect Block!";
+          logType = "success";
+        }
+        combatResult = { type: "block", message: logMsg };
+
+        if (playerWeapon?.sounds?.block) {
+          playSoundFile(playerWeapon.sounds.block);
+        } else {
+          playItemSound();
+        }
+
       } else {
-        logMessage = `${room.enemy.name} hits you: -${damageTaken} HP`;
+        logMsg = "Both hesitated...";
+        logType = "miss";
+        combatResult = { type: "miss", message: logMsg };
       }
-
-      const playerDied = gameState.health - damageTaken <= 0;
-
-      dispatch({
-        type: 'COMBAT_ROUND',
-        damageDealt,
-        damageTaken,
-        enemyName: room.enemy.name,
-        logMessage,
-        playerDied
-      });
     }
+
+    dispatch({ type: "ADD_LOG", message: logMsg, logType });
+    if (combatResult) {
+      dispatch({ type: "SET_COMBAT_RESULT", result: combatResult });
+    }
+
+    if (enemyDamageTaken > 0 || playerDamageTaken > 0) {
+      const currentEnemyHp = enemy.hp - enemyDamageTaken;
+
+      if (currentEnemyHp <= 0) {
+        const dropId = enemy.drop;
+        dispatch({ type: "SET_ENEMY_ACTION", action: "DEFEAT" });
+        setTimeout(() => {
+          dispatch({ type: "ENEMY_DEFEAT", enemyName: enemy.name, dropId, logMessage: enemy.defeatMessage, damageDealt: enemyDamageTaken });
+        }, 1500);
+      } else {
+        const playerDied = gameState.health - playerDamageTaken <= 0;
+        dispatch({
+          type: "COMBAT_ROUND",
+          damageDealt: enemyDamageTaken,
+          damageTaken: playerDamageTaken,
+          enemyName: enemy.name,
+          logMessage: logMsg,
+          playerDied
+        });
+      }
+    }
+
+    setTimeout(() => {
+      dispatch({ type: "COMBAT_ROUND_END" });
+    }, 2000);
   };
 
   const useItem = (itemId: string) => {
@@ -306,7 +409,7 @@ export const useGame = () => {
 
     if (item.type === "consumable" && item.effect) {
       dispatch({
-        type: 'USE_CONSUMABLE',
+        type: "USE_CONSUMABLE",
         itemId,
         effect: item.effect,
         logMessage: `You used ${item.name}.`
@@ -319,7 +422,7 @@ export const useGame = () => {
 
       if (lockedExit) {
         if (lockedExit.keyId === item.id) {
-          dispatch({ type: 'UNLOCK_DOOR', direction: facingDirection, keyId: item.id, logMessage: `Unlocked ${facingDirection} door with ${item.name}.` });
+          dispatch({ type: "UNLOCK_DOOR", direction: facingDirection, keyId: item.id, logMessage: `Unlocked ${facingDirection} door with ${item.name}.` });
         } else {
           addToLog("That key doesn't fit this door.", "system");
         }
@@ -344,8 +447,8 @@ export const useGame = () => {
     walkingDirection,
     walkStepScale,
     isEnemyRevealed,
-    attackPower,
-    defensePower,
+    attackPower: gameState.attack,
+    defensePower: gameState.defense,
     currentRoom,
     hasItem,
     handleMove,
@@ -354,9 +457,10 @@ export const useGame = () => {
     takeItem,
     dropItem,
     equipItem,
-    attackEnemy,
+    startCombat,
+    handleCombatAction,
     useItem,
     feedback: gameState.feedback || { message: null, type: null, id: 0 },
-    setNarratorVisible: (visible: boolean) => dispatch({ type: 'SET_NARRATOR_VISIBLE', visible })
+    setNarratorVisible: (visible: boolean) => dispatch({ type: "SET_NARRATOR_VISIBLE", visible })
   };
 };
