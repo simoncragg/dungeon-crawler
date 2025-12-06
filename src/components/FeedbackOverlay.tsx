@@ -26,10 +26,10 @@ export default function FeedbackOverlay({ message, delay = 0 }: FeedbackOverlayP
 
   return (
     <div
-      className={`absolute inset-0 flex items-end justify-center pb-32 pointer-events-none z-50 transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className={`absolute inset-0 flex items-end justify-center pb-32 pointer-events-none z-50 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
     >
-      <div className="bg-black/70 text-white px-6 py-4 rounded-lg backdrop-blur-sm border border-white/10 shadow-2xl max-w-md text-center transform scale-110">
-        <p className="text-md font-sans tracking-wide text-shadow-lg">
+      <div className="max-w-3xl transform scale-100 drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
+        <p className="text-2xl font-black font-sans text-yellow-400 tracking-widest text-center px-4 leading-relaxed">
           {currentMessage}
         </p>
       </div>
