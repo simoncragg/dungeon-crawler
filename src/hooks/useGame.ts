@@ -109,6 +109,7 @@ export const useGame = () => {
             addToLog(`A ${enemyName} blocks your path!`, "danger");
             setIsEnemyRevealed(true);
             dispatch({ type: "SET_NARRATOR_VISIBLE", visible: false });
+            playSoundFile("danger.mp3");
           }, delay);
         }
       }
