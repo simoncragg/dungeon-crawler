@@ -138,7 +138,7 @@ export default function Game() {
             {
               currentRoom.enemy && (isEnemyRevealed || inCombat) && (
                 <div className="absolute inset-0 z-20 flex items-end justify-center pointer-events-none">
-                  <div key="enemy-sprite" className={`transition-all duration-1000 ease-in ${(gameState.combat?.enemyAction === 'DAMAGE') ? 'drop-shadow-[0_0_20px_rgba(255,0,0,0.8)]' : (gameState.combat?.enemyAction === 'DEFEAT' ? 'animate-defeat drop-shadow-2xl' : (gameState.combat?.enemyAction === 'IDLE' ? 'drop-shadow-2xl animate-idle' : 'drop-shadow-2xl'))}`}>
+                  <div key="enemy-sprite" className={`transition-all duration-1000 ease-in ${(gameState.combat?.enemyAction === 'DAMAGE') ? 'drop-shadow-[0_0_20px_rgba(255,0,0,0.8)]' : (gameState.combat?.enemyAction === 'DEFEAT' ? 'animate-defeat drop-shadow-2xl' : ((gameState.combat?.enemyAction === 'IDLE' || !gameState.combat) ? 'drop-shadow-2xl animate-idle' : 'drop-shadow-2xl'))}`}>
                     <img
                       src={gameState.combat?.enemyImage || `/images/enemies/${currentRoom.enemy.id}-idle.png`}
                       alt={currentRoom.enemy.name}
