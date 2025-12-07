@@ -13,8 +13,12 @@ button:not(:disabled) {
 }
 
 @theme {
-  --font-sans: "Crimson Text", cursive, sans-serif;
-  --font-serif: "MedievalSharp", serif;
+  --font-serif: "Crimson Text", serif;
+  --font-medieval: "MedievalSharp", cursive;
+}
+
+:root {
+  font-family: var(--font-serif);
 }
 
 /* Custom Utilities */

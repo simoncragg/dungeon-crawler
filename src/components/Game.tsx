@@ -45,7 +45,7 @@ export default function Game() {
   const isShakeEffect = ["damage", "warning", "clash"].includes(feedback?.type || "");
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 text-slate-100 font-sans overflow-hidden relative">
+    <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden relative">
 
       <div className="absolute inset-0 z-0">
         <div className="relative w-full h-full bg-black overflow-hidden flex items-center justify-center">

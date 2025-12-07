@@ -39,13 +39,13 @@ export default function TitleScreen({ onStart, progress, loaded }: TitleScreenPr
   };
 
   return (
-    <div className={`absolute inset-0 z-50 flex flex-col h-full text-slate-100 font-sans overflow-hidden items-center justify-center ${isExiting ? "pointer-events-none" : ""}`}>
+    <div className={`absolute inset-0 z-50 flex flex-col h-full text-slate-100 overflow-hidden items-center justify-center ${isExiting ? "pointer-events-none" : ""}`}>
 
       {/* Content Layer */}
       <div className={`relative z-10 flex flex-col items-center gap-12 p-8 max-w-2xl text-center transition-all duration-500 ${isExiting ? "scale-110 opacity-0" : "scale-100 opacity-100"}`}>
 
         <div className="space-y-4">
-          <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-emerald-100 via-emerald-500 to-emerald-800 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] font-serif tracking-wider filter">
+          <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-emerald-100 via-emerald-500 to-emerald-800 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] font-medieval tracking-wider filter">
             DUNGEON
             <br />
             CRAWLER
@@ -53,7 +53,7 @@ export default function TitleScreen({ onStart, progress, loaded }: TitleScreenPr
 
           <div className="h-px w-32 mx-auto bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-50" />
 
-          <p className="mt-16 text-slate-400 text-xl md:text-2xl italic font-serif tracking-wide text-shadow-sm">
+          <p className="mt-16 text-slate-400 text-xl md:text-2xl italic font-medieval tracking-wide text-shadow-sm">
             "The dungeon does not judge. It simply consumes."
           </p>
         </div>
@@ -68,12 +68,12 @@ export default function TitleScreen({ onStart, progress, loaded }: TitleScreenPr
             </span>
           </button>
         ) : (
-          <div className="text-slate-200 font-sans text-2xl tracking-widest animate-pulse mt-4 p-2">
+          <div className="text-slate-200 text-2xl tracking-widest animate-pulse mt-4 p-2">
             LOADING {progress}%
           </div>
         )}
 
-        <div className="flex items-center gap-2 text-emerald-500 text-xs font-sans tracking-widest uppercase mt-4">
+        <div className="flex items-center gap-2 text-emerald-500 text-xs tracking-widest uppercase mt-4">
           Optimised for desktop <Monitor size={16} className="-ml-0.5 -mt-0.5" /> • Better with sound <Volume2 size={16} className="-ml-0.5 -mt-0.5" />
         </div>
 

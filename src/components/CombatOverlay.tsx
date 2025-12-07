@@ -55,7 +55,7 @@ const CombatScreen: React.FC<CombatScreenProps> = ({
           <button
             disabled={combat.isProcessing}
             onClick={() => onAction("BLOCK")}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-slate-700 rounded hover:-translate-y-0.5 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(0,100,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed transition-all text-blue-100 font-serif font-bold"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-slate-700 rounded hover:-translate-y-0.5 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(0,100,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed transition-all text-blue-100 font-medieval font-bold"
           >
             <Shield size={18} />
             BLOCK
@@ -63,7 +63,7 @@ const CombatScreen: React.FC<CombatScreenProps> = ({
           <button
             disabled={combat.isProcessing}
             onClick={() => onAction("ATTACK")}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-b from-red-900 to-red-950 border-2 border-red-900 rounded hover:-translate-y-0.5 hover:border-red-500 hover:shadow-[0_0_15px_rgba(255,0,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed transition-all text-red-100 font-serif font-bold"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-b from-red-900 to-red-950 border-2 border-red-900 rounded hover:-translate-y-0.5 hover:border-red-500 hover:shadow-[0_0_15px_rgba(255,0,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed transition-all text-red-100 font-medieval font-bold"
           >
             <Sword size={18} />
             STRIKE

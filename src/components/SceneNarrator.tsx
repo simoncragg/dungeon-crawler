@@ -66,17 +66,17 @@ export default function SceneNarrator({ currentRoom, onContinue }: SceneNarrator
         <div className="px-8 w-full flex flex-col items-center relative z-10 flex-1 min-h-0">
 
           <div className={`w-full flex justify-center shrink-0 transition-all duration-500 ${isExpanded ? 'border-b border-slate-800/50 pb-6 mb-6' : 'mb-4'}`}>
-            <h2 className="text-3xl font-serif text-emerald-500 tracking-widest uppercase drop-shadow-lg text-center">
+            <h2 className="text-3xl font-medieval text-emerald-500 tracking-widest uppercase drop-shadow-lg text-center">
               {currentRoom.name}
             </h2>
           </div>
 
           {!isExpanded ? (
-            <p className="text-xl text-slate-200 font-sans leading-relaxed drop-shadow-md text-center max-w-xl mt-4">
+            <p className="text-xl text-slate-200 leading-relaxed drop-shadow-md text-center max-w-xl mt-4">
               {currentRoom.description}
             </p>
           ) : (
-            <div className={`space-y-6 text-lg text-slate-300 font-sans leading-relaxed max-w-xl pb-6 mt-4 transition-opacity duration-700 w-full flex-1 ${showNarrative ? 'opacity-100' : 'opacity-0'} ${isScrollable ? 'overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-900 scrollbar-track-transparent' : 'overflow-hidden'}`}>
+            <div className={`space-y-6 text-lg text-slate-300 leading-relaxed max-w-xl pb-6 mt-4 transition-opacity duration-700 w-full flex-1 ${showNarrative ? 'opacity-100' : 'opacity-0'} ${isScrollable ? 'overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-900 scrollbar-track-transparent' : 'overflow-hidden'}`}>
               {currentRoom.narrative?.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}

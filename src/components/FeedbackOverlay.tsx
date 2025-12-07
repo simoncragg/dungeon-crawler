@@ -29,7 +29,7 @@ export default function FeedbackOverlay({ message, delay = 0 }: FeedbackOverlayP
       className={`absolute inset-0 flex items-end justify-center pb-32 pointer-events-none z-50 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
     >
       <div className="max-w-3xl transform scale-100 drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">
-        <p className="text-2xl font-black font-sans text-yellow-400 tracking-widest text-center px-4 leading-relaxed">
+        <p className="text-2xl font-black text-yellow-400 tracking-widest text-center px-4 leading-relaxed">
           {currentMessage}
         </p>
       </div>

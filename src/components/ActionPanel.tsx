@@ -56,7 +56,7 @@ const ActionPanel: React.FC<ActionPanelProps> = ({
               onClick={() => onTakeItem(itemId)}
               className="w-full h-full flex items-center justify-between px-4 bg-stone-800 hover:bg-stone-700 border-2 border-stone-600 rounded-lg text-amber-200 transition-all active:scale-95 animate-in slide-in-from-right duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
             >
-              <span className="flex items-center gap-4 font-bold text-sm font-serif tracking-wide">
+              <span className="flex items-center gap-4 font-bold text-sm font-medieval tracking-wide">
                 <Hand size={16} /> TAKE {item.name.toUpperCase()}
               </span>
             </button>

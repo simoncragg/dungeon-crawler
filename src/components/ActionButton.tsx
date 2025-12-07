@@ -21,7 +21,7 @@ const ActionButton = ({ icon: Icon, label, disabled = false, danger = false, isW
       }`}
   >
     <Icon size={20} className={disabled ? "opacity-30" : ""} />
-    <span className="text-sm font-bold uppercase tracking-wider font-serif">{label}</span>
+    <span className="text-sm font-bold uppercase tracking-wider font-medieval">{label}</span>
   </button>
 );
 
