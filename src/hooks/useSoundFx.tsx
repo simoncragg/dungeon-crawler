@@ -141,9 +141,37 @@ const useSoundFx = () => {
     }
   };
 
-  const playSoundFile = async (audioFilename: string, volume: number = 0.5) => {
-    playAudioFromUrl(`/audio/${audioFilename}`, volume);
-  }
+  const playSoundFile = (audioFilename: string, volume: number = 0.5) => {
+    let source: AudioBufferSourceNode | null = null;
+    let isCancelled = false;
+
+    playAudioFromUrl(`/audio/${audioFilename}`, volume).then((result) => {
+      if (isCancelled) {
+        if (result) {
+          try {
+            result.source.stop();
+          } catch (e) {
+            // Ignore
+          }
+        }
+        return;
+      }
+      if (result) {
+        source = result.source;
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+      if (source) {
+        try {
+          source.stop();
+        } catch (e) {
+          // Ignore
+        }
+      }
+    };
+  };
 
   return {
     playAmbientLoop,

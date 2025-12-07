@@ -1,4 +1,4 @@
-import { useReducer, useState, useEffect } from "react";
+import { useReducer, useState, useEffect, useRef } from "react";
 
 import type { CombatResult, Direction, LogEntry, } from "../types";
 import { ITEMS, WORLD, DIRECTIONS } from "../data/gameData";
@@ -48,6 +48,8 @@ export const useGame = () => {
 
     return () => clearTimeout(timer);
   }, [gameState.feedback]);
+
+  const stopBattleMusicRef = useRef<(() => void) | null>(null);
 
   const { playAmbientLoop, playShuffleSound, playItemSound, playSoundFile } = useSoundFx();
 
@@ -252,6 +254,9 @@ export const useGame = () => {
   };
 
   const startCombat = () => {
+    if (stopBattleMusicRef.current) stopBattleMusicRef.current();
+    const stopMusic = playSoundFile("battle-music.mp3", 0.3);
+    stopBattleMusicRef.current = stopMusic;
     dispatch({ type: "START_COMBAT" });
   };
 
@@ -374,8 +379,18 @@ export const useGame = () => {
       const currentEnemyHp = enemy.hp - enemyDamageTaken;
 
       if (currentEnemyHp <= 0) {
-        const dropId = enemy.drop;
+        if (stopBattleMusicRef.current) {
+          stopBattleMusicRef.current();
+          stopBattleMusicRef.current = null;
+        }
+
+        setTimeout(() => {
+          playSoundFile("enemy-defeat.mp3");
+        }, 500);
+
         dispatch({ type: "SET_ENEMY_ACTION", action: "DEFEAT" });
+
+        const dropId = enemy.drop;
         setTimeout(() => {
           dispatch({ type: "ENEMY_DEFEAT", enemyName: enemy.name, dropId, logMessage: enemy.defeatMessage, damageDealt: enemyDamageTaken });
         }, 1500);

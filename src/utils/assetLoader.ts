@@ -39,6 +39,8 @@ export const getGameAssets = (): string[] => {
 
   // Miscellaneous sounds
   assets.add("/audio/danger.mp3");
+  assets.add("/audio/enemy-defeat.mp3");
+  assets.add("/audio/battle-music.mp3");
 
   return Array.from(assets);
 };
