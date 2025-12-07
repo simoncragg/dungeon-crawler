@@ -1,11 +1,11 @@
+import { getAudioContext, getBuffer, setBuffer, decodeAudioData } from "../utils/audioSystem";
 
-let globalAudioCtx: AudioContext | null = null;
-const bufferCache: Record<string, AudioBuffer> = {};
 let currentAmbientSource: AudioBufferSourceNode | null = null;
 let currentAmbientUrl: string | null = null;
 
 const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => {
-  if (bufferCache[key]) return bufferCache[key];
+  const existing = getBuffer(key);
+  if (existing) return existing;
 
   const bufferSize = ctx.sampleRate * duration;
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -14,22 +14,11 @@ const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => 
     data[i] = Math.random() * 2 - 1;
   }
 
-  bufferCache[key] = buffer;
+  setBuffer(key, buffer);
   return buffer;
 };
 
 const useSoundFx = () => {
-
-  const getAudioContext = () => {
-    if (typeof window === "undefined") return null;
-    if (!globalAudioCtx) {
-      const AudioCtor = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtor) {
-        globalAudioCtx = new AudioCtor();
-      }
-    }
-    return globalAudioCtx;
-  };
 
   const playShuffleSound = () => {
     const ctx = getAudioContext();
@@ -99,13 +88,13 @@ const useSoundFx = () => {
     }
 
     try {
-      let audioBuffer = bufferCache[url];
+      let audioBuffer = getBuffer(url);
 
       if (!audioBuffer) {
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
-        audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-        bufferCache[url] = audioBuffer;
+        audioBuffer = await decodeAudioData(arrayBuffer);
+        setBuffer(url, audioBuffer);
       }
 
       const source = ctx.createBufferSource();

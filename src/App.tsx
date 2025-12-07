@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Game from "./components/Game";
 import TitleScreen from "./components/TitleScreen";
+import { useAssetLoader } from "./hooks/useAssetLoader";
 
 const App = () => {
   const [hasStarted, setHasStarted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const { progress, loaded, startLoading } = useAssetLoader();
+
+  useEffect(() => {
+    startLoading();
+  }, [startLoading]);
 
   const handleStart = () => {
     setIsTransitioning(true);
@@ -17,7 +23,7 @@ const App = () => {
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-slate-950 text-slate-100 font-sans relative">
-      {!hasStarted && <TitleScreen onStart={handleStart} />}
+      {!hasStarted && <TitleScreen onStart={handleStart} progress={progress} loaded={loaded} />}
 
       {hasStarted && (
         <>
@@ -35,6 +41,7 @@ const App = () => {
         </>
       )}
 
+      {/* Transition Overlay */}
       <div
         className={`absolute inset-0 bg-black z-[100] pointer-events-none transition-opacity duration-600 ease-in-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`}
       />
