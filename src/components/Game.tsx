@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import { useGame } from "../hooks/useGame";
 import { BookOpen } from "lucide-react";
 
@@ -36,13 +37,29 @@ export default function Game() {
     handleCombatAction,
     useItem,
     feedback,
-    setNarratorVisible
+    setNarratorVisible,
+    videoRef
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
   const showStats = !gameState.isNarratorVisible;
-
   const isShakeEffect = ["damage", "warning", "clash"].includes(feedback?.type || "");
+
+  const viewportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isShakeEffect && viewportRef.current) {
+      viewportRef.current.classList.remove("animate-shake");
+      void viewportRef.current.offsetWidth;
+      viewportRef.current.classList.add("animate-shake");
+    }
+  }, [feedback?.id, isShakeEffect]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = currentRoom.videoLoop?.volume ?? 1.0;
+    }
+  }, [videoRef, currentRoom.videoLoop]);
 
   return (
     <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden relative">
@@ -58,23 +75,32 @@ export default function Game() {
           </div>
 
           <div
-            key={feedback?.id || "no-feedback"}
-            className={`relative z-10 h-full aspect-video shadow-2xl overflow-hidden ${isShakeEffect
-              ? "animate-shake" : ""
-              }`}
+            ref={viewportRef}
+            className="relative z-10 h-full aspect-video shadow-2xl overflow-hidden will-change-transform"
           >
-            <img
-              src={currentRoom.image}
-              alt={currentRoom.name}
-              className="w-full h-full object-cover"
-            />
+            {currentRoom.videoLoop ? (
+              <video
+                ref={videoRef}
+                src={currentRoom.videoLoop.path}
+                autoPlay
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={currentRoom.image}
+                alt={currentRoom.name}
+                className="w-full h-full object-cover"
+              />
+            )}
 
-            {!inCombat && (
+            <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${!inCombat ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
               <FeedbackOverlay
                 message={feedback?.message || null}
                 delay={["damage", "warning"].includes(feedback?.type || "") ? 500 : 0}
               />
-            )}
+            </div>
 
             <div className={`absolute top-4 left-4 z-30 transition-opacity duration-1000 ${showStats && !inCombat ? "opacity-100" : "opacity-0"}`}>
               <PlayerStats
@@ -85,55 +111,51 @@ export default function Game() {
               />
             </div>
 
-            {!gameState.isNarratorVisible && !inCombat && (
-              <button
-                onClick={() => setNarratorVisible(true)}
-                className="absolute top-4 left-1/2 -translate-x-1/2 z-50 p-2 bg-black/50 hover:bg-black/70 text-emerald-400 hover:text-emerald-300 rounded-full border border-emerald-900/50 transition-all hover:scale-110 shadow-lg backdrop-blur-sm"
-                aria-label="Show Narrative"
-              >
-                <BookOpen size={24} />
-              </button>
-            )}
+            <button
+              onClick={() => setNarratorVisible(true)}
+              className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 p-2 bg-black/50 hover:bg-black/70 text-emerald-400 hover:text-emerald-300 rounded-full border border-emerald-900/50 transition-all hover:scale-110 shadow-lg backdrop-blur-sm ${!gameState.isNarratorVisible && !inCombat ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-90"}`}
+              aria-label="Show Narrative"
+            >
+              <BookOpen size={24} />
+            </button>
 
-            {!inCombat && (
-              <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${showStats ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+            <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${showStats && !inCombat ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
 
-                <div className="absolute bottom-12 left-8 w-32 h-32">
-                  <DirectionPad
-                    currentRoom={currentRoom}
-                    isWalking={isWalking}
-                    lastMoveDirection={walkingDirection || gameState.lastMoveDirection}
-                    walkStepScale={walkStepScale}
-                    onMove={handleMove}
-                  />
-                </div>
-
-                <div className="absolute top-8 right-8 w-64">
-                  <ActionPanel
-                    currentRoom={currentRoom}
-                    isEnemyRevealed={isEnemyRevealed}
-                    hasInspected={hasInspected}
-                    isWalking={isWalking}
-                    onInspectRoom={inspectRoom}
-                    onTakeItem={takeItem}
-                    onAttack={startCombat}
-                  />
-                </div>
-
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-end h-16">
-                  <EquippedItems
-                    equippedItems={gameState.equippedItems}
-                    isWalking={isWalking}
-                    onInspect={setViewingItemId}
-                  />
-                  <Inventory
-                    items={gameState.inventory.items}
-                    isWalking={isWalking}
-                    onInspect={setViewingItemId}
-                  />
-                </div>
+              <div className="absolute bottom-12 left-8 w-32 h-32">
+                <DirectionPad
+                  currentRoom={currentRoom}
+                  isWalking={isWalking}
+                  lastMoveDirection={walkingDirection || gameState.lastMoveDirection}
+                  walkStepScale={walkStepScale}
+                  onMove={handleMove}
+                />
               </div>
-            )}
+
+              <div className="absolute top-8 right-8 w-64">
+                <ActionPanel
+                  currentRoom={currentRoom}
+                  isEnemyRevealed={isEnemyRevealed}
+                  hasInspected={hasInspected}
+                  isWalking={isWalking}
+                  onInspectRoom={inspectRoom}
+                  onTakeItem={takeItem}
+                  onAttack={startCombat}
+                />
+              </div>
+
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-end h-16">
+                <EquippedItems
+                  equippedItems={gameState.equippedItems}
+                  isWalking={isWalking}
+                  onInspect={setViewingItemId}
+                />
+                <Inventory
+                  items={gameState.inventory.items}
+                  isWalking={isWalking}
+                  onInspect={setViewingItemId}
+                />
+              </div>
+            </div>
 
             {
               currentRoom.enemy && (isEnemyRevealed || inCombat) && (
@@ -205,9 +227,6 @@ export default function Game() {
           />
         )
       }
-
-
-
     </div>
   );
 }

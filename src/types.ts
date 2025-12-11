@@ -52,6 +52,10 @@ export type Room = {
   coordinates: { x: number; y: number };
   shortName?: string;
   image: string;
+  videoLoop?: {
+    path: string;
+    volume?: number;
+  };
   audioLoop?: string;
   enemy?: {
     id: string;

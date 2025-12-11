@@ -55,9 +55,14 @@ export const useGame = () => {
 
   useEffect(() => {
     const room = gameState.rooms[gameState.currentRoomId];
-    playAmbientLoop(room.audioLoop || null)
-  }, [gameState.currentRoomId, gameState.rooms, playAmbientLoop]);
+    playAmbientLoop(room.audioLoop || null);
+  }, [
+    gameState.currentRoomId,
+    gameState.rooms[gameState.currentRoomId].audioLoop,
+    playAmbientLoop,
+  ]);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
   const currentRoom = gameState.rooms[gameState.currentRoomId];
 
   const hasItem = (itemId: string) => {
@@ -469,7 +474,6 @@ export const useGame = () => {
     hasItem,
     handleMove,
     inspectRoom,
-
     takeItem,
     dropItem,
     equipItem,
@@ -477,6 +481,7 @@ export const useGame = () => {
     handleCombatAction,
     useItem,
     feedback: gameState.feedback || { message: null, type: null, id: 0 },
-    setNarratorVisible: (visible: boolean) => dispatch({ type: "SET_NARRATOR_VISIBLE", visible })
+    setNarratorVisible: (visible: boolean) => dispatch({ type: "SET_NARRATOR_VISIBLE", visible }),
+    videoRef
   };
 };

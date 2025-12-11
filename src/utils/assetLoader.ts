@@ -11,6 +11,7 @@ export const getGameAssets = (): string[] => {
   Object.values(WORLD).forEach(room => {
     if (room.image) assets.add(room.image);
     if (room.audioLoop) assets.add(room.audioLoop);
+    if (room.videoLoop) assets.add(room.videoLoop.path);
 
     // Unlocked exit images
     if (room.lockedExits) {
