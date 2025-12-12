@@ -150,7 +150,7 @@ const useSoundFx = () => {
         if (result) {
           try {
             result.source.stop();
-          } catch (e) {
+          } catch {
             // Ignore
           }
         }
@@ -166,7 +166,7 @@ const useSoundFx = () => {
       if (source) {
         try {
           source.stop();
-        } catch (e) {
+        } catch {
           // Ignore
         }
       }

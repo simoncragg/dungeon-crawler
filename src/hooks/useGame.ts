@@ -56,11 +56,7 @@ export const useGame = () => {
   useEffect(() => {
     const room = gameState.rooms[gameState.currentRoomId];
     playAmbientLoop(room.audioLoop || null);
-  }, [
-    gameState.currentRoomId,
-    gameState.rooms[gameState.currentRoomId].audioLoop,
-    playAmbientLoop,
-  ]);
+  }, [gameState.currentRoomId, gameState.rooms, playAmbientLoop]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const currentRoom = gameState.rooms[gameState.currentRoomId];
