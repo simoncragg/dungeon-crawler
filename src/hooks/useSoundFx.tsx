@@ -169,18 +169,24 @@ const playSoundFile = (audioFilename: string, volume: number = 0.5) => {
   };
 };
 
-const playNarration = (url: string, speed: number = 1.0, volume: number = 1.0) => {
+const playNarration = (url: string, speed: number = 1.0, volume: number = 1.0, onEnded?: () => void) => {
   const audio = new Audio(url);
   audio.playbackRate = speed;
   audio.volume = volume;
 
+  if (onEnded) {
+    audio.onended = onEnded;
+  }
+
   audio.play().catch(e => {
     console.warn("Narration playback failed:", e);
+    if (onEnded) onEnded();
   });
 
   return () => {
     audio.pause();
     audio.currentTime = 0;
+    audio.onended = null;
   };
 };
 

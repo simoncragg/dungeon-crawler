@@ -1,6 +1,7 @@
-import { Volume2, Monitor, Gem } from "lucide-react";
+import { Volume2, Monitor } from "lucide-react";
 import useSoundFx from "../hooks/useSoundFx";
 import { useState } from "react";
+import Intro from "./Intro";
 
 interface TitleScreenProps {
   onStart: () => void;
@@ -11,8 +12,6 @@ interface TitleScreenProps {
 export default function TitleScreen({ onStart, progress, loaded }: TitleScreenProps) {
   const { playSoundFile } = useSoundFx();
   const [isExiting, setIsExiting] = useState(false);
-  const [isScalingDown, setIsScalingDown] = useState(false);
-  const [isGemVisible, setIsGemVisible] = useState(false);
   const [showEnter, setShowEnter] = useState(false);
 
   if (loaded && !showEnter) {
@@ -24,18 +23,6 @@ export default function TitleScreen({ onStart, progress, loaded }: TitleScreenPr
   const handleEnter = () => {
     playSoundFile("boom.mp3");
     setIsExiting(true);
-
-    setTimeout(() => {
-      setIsGemVisible(true);
-    }, 200);
-
-    setTimeout(() => {
-      setIsScalingDown(true);
-    }, 1200);
-
-    setTimeout(() => {
-      onStart();
-    }, 1600);
   };
 
   return (
@@ -82,18 +69,8 @@ export default function TitleScreen({ onStart, progress, loaded }: TitleScreenPr
         </div>
       </div>
 
-      {/* Gem Animation Layer */}
-      <div
-        className={`fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-opacity duration-800 ease-in-out ${isExiting ? "opacity-100" : "opacity-0"
-          }`}
-      >
-        <Gem
-          size={80}
-          className={`text-emerald-500 fill-emerald-500/10 animate-pulse animate-glow-pulse transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isScalingDown || !isGemVisible ? "scale-0" : "scale-100"
-            }`}
-          strokeWidth={1}
-        />
-      </div>
+      {/* Intro Sequence */}
+      {isExiting && <Intro onComplete={onStart} />}
 
       {/* Background Layer */}
       <div className={`absolute inset-0 z-0 bg-slate-950/90 transition-opacity duration-1000 ${isExiting ? "opacity-0" : "opacity-100"}`}>

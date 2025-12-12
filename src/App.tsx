@@ -17,8 +17,8 @@ const App = () => {
 
     setTimeout(() => {
       setHasStarted(true);
-      setTimeout(() => setIsTransitioning(false), 600);
-    }, 600);
+      setTimeout(() => setIsTransitioning(false), 100);
+    }, 300);
   };
 
   return (
@@ -43,7 +43,7 @@ const App = () => {
 
       {/* Transition Overlay */}
       <div
-        className={`absolute inset-0 bg-black z-[100] pointer-events-none transition-opacity duration-600 ease-in-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-black z-[100] pointer-events-none transition-opacity duration-300 ease-in-out ${isTransitioning ? 'opacity-100' : 'opacity-0'}`}
       />
     </div>
   );

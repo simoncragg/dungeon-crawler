@@ -37,6 +37,9 @@ export const getInitialAssets = (): string[] => {
   // Title Screen Audio
   assets.add("/audio/boom.mp3");
 
+  // Intro Audio
+  assets.add("/audio/narration/intro.mp3");
+
   // Global sounds
   assets.add("/audio/danger.mp3");
   assets.add("/audio/enemy-defeat.mp3");
