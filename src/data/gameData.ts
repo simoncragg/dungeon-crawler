@@ -60,13 +60,12 @@ export const WORLD: Record<string, Room> = {
   "start": {
     id: "start",
     name: "Damp Cell",
-    description: "You woke up here. Stone walls surround you. The door North is ajar.",
+    description: "You wake with a start! Such a strange dream...",
     narrative: [
-      "You wake with a throbbing headache, the cold stone floor leeching the warmth from your body. How long have you been here? Hours? Days? The passage of time is a blur.",
-      "The air is thick with the smell of mildew and old despair. Scratched into the wall near your head are tally marks, grouped in fives, stretching up towards the ceiling. Someone was here for a long time.",
-      "A sudden draft chills you to the bone. You need to find a way out, and soon.",
-      "You push yourself up, your muscles protesting with every movement. The cell is small, barely enough room to pace. In the corner, a pile of straw serves as a bed, infested with who knows what.",
-      "The heavy iron door to the north is the only way out. It stands slightly ajar, a sliver of darkness visible beyond. Why is it open? Did the guard forget to lock it? Or did something happen to them? It feels too easy, yet you have no choice but to investigate."
+      "You wake with a start! Such a strange dream...",
+      "The cell door! It's... open!",
+      "This is your chance, but you must act quickly!",
+      "Time to move.",
     ],
     exits: { north: "hallway" },
     items: ["note", "sword"],
@@ -75,9 +74,14 @@ export const WORLD: Record<string, Room> = {
     image: "/images/scenes/damp-cell.png",
     videoLoop: {
       path: "/video/scenes/damp-cell.mp4",
-      volume: 0.4
+      volume: 0.2
     },
     audioLoop: "/audio/dripping-water.mp3",
+    narration: {
+      path: "/audio/narration/damp-cell.mp3",
+      speed: 1.0,
+      volume: 0.7,
+    }
   },
   "hallway": {
     id: "hallway",

@@ -54,16 +54,46 @@ export const useGame = () => {
   }, [gameState.feedback]);
 
   const stopBattleMusicRef = useRef<(() => void) | null>(null);
+  const stopNarrationRef = useRef<(() => void) | null>(null);
 
-  const { playAmbientLoop, playShuffleSound, playItemSound, playSoundFile } = useSoundFx();
+  const { playAmbientLoop, playShuffleSound, playItemSound, playSoundFile, playNarration } = useSoundFx();
+
+  const currentRoom = gameState.rooms[gameState.currentRoomId];
 
   useEffect(() => {
-    const room = gameState.rooms[gameState.currentRoomId];
-    playAmbientLoop(room.audioLoop || null);
-  }, [gameState.currentRoomId, gameState.rooms, playAmbientLoop]);
+    playAmbientLoop(currentRoom.audioLoop || null);
+
+    if (stopNarrationRef.current) {
+      stopNarrationRef.current();
+      stopNarrationRef.current = null;
+    }
+
+    if (currentRoom.narration) {
+      let audioStop: (() => void) | null = null;
+      const timeoutId = setTimeout(() => {
+        audioStop = playNarration(currentRoom.narration!.path, currentRoom.narration!.speed, currentRoom.narration!.volume || 1.0);
+      }, 2000);
+
+      stopNarrationRef.current = () => {
+        clearTimeout(timeoutId);
+        if (audioStop) audioStop();
+      };
+    }
+  }, [
+    gameState.currentRoomId,
+    currentRoom.narration,
+    currentRoom.audioLoop,
+    playAmbientLoop,
+    playNarration
+  ]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const currentRoom = gameState.rooms[gameState.currentRoomId];
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = currentRoom.videoLoop?.volume ?? 0.4;
+    }
+  }, [currentRoom.videoLoop?.path, currentRoom.videoLoop?.volume]);
 
   const hasItem = (itemId: string) => {
     if (gameState.equippedItems.weapon === itemId) return true;

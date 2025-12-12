@@ -56,6 +56,11 @@ export type Room = {
     path: string;
     volume?: number;
   };
+  narration?: {
+    path: string;
+    speed: number;
+    volume?: number;
+  };
   audioLoop?: string;
   enemy?: {
     id: string;

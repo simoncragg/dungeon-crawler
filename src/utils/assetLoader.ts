@@ -11,6 +11,7 @@ export const getRoomAssets = (roomId: string): string[] => {
   if (room.image) assets.add(room.image);
   if (room.audioLoop) assets.add(room.audioLoop);
   if (room.videoLoop?.path) assets.add(room.videoLoop.path);
+  if (room.narration?.path) assets.add(room.narration.path);
 
   // Unlocked exit images
   if (room.lockedExits) {
