@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getGameAssets, preloadAssets } from '../utils/assetLoader';
+import { getInitialAssets, preloadAssets } from '../utils/assetLoader';
 
 export const useAssetLoader = () => {
   const [progress, setProgress] = useState(0);
@@ -10,7 +10,7 @@ export const useAssetLoader = () => {
     if (loading || loaded) return;
 
     setLoading(true);
-    const assets = getGameAssets();
+    const assets = getInitialAssets();
 
     if (assets.length === 0) {
       setProgress(100);

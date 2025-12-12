@@ -4,8 +4,10 @@ import type { CombatResult, Direction, LogEntry, } from "../types";
 import { ITEMS, WORLD, DIRECTIONS } from "../data/gameData";
 import useSoundFx from "./useSoundFx";
 import { gameReducer } from "../reducers/gameReducer";
+import { useRoomPreloader } from "./useRoomPreloader";
 
 export const useGame = () => {
+
   const [gameState, dispatch] = useReducer(gameReducer, {
     currentRoomId: "start",
     inventory: {
@@ -38,6 +40,8 @@ export const useGame = () => {
   const [walkingDirection, setWalkingDirection] = useState<Direction | null>(null);
   const [walkStepScale, setWalkStepScale] = useState(1);
   const [isEnemyRevealed, setIsEnemyRevealed] = useState(true);
+
+  useRoomPreloader(gameState.currentRoomId, gameState.inventory.items);
 
   useEffect(() => {
     if (!gameState.feedback) return;
