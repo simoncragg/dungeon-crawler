@@ -29,9 +29,12 @@ export const useRoomPreloader = (currentRoomId: string, inventoryItems: (string 
 
       if (shouldPreload && !hasPreloadedRoom(exitId)) {
         markRoomAsPreloaded(exitId);
-        requestIdleCallback(() => {
-          preloadRoomAssets(exitId).catch(console.warn);
-        });
+        const preLoadFn = () => preloadRoomAssets(exitId).catch(console.warn);
+        if ("requestIdleCallback" in window) {
+          requestIdleCallback(preLoadFn);
+        } else {
+          setTimeout(preLoadFn, 100);
+        }
       }
     });
 
