@@ -41,6 +41,7 @@ export const getInitialAssets = (): string[] => {
   assets.add("/audio/narration/intro.mp3");
 
   // Global sounds
+  assets.add("/audio/inspect.mp3");
   assets.add("/audio/danger.mp3");
   assets.add("/audio/enemy-defeat.mp3");
   assets.add("/audio/battle-music.mp3");

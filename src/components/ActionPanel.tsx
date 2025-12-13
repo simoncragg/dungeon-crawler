@@ -4,6 +4,7 @@ import { Eye, Hand, Sword } from "lucide-react";
 import type { Room } from "../types";
 import ActionButton from "./ActionButton";
 import { ITEMS } from "../data/gameData";
+import useSoundFx from "../hooks/useSoundFx";
 
 
 interface ActionPanelProps {
@@ -25,6 +26,13 @@ const ActionPanel: React.FC<ActionPanelProps> = ({
   onTakeItem,
   onAttack,
 }) => {
+  const { playSoundFile } = useSoundFx();
+
+  const handleInspect = () => {
+    playSoundFile("inspect.mp3", 1.0);
+    onInspectRoom();
+  };
+
   return (
     <div className="flex-1 grid grid-cols-1 gap-2 auto-rows-[3rem] overflow-y-auto min-w-0 w-full h-32 md:h-full content-start">
       {currentRoom.enemy && isEnemyRevealed && (
@@ -41,7 +49,7 @@ const ActionPanel: React.FC<ActionPanelProps> = ({
         <ActionButton
           icon={Eye}
           label="INSPECT AREA"
-          onClick={onInspectRoom}
+          onClick={handleInspect}
           isWalking={isWalking}
         />
       )}
