@@ -170,23 +170,64 @@ const playSoundFile = (audioFilename: string, volume: number = 0.5) => {
 };
 
 const playNarration = (url: string, speed: number = 1.0, volume: number = 1.0, onEnded?: () => void) => {
-  const audio = new Audio(url);
-  audio.playbackRate = speed;
-  audio.volume = volume;
-
-  if (onEnded) {
-    audio.onended = onEnded;
+  const ctx = getAudioContext();
+  if (!ctx) {
+    if (onEnded) onEnded();
+    return () => { };
   }
 
-  audio.play().catch(e => {
-    console.warn("Narration playback failed:", e);
-    if (onEnded) onEnded();
-  });
+  // Create a mutable reference for the source to allow stopping
+  let sourceNode: AudioBufferSourceNode | null = null;
+  let isCancelled = false;
+
+  const loadAndPlay = async () => {
+    try {
+      if (ctx.state === "suspended") await ctx.resume();
+
+      let audioBuffer = getBuffer(url);
+      if (!audioBuffer) {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffer = await decodeAudioData(arrayBuffer);
+        setBuffer(url, audioBuffer);
+      }
+
+      if (isCancelled) return;
+
+      const source = ctx.createBufferSource();
+      sourceNode = source;
+      source.buffer = audioBuffer;
+      source.playbackRate.value = speed;
+
+      if (onEnded) {
+        source.onended = onEnded;
+      }
+
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+
+    } catch (e) {
+      console.warn("Narration playback failed:", e);
+      if (onEnded && !isCancelled) onEnded();
+    }
+  };
+
+  loadAndPlay();
 
   return () => {
-    audio.pause();
-    audio.currentTime = 0;
-    audio.onended = null;
+    isCancelled = true;
+    if (sourceNode) {
+      try {
+        sourceNode.stop();
+        sourceNode.onended = null; // Prevent callback after manual stop
+      } catch {
+        // Ignore
+      }
+    }
   };
 };
 
