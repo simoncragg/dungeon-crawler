@@ -71,7 +71,7 @@ export const useGame = () => {
     if (currentRoom.narration) {
       let audioStop: (() => void) | null = null;
       const timeoutId = setTimeout(() => {
-        audioStop = playNarration(currentRoom.narration!.path, currentRoom.narration!.speed, currentRoom.narration!.volume || 1.0);
+        audioStop = playNarration(currentRoom.narration!.path, currentRoom.narration!.volume || 1.0);
       }, 2000);
 
       stopNarrationRef.current = () => {

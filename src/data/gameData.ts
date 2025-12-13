@@ -79,7 +79,6 @@ export const WORLD: Record<string, Room> = {
     audioLoop: "/audio/dripping-water.mp3",
     narration: {
       path: "/audio/narration/damp-cell.mp3",
-      speed: 1.0,
       volume: 0.7,
     }
   },

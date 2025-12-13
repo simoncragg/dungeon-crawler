@@ -58,7 +58,6 @@ export type Room = {
   };
   narration?: {
     path: string;
-    speed: number;
     volume?: number;
   };
   audioLoop?: string;

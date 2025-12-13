@@ -169,7 +169,7 @@ const playSoundFile = (audioFilename: string, volume: number = 0.5) => {
   };
 };
 
-const playNarration = (url: string, speed: number = 1.0, volume: number = 1.0, onEnded?: () => void) => {
+const playNarration = (url: string, volume: number = 1.0, onEnded?: () => void) => {
   const ctx = getAudioContext();
   if (!ctx) {
     if (onEnded) onEnded();
@@ -197,7 +197,6 @@ const playNarration = (url: string, speed: number = 1.0, volume: number = 1.0, o
       const source = ctx.createBufferSource();
       sourceNode = source;
       source.buffer = audioBuffer;
-      source.playbackRate.value = speed;
 
       if (onEnded) {
         source.onended = onEnded;

@@ -42,7 +42,7 @@ export default function Intro({ onComplete }: IntroProps) {
       setSubtitle("The cage is open.");
       setIsSubtitleVisible(true);
 
-      stopAudioRef.current = playNarration("/audio/narration/intro.mp3", 1.0, 0.3, () => {
+      stopAudioRef.current = playNarration("/audio/narration/intro.mp3", 0.3, () => {
         setAudioEnded(true);
       });
     }, 2500);
