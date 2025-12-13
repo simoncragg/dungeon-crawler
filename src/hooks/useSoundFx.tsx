@@ -66,7 +66,7 @@ const playItemSound = () => {
 
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0.01, t);
-  gain.gain.linearRampToValueAtTime(0.1, t + 0.05);
+  gain.gain.linearRampToValueAtTime(1.0, t + 0.05);
   gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
 
   noise.connect(filter);
