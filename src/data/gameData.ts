@@ -17,20 +17,27 @@ export const ITEMS: Record<string, Item> = {
     icon: FlaskConical,
     effect: (state) => ({ health: Math.min(state.health + 50, state.maxHealth) }),
   },
-  "sword": {
-    id: "sword",
-    name: "Iron Sword",
-    description: "A sturdy iron sword. Adds +15 Attack Power.",
+  "rusty-sword": {
+    id: "rusty-sword",
+    name: "Rusty Sword",
+    description: "A jagged, rusted blade. It's heavy and uneven.",
     type: "weapon",
     icon: Sword,
-    stats: { attack: 15 },
+    image: "/images/weapons/rusty-short-sword.png",
+    overlayConfig: {
+      width: "200px",
+      right: "10%",
+      bottom: "-185px",
+      rotation: "-15deg",
+    },
+    stats: { attack: 10 },
     sounds: {
       take: "sword-take.wav",
       attack: "sword-combat-attack.wav",
       block: "sword-combat-block.wav",
       crit: "sword-combat-crit.wav",
       clash: "sword-combat-clash.wav",
-    }
+    },
   },
   "wooden-shield": {
     id: "wooden-shield",
@@ -68,7 +75,7 @@ export const WORLD: Record<string, Room> = {
       "Time to move.",
     ],
     exits: { north: "hallway" },
-    items: ["note", "sword"],
+    items: ["note", "rusty-sword"],
     coordinates: { x: 0, y: 0 },
     shortName: "CELL",
     image: "/images/scenes/damp-cell.png",
@@ -77,6 +84,7 @@ export const WORLD: Record<string, Room> = {
       volume: 0.2
     },
     audioLoop: "/audio/dripping-water.mp3",
+    heldItemBrightness: 0.3,
     narration: {
       path: "/audio/narration/damp-cell.mp3",
       volume: 0.7,
@@ -102,6 +110,7 @@ export const WORLD: Record<string, Room> = {
       east: { keyId: "rusty-key", lockedMessage: "The heavy oak door is locked." }
     },
     image: "/images/scenes/dark-hallway.png",
+    heldItemBrightness: 0.4,
     audioLoop: "/audio/eerie-echoes.mp3",
   },
   "archives": {
@@ -113,6 +122,7 @@ export const WORLD: Record<string, Room> = {
     coordinates: { x: 1, y: 1 },
     shortName: "ARCHIVES",
     image: "/images/scenes/archives.png",
+    heldItemBrightness: 0.4,
   },
   "armory": {
     id: "armory",
@@ -134,6 +144,7 @@ export const WORLD: Record<string, Room> = {
     coordinates: { x: -1, y: 1 },
     shortName: "ARMORY",
     image: "/images/scenes/armory.png",
+    heldItemBrightness: 0.3,
   },
   "forest": {
     id: "forest",
@@ -144,6 +155,7 @@ export const WORLD: Record<string, Room> = {
     coordinates: { x: 0, y: 2 },
     shortName: "EXIT",
     image: "/images/scenes/forest.png",
+    heldItemBrightness: 0.3,
   }
 };
 

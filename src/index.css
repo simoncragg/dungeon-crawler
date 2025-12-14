@@ -135,3 +135,17 @@ button:not(:disabled) {
 .animate-defeat {
   animation: defeat 0.8s forwards ease-in;
 }
+
+@keyframes breathe {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px) translateX(2px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}

@@ -24,6 +24,13 @@ export type GameState = {
   defense: number;
 };
 
+export type WeaponOverlayConfig = {
+  width: string;
+  right: string;
+  bottom: string;
+  rotation?: string;
+};
+
 export type Item = {
   id: string;
   name: string;
@@ -32,6 +39,8 @@ export type Item = {
   stats?: { attack?: number; defense?: number };
   effect?: (gameState: GameState) => Partial<GameState>;
   icon?: React.ElementType;
+  image?: string;
+  overlayConfig?: WeaponOverlayConfig;
   sounds?: {
     take?: string;
     attack?: string;
@@ -56,6 +65,7 @@ export type Room = {
     path: string;
     volume?: number;
   };
+  heldItemBrightness?: number;
   narration?: {
     path: string;
     volume?: number;
