@@ -12,9 +12,9 @@ import ActionPanel from "./ActionPanel";
 import DirectionPad from "./DirectionPad";
 import PlayerStats from "./PlayerStats";
 import FeedbackOverlay from "./FeedbackOverlay";
-
 import CombatOverlay from "./CombatOverlay";
 import WeaponOverlay from "./WeaponOverlay";
+import ShutterBlink from "./ShutterBlink";
 
 export default function Game() {
   const {
@@ -39,7 +39,10 @@ export default function Game() {
     useItem,
     feedback,
     setNarratorVisible,
-    videoRef
+    videoRef,
+    activeTransitionVideo,
+    handleTransitionEnd,
+    isShutterActive
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
@@ -64,6 +67,7 @@ export default function Game() {
 
   return (
     <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden relative">
+      <ShutterBlink isActive={isShutterActive} />
 
       <div className="absolute inset-0 z-0">
         <div className="relative w-full h-full bg-black overflow-hidden flex items-center justify-center">
@@ -79,12 +83,13 @@ export default function Game() {
             ref={viewportRef}
             className="relative z-10 h-full aspect-video shadow-2xl overflow-hidden will-change-transform"
           >
-            {currentRoom.videoLoop ? (
+            {currentRoom.videoLoop || activeTransitionVideo ? (
               <video
                 ref={videoRef}
-                src={currentRoom.videoLoop.path}
+                src={activeTransitionVideo || currentRoom.videoLoop?.path}
                 autoPlay
-                loop
+                loop={!activeTransitionVideo}
+                onEnded={activeTransitionVideo ? handleTransitionEnd : undefined}
                 playsInline
                 className="w-full h-full object-cover"
               />

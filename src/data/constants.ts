@@ -1,0 +1,16 @@
+export const MOVEMENT_SETTINGS = {
+  // Standard Movement
+  STANDARD_STEP_COUNT: 4,
+  FLEEING_STEP_COUNT: 8,
+  LOCKED_STEP_COUNT: 2,
+
+  STANDARD_STEP_INTERVAL: 200,
+  FLEEING_STEP_INTERVAL: 100,
+
+  // Transition Movement (Slower, continuous)
+  TRANSITION_BASE_INTERVAL: 800,
+  TRANSITION_VARIANCE: 100, // +/- 100ms
+
+  // Audio Cross-fade
+  TRANSITION_CROSSFADE_DURATION: 2.0,
+};

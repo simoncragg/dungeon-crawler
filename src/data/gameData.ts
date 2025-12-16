@@ -89,6 +89,9 @@ export const WORLD: Record<string, Room> = {
     narration: {
       path: "/audio/narration/damp-cell.mp3",
       volume: 0.7,
+    },
+    transitionVideos: {
+      north: "/video/scenes/transition-from-damp-cell-to-dark-hallway.mp4"
     }
   },
   "hallway": {

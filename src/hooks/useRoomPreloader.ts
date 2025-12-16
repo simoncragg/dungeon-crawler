@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { preloadRoomAssets } from '../utils/assetLoader';
+import { preloadRoomAssets, preloadAssets } from '../utils/assetLoader';
 import { WORLD, DIRECTIONS } from '../data/gameData';
 import type { Direction } from '../types';
 
@@ -27,13 +27,19 @@ export const useRoomPreloader = (currentRoomId: string, inventoryItems: (string 
         }
       }
 
-      if (shouldPreload && !hasPreloadedRoom(exitId)) {
-        markRoomAsPreloaded(exitId);
-        const preLoadFn = () => preloadRoomAssets(exitId).catch(console.warn);
-        if ("requestIdleCallback" in window) {
-          requestIdleCallback(preLoadFn);
-        } else {
-          setTimeout(preLoadFn, 100);
+      if (shouldPreload) {
+        if (currentRoom.transitionVideos && currentRoom.transitionVideos[dir]) {
+          preloadAssets([currentRoom.transitionVideos[dir]!]).catch(console.warn);
+        }
+
+        if (!hasPreloadedRoom(exitId)) {
+          markRoomAsPreloaded(exitId);
+          const preLoadFn = () => preloadRoomAssets(exitId).catch(console.warn);
+          if ("requestIdleCallback" in window) {
+            requestIdleCallback(preLoadFn);
+          } else {
+            setTimeout(preLoadFn, 100);
+          }
         }
       }
     });

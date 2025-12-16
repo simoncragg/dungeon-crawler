@@ -1,7 +1,6 @@
 import { getAudioContext, getBuffer, setBuffer, decodeAudioData } from "../utils/audioSystem";
 
-let currentAmbientSource: AudioBufferSourceNode | null = null;
-let currentAmbientUrl: string | null = null;
+
 
 const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => {
   const existing = getBuffer(key);
@@ -112,28 +111,78 @@ const playAudioFromUrl = async (url: string, volume: number = 1.0, loop: boolean
   }
 };
 
-const playAmbientLoop = async (audioLoop: string | null) => {
-  if (currentAmbientUrl === audioLoop) return;
-  currentAmbientUrl = audioLoop;
+interface AmbientTrack {
+  source: AudioBufferSourceNode;
+  gain: GainNode;
+  url: string;
+  isFadingOut?: boolean;
+}
 
-  if (currentAmbientSource) {
-    currentAmbientSource.stop();
-    currentAmbientSource = null;
+const fadeOutTrack = (track: AmbientTrack, duration: number, ctx: AudioContext) => {
+  try {
+    const t = ctx.currentTime;
+    track.gain.gain.cancelScheduledValues(t);
+    track.gain.gain.setValueAtTime(track.gain.gain.value, t);
+
+    if (duration > 0) {
+      track.gain.gain.linearRampToValueAtTime(0, t + duration);
+      track.source.stop(t + duration);
+    } else {
+      track.gain.gain.value = 0;
+      track.source.stop(t);
+    }
+  } catch (e) {
+    console.warn("Error stopping track:", e);
+  }
+};
+
+let currentAmbient: AmbientTrack | null = null;
+
+const playAmbientLoop = async (audioLoop: string | null, crossFadeDuration: number = 0) => {
+  if (currentAmbient?.url === audioLoop && !currentAmbient.isFadingOut) return;
+
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const trackToStop = currentAmbient;
+  if (trackToStop) {
+    fadeOutTrack(trackToStop, crossFadeDuration, ctx);
   }
 
-  if (!audioLoop) return;
-
-  const result = await playAudioFromUrl(audioLoop, 0.3, true);
-
-  if (currentAmbientUrl !== audioLoop) {
-    if (result) {
-      result.source.stop();
-    }
+  if (!audioLoop) {
+    currentAmbient = null;
     return;
   }
 
+  const targetVolume = 0.3;
+  const startVolume = crossFadeDuration > 0 ? 0 : targetVolume;
+
+  const result = await playAudioFromUrl(audioLoop, startVolume, true);
+
   if (result) {
-    currentAmbientSource = result.source;
+    const isObsolete = currentAmbient !== trackToStop;
+
+    if (isObsolete) {
+      try {
+        result.source.stop();
+      } catch {
+        // Ignore error if specific source stop fails
+      }
+      return;
+    }
+
+    currentAmbient = {
+      source: result.source,
+      gain: result.gain,
+      url: audioLoop,
+      isFadingOut: false
+    };
+
+    if (crossFadeDuration > 0) {
+      const t = ctx.currentTime;
+      result.gain.gain.setValueAtTime(0, t);
+      result.gain.gain.linearRampToValueAtTime(targetVolume, t + crossFadeDuration);
+    }
   }
 };
 

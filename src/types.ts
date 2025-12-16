@@ -71,6 +71,7 @@ export type Room = {
     path: string;
     volume?: number;
   };
+  transitionVideos?: Partial<Record<Direction, string>>;
   audioLoop?: string;
   enemy?: {
     id: string;
