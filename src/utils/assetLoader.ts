@@ -61,6 +61,7 @@ export const getInitialAssets = (): string[] => {
   assets.add("/audio/danger.mp3");
   assets.add("/audio/enemy-defeat.mp3");
   assets.add("/audio/battle-music.mp3");
+  assets.add("/audio/sword-defeat.mp3");
 
   // Item Sounds (Global for now, could be lazy loaded but they are small)
   Object.values(ITEMS).forEach(item => {
