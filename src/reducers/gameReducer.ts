@@ -228,7 +228,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         ...state,
         combat: {
           ...state.combat,
-          isProcessing: action.processing
+          isProcessing: action.processing,
+          playerAction: action.playerAction
         }
       };
     }
@@ -324,6 +325,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           ...state.combat,
           round: state.combat.round + 1,
           isProcessing: false,
+          playerAction: undefined,
           enemyAction: "IDLE",
           enemyImage: getEnemyImage(state.combat.enemyId, "IDLE"),
           lastResult: null

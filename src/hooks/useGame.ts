@@ -298,7 +298,14 @@ export const useGame = () => {
   const handleCombatAction = (action: "ATTACK" | "BLOCK" | "IDLE") => {
     if (!gameState.combat || gameState.combat.isProcessing) return;
 
-    dispatch({ type: "SET_COMBAT_PROCESSING", processing: true });
+    const playerWeaponId = gameState.equippedItems.weapon;
+    const playerWeapon = playerWeaponId ? ITEMS[playerWeaponId] : null;
+
+    if (action === "ATTACK" || action === "BLOCK") {
+      playSoundFile(playerWeapon?.sounds?.windup ?? "sword-combat-windup.mp3");
+    }
+
+    dispatch({ type: "SET_COMBAT_PROCESSING", processing: true, playerAction: action });
 
     const room = gameState.rooms[gameState.currentRoomId];
     if (!room.enemy) return;
@@ -306,8 +313,6 @@ export const useGame = () => {
     const enemy = room.enemy;
     const moves = ["ATTACK", "ATTACK", "ATTACK", "BLOCK", "IDLE"];
     const enemyAction = moves[Math.floor(Math.random() * moves.length)] as "ATTACK" | "BLOCK" | "IDLE";
-
-    dispatch({ type: "SET_ENEMY_ACTION", action: enemyAction });
 
     const pMove = action;
     const eMove = enemyAction;
@@ -323,8 +328,7 @@ export const useGame = () => {
     let logType: LogEntry["type"] = "combat";
     let combatResult: CombatResult | null = null;
 
-    const playerWeaponId = gameState.equippedItems.weapon;
-    const playerWeapon = playerWeaponId ? ITEMS[playerWeaponId] : null;
+    let soundToPlay = "";
 
     if (pMove === "ATTACK") {
       switch (eMove) {
@@ -333,12 +337,7 @@ export const useGame = () => {
           logMsg = `CRIT! You hit for ${enemyDamageTaken} damage!`;
           logType = "success";
           combatResult = { type: "crit", message: logMsg };
-
-          if (playerWeapon?.sounds?.crit) {
-            playSoundFile(playerWeapon.sounds.crit);
-          } else {
-            playSoundFile("sword-combat-attack.wav");
-          }
+          soundToPlay = playerWeapon?.sounds?.crit ?? "sword-combat-crit.wav";
           break;
 
         case "BLOCK":
@@ -351,12 +350,7 @@ export const useGame = () => {
             logType = "info";
           }
           combatResult = { type: "block", message: logMsg };
-
-          if (playerWeapon?.sounds?.block) {
-            playSoundFile(playerWeapon.sounds.block);
-          } else {
-            playItemSound();
-          }
+          soundToPlay = playerWeapon?.sounds?.block ?? "item-equipped.wav";
           break;
 
         case "ATTACK": {
@@ -370,11 +364,7 @@ export const useGame = () => {
           logType = "clash";
           combatResult = { type: "clash", message: logMsg };
 
-          if (playerWeapon?.sounds?.clash) {
-            playSoundFile(playerWeapon.sounds.clash);
-          } else {
-            playSoundFile("sword-combat-attack.wav");
-          }
+          soundToPlay = playerWeapon?.sounds?.clash || "sword-combat-clash.mp3";
           break;
         }
       }
@@ -393,9 +383,9 @@ export const useGame = () => {
         combatResult = { type: "block", message: logMsg };
 
         if (playerWeapon?.sounds?.block) {
-          playSoundFile(playerWeapon.sounds.block);
+          soundToPlay = playerWeapon.sounds.block;
         } else {
-          playItemSound();
+          soundToPlay = "item-equipped.wav";
         }
 
       } else {
@@ -405,42 +395,48 @@ export const useGame = () => {
       }
     }
 
-    dispatch({ type: "ADD_LOG", message: logMsg, logType });
-    if (combatResult) {
-      dispatch({ type: "SET_COMBAT_RESULT", result: combatResult });
-    }
+    setTimeout(() => {
+      dispatch({ type: "SET_ENEMY_ACTION", action: enemyAction });
+      playSoundFile(playerWeapon?.sounds?.attack ?? "sword-combat-attack.mp3");
+      if (soundToPlay) playSoundFile(soundToPlay);
 
-    if (enemyDamageTaken > 0 || playerDamageTaken > 0) {
-      const currentEnemyHp = enemy.hp - enemyDamageTaken;
-
-      if (currentEnemyHp <= 0) {
-        if (stopBattleMusicRef.current) {
-          stopBattleMusicRef.current();
-          stopBattleMusicRef.current = null;
-        }
-
-        setTimeout(() => {
-          playSoundFile("enemy-defeat.mp3");
-        }, 500);
-
-        dispatch({ type: "SET_ENEMY_ACTION", action: "DEFEAT" });
-
-        const dropId = enemy.drop;
-        setTimeout(() => {
-          dispatch({ type: "ENEMY_DEFEAT", enemyName: enemy.name, dropId, logMessage: enemy.defeatMessage, damageDealt: enemyDamageTaken });
-        }, 1500);
-      } else {
-        const playerDied = gameState.health - playerDamageTaken <= 0;
-        dispatch({
-          type: "COMBAT_ROUND",
-          damageDealt: enemyDamageTaken,
-          damageTaken: playerDamageTaken,
-          enemyName: enemy.name,
-          logMessage: logMsg,
-          playerDied
-        });
+      dispatch({ type: "ADD_LOG", message: logMsg, logType });
+      if (combatResult) {
+        dispatch({ type: "SET_COMBAT_RESULT", result: combatResult });
       }
-    }
+
+      if (enemyDamageTaken > 0 || playerDamageTaken > 0) {
+        const currentEnemyHp = enemy.hp - enemyDamageTaken;
+
+        if (currentEnemyHp <= 0) {
+          if (stopBattleMusicRef.current) {
+            stopBattleMusicRef.current();
+            stopBattleMusicRef.current = null;
+          }
+
+          setTimeout(() => {
+            playSoundFile("enemy-defeat.mp3");
+          }, 500);
+
+          dispatch({ type: "SET_ENEMY_ACTION", action: "DEFEAT" });
+
+          const dropId = enemy.drop;
+          setTimeout(() => {
+            dispatch({ type: "ENEMY_DEFEAT", enemyName: enemy.name, dropId, logMessage: enemy.defeatMessage, damageDealt: enemyDamageTaken });
+          }, 1500);
+        } else {
+          const playerDied = gameState.health - playerDamageTaken <= 0;
+          dispatch({
+            type: "COMBAT_ROUND",
+            damageDealt: enemyDamageTaken,
+            damageTaken: playerDamageTaken,
+            enemyName: enemy.name,
+            logMessage: logMsg,
+            playerDied
+          });
+        }
+      }
+    }, 500);
 
     setTimeout(() => {
       dispatch({ type: "COMBAT_ROUND_END" });

@@ -25,9 +25,9 @@ export const ITEMS: Record<string, Item> = {
     icon: Sword,
     image: "/images/weapons/rusty-short-sword.png",
     overlayConfig: {
-      width: "200px",
-      right: "10%",
-      bottom: "-185px",
+      width: "18%",
+      right: "2%",
+      bottom: "-28%",
       rotation: "-15deg",
     },
     stats: { attack: 10 },
@@ -37,6 +37,7 @@ export const ITEMS: Record<string, Item> = {
       block: "sword-combat-block.wav",
       crit: "sword-combat-crit.wav",
       clash: "sword-combat-clash.wav",
+      windup: "sword-combat-windup.mp3",
     },
   },
   "wooden-shield": {
@@ -144,7 +145,7 @@ export const WORLD: Record<string, Room> = {
     coordinates: { x: -1, y: 1 },
     shortName: "ARMORY",
     image: "/images/scenes/armory.png",
-    heldItemBrightness: 0.3,
+    heldItemBrightness: 0.5,
   },
   "forest": {
     id: "forest",

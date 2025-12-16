@@ -173,7 +173,11 @@ export default function Game() {
             }
 
             <div className="absolute inset-0 z-25 pointer-events-none transition-opacity duration-500 opacity-100">
-              <WeaponOverlay weaponId={gameState.equippedItems.weapon} brightness={currentRoom.heldItemBrightness} />
+              <WeaponOverlay
+                weaponId={gameState.equippedItems.weapon}
+                brightness={currentRoom.heldItemBrightness}
+                combat={gameState.combat || undefined}
+              />
             </div>
 
             <div className={`absolute bottom-4 right-4 z-30 opacity-80 hover:opacity-100 transition-opacity ${inCombat ? 'hidden' : ''}`}>

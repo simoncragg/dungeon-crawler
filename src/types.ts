@@ -47,6 +47,7 @@ export type Item = {
     block?: string;
     crit?: string;
     clash?: string;
+    windup?: string;
   };
 };
 
@@ -113,6 +114,7 @@ export type CombatState = {
   inCombat: boolean;
   round: number;
   isProcessing: boolean;
+  playerAction?: CombatAction;
   enemyAction: CombatAction;
   enemyId: string;
   enemyImage: string;
@@ -134,6 +136,6 @@ export type GameAction =
   | { type: "SET_NARRATOR_VISIBLE"; visible: boolean }
   | { type: "START_COMBAT" }
   | { type: "COMBAT_ROUND_END" }
-  | { type: "SET_COMBAT_PROCESSING"; processing: boolean }
+  | { type: "SET_COMBAT_PROCESSING"; processing: boolean; playerAction?: CombatAction }
   | { type: "SET_ENEMY_ACTION"; action: CombatAction }
   | { type: "SET_COMBAT_RESULT"; result: CombatResult };
