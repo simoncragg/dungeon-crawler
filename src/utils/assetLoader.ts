@@ -28,6 +28,22 @@ export const getRoomAssets = (roomId: string): string[] => {
     assets.add(getEnemyImage(room.enemy.id, "ATTACK"));
   }
 
+  // items
+  if (room.items) {
+    room.items.forEach(itemId => {
+      const item = ITEMS[itemId];
+      if (item.image) {
+        assets.add(item.image);
+      }
+
+      if (item.sounds) {
+        Object.values(item.sounds).forEach(sound => {
+          assets.add(`/audio/${sound}`);
+        });
+      }
+    });
+  }
+
   return Array.from(assets);
 };
 
