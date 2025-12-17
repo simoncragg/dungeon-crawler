@@ -1,52 +1,101 @@
-import { useReducer, useState, useEffect, useRef } from "react";
+import { useReducer, useState, useEffect, useRef, useCallback } from "react";
 
-import type { CombatResult, Direction, LogEntry, } from "../types";
-import { ITEMS, WORLD, DIRECTIONS } from "../data/gameData";
-import { MOVEMENT_SETTINGS } from "../data/constants";
+import type { LogEntry } from "../types";
+import { ITEMS } from "../data/gameData";
+import { INITIAL_STATE } from "../data/initialState";
+
 import useSoundFx from "./useSoundFx";
 import { gameReducer } from "../reducers/gameReducer";
 import { useRoomPreloader } from "./useRoomPreloader";
+import { useMovement } from "./useMovement";
+import { useCombat } from "./useCombat";
+import { useInventory } from "./useInventory";
 
 export const useGame = () => {
 
-  const [gameState, dispatch] = useReducer(gameReducer, {
-    currentRoomId: "start",
-    inventory: {
-      items: [null, null, null, null]
-    },
-    equippedItems: {
-      weapon: null,
-      armor: null
-    },
-    visitedRooms: ["start"],
-    health: 100,
-    maxHealth: 100,
-    flags: {},
-    lastMoveDirection: "north",
-    rooms: WORLD,
-    questLog: [
-      { id: 0, type: "room-title", text: WORLD["start"].name },
-      { id: 1, type: "room-description", text: WORLD["start"].description },
-    ],
-    feedback: null,
-    isNarratorVisible: true,
-    combat: null,
-    attack: 5,
-    defense: 0
-  });
+  const [gameState, dispatch] = useReducer(gameReducer, INITIAL_STATE);
 
   const [hasInspected, setHasInspected] = useState(false);
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
-  const [isWalking, setIsWalking] = useState(false);
-  const [walkingDirection, setWalkingDirection] = useState<Direction | null>(null);
-  const [walkStepScale, setWalkStepScale] = useState(1);
   const [isEnemyRevealed, setIsEnemyRevealed] = useState(true);
 
-  const [activeTransitionVideo, setActiveTransitionVideo] = useState<string | null>(null);
-  const [pendingMove, setPendingMove] = useState<{ direction: Direction; nextRoomId: string } | null>(null);
-  const [isShutterActive, setIsShutterActive] = useState(false);
-
   useRoomPreloader(gameState.currentRoomId, gameState.inventory.items);
+
+  const { playAmbientLoop, playShuffleSound, playItemSound, playSoundFile, playNarration } = useSoundFx();
+
+  const addToLog = useCallback((text: string, type: LogEntry["type"] = "system") => {
+    dispatch({ type: "ADD_LOG", message: text, logType: type });
+  }, []);
+
+  const processRoomEntry = useCallback((nextRoomId: string) => {
+    setHasInspected(false);
+    const nextRoom = gameState.rooms[nextRoomId];
+    const isRevisit = gameState.visitedRooms.includes(nextRoomId);
+
+    if (nextRoom.enemy) {
+      setIsEnemyRevealed(isRevisit);
+    }
+
+    setTimeout(() => {
+      addToLog(nextRoom.name, "room-title");
+      addToLog(nextRoom.description, "room-description");
+
+      if (nextRoom.enemy) {
+        const enemyName = nextRoom.enemy.name;
+        if (isRevisit) {
+          addToLog(`A ${enemyName} blocks your path!`, "danger");
+        } else {
+          const delay = nextRoom.description.length * 10 + 500;
+          setTimeout(() => {
+            addToLog(`A ${enemyName} blocks your path!`, "danger");
+            setIsEnemyRevealed(true);
+            dispatch({ type: "SET_NARRATOR_VISIBLE", visible: false });
+            playSoundFile("danger.mp3");
+          }, delay);
+        }
+      }
+    }, 600);
+  }, [gameState.rooms, gameState.visitedRooms, addToLog, playSoundFile]);
+
+  /*
+   * useMovement
+  */
+  const {
+    isWalking,
+    walkingDirection,
+    walkStepScale,
+    activeTransitionVideo,
+    isShutterActive,
+    handleMove,
+    handleTransitionEnd
+  } = useMovement({
+    gameState,
+    dispatch,
+    addToLog,
+    playAmbientLoop,
+    playShuffleSound,
+    processRoomEntry
+  });
+
+  /*
+   * useInventory
+  */
+  const { takeItem, dropItem, equipItem, useItem, hasItem } = useInventory({
+    gameState,
+    dispatch,
+    addToLog,
+    playSoundFile,
+    playItemSound
+  });
+
+  /*
+   * useCombat
+   */
+  const { startCombat, handleCombatAction } = useCombat({
+    gameState,
+    dispatch,
+    playSoundFile
+  });
 
   useEffect(() => {
     if (!gameState.feedback) return;
@@ -58,12 +107,7 @@ export const useGame = () => {
     return () => clearTimeout(timer);
   }, [gameState.feedback]);
 
-  const stopBattleMusicRef = useRef<(() => void) | null>(null);
   const stopNarrationRef = useRef<(() => void) | null>(null);
-  const walkingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const { playAmbientLoop, playShuffleSound, playItemSound, playSoundFile, playNarration } = useSoundFx();
-
   const currentRoom = gameState.rooms[gameState.currentRoomId];
 
   useEffect(() => {
@@ -101,167 +145,6 @@ export const useGame = () => {
     }
   }, [currentRoom.videoLoop?.path, currentRoom.videoLoop?.volume]);
 
-  const hasItem = (itemId: string) => {
-    if (gameState.equippedItems.weapon === itemId) return true;
-    if (gameState.equippedItems.armor === itemId) return true;
-    return gameState.inventory.items.includes(itemId);
-  };
-  const addToLog = (text: string, type: LogEntry["type"] = "system") => {
-    dispatch({ type: "ADD_LOG", message: text, logType: type });
-  };
-
-  const processRoomEntry = (nextRoomId: string) => {
-    setHasInspected(false);
-    const nextRoom = gameState.rooms[nextRoomId];
-    const isRevisit = gameState.visitedRooms.includes(nextRoomId);
-
-    if (nextRoom.enemy) {
-      setIsEnemyRevealed(isRevisit);
-    }
-
-    setTimeout(() => {
-      addToLog(nextRoom.name, "room-title");
-      addToLog(nextRoom.description, "room-description");
-
-      if (nextRoom.enemy) {
-        const enemyName = nextRoom.enemy.name;
-        if (isRevisit) {
-          addToLog(`A ${enemyName} blocks your path!`, "danger");
-        } else {
-          const delay = nextRoom.description.length * 10 + 500;
-          setTimeout(() => {
-            addToLog(`A ${enemyName} blocks your path!`, "danger");
-            setIsEnemyRevealed(true);
-            dispatch({ type: "SET_NARRATOR_VISIBLE", visible: false });
-            playSoundFile("danger.mp3");
-          }, delay);
-        }
-      }
-    }, 600);
-  };
-
-  const executeMove = (direction: Direction) => {
-    const room = gameState.rooms[gameState.currentRoomId];
-    const nextRoomId = room.exits[direction];
-
-    if (!nextRoomId) {
-      addToLog("You can't go that way.", "system");
-      return;
-    }
-
-    if (room.transitionVideos && room.transitionVideos[direction]) {
-      setActiveTransitionVideo(room.transitionVideos[direction]!);
-      setPendingMove({ direction, nextRoomId });
-      return;
-    }
-
-    if (room.lockedExits && room.lockedExits[direction]) {
-      dispatch({ type: "MOVE", direction, nextRoomId: gameState.currentRoomId });
-      addToLog(room.lockedExits[direction].lockedMessage, "warning");
-      setIsWalking(false);
-      setWalkingDirection(null);
-      return;
-    }
-
-    dispatch({ type: "MOVE", direction, nextRoomId });
-    processRoomEntry(nextRoomId);
-
-    setIsWalking(false);
-    setWalkingDirection(null);
-  };
-
-  const performTransitionMove = (direction: Direction, nextRoomId: string) => {
-    setIsShutterActive(true);
-    setTimeout(() => setIsShutterActive(false), 250);
-    executeMove(direction);
-
-    const nextRoom = gameState.rooms[nextRoomId];
-    if (nextRoom) {
-      playAmbientLoop(nextRoom.audioLoop || null, MOVEMENT_SETTINGS.TRANSITION_CROSSFADE_DURATION);
-    }
-
-    const baseInterval = MOVEMENT_SETTINGS.TRANSITION_BASE_INTERVAL;
-    let stepCounter = 0;
-
-    if (walkingTimerRef.current) clearTimeout(walkingTimerRef.current);
-
-    setWalkStepScale(-1);
-    playShuffleSound();
-    stepCounter++;
-
-    const scheduleNextStep = () => {
-      const variance = Math.random() * (MOVEMENT_SETTINGS.TRANSITION_VARIANCE * 2) - MOVEMENT_SETTINGS.TRANSITION_VARIANCE;
-      const nextDelay = baseInterval + variance;
-
-      walkingTimerRef.current = setTimeout(() => {
-        setWalkStepScale(stepCounter % 2 === 0 ? -1 : 1);
-        playShuffleSound();
-        stepCounter++;
-        scheduleNextStep();
-      }, nextDelay);
-    };
-
-    scheduleNextStep();
-  };
-
-  const performStandardMove = (direction: Direction, stepCount: number, startDelay: number, stepInterval: number) => {
-    for (let i = 0; i < stepCount; i++) {
-      setTimeout(() => {
-        setWalkStepScale(i % 2 === 0 ? -1 : 1);
-        playShuffleSound();
-      }, startDelay + (i * stepInterval));
-    }
-
-    setTimeout(() => {
-      setWalkStepScale(1);
-      executeMove(direction);
-    }, startDelay + (stepCount * stepInterval));
-  };
-
-  const handleMove = (direction: Direction) => {
-    if (!DIRECTIONS.includes(direction)) {
-      addToLog("Go where?", "system");
-      return;
-    }
-
-    const currentRoom = gameState.rooms[gameState.currentRoomId];
-    const isFleeing = !!currentRoom.enemy;
-    const isLocked = currentRoom.lockedExits && currentRoom.lockedExits[direction];
-    const hasExit = !!currentRoom.exits[direction];
-
-    if (!hasExit && !isLocked) {
-      addToLog("You can't go that way.", "system");
-      return;
-    }
-
-    if (!isLocked) {
-      dispatch({ type: "SET_QUEST_LOG", log: [] });
-    }
-
-    setIsWalking(true);
-    setWalkingDirection(direction);
-
-    const textRenderDelay = 0;
-
-    let stepCount = MOVEMENT_SETTINGS.STANDARD_STEP_COUNT;
-    if (isFleeing) stepCount = MOVEMENT_SETTINGS.FLEEING_STEP_COUNT;
-    if (isLocked) stepCount = MOVEMENT_SETTINGS.LOCKED_STEP_COUNT;
-
-    const stepInterval = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_INTERVAL : MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL;
-    const startDelay = (isFleeing ? 150 : 300) + textRenderDelay;
-
-    const isTransition = currentRoom.transitionVideos && currentRoom.transitionVideos[direction];
-
-    if (isTransition) {
-      const nextRoomId = currentRoom.exits[direction];
-      if (nextRoomId) {
-        performTransitionMove(direction, nextRoomId);
-      }
-    } else {
-      performStandardMove(direction, stepCount, startDelay, stepInterval);
-    }
-  };
-
   const inspectRoom = () => {
     const room = gameState.rooms[gameState.currentRoomId];
     setHasInspected(true);
@@ -279,272 +162,6 @@ export const useGame = () => {
     addToLog(desc, "info");
   };
 
-  const takeItem = (itemId: string) => {
-    const room = gameState.rooms[gameState.currentRoomId];
-    if (room.enemy) {
-      addToLog(`The ${room.enemy.name} guards the room! Defeat it first.`, "danger");
-      return;
-    }
-
-    const item = ITEMS[itemId];
-    const emptySlotIndex = gameState.inventory.items.findIndex(slot => slot === null);
-
-    let autoEquip = false;
-    if (item.type === "weapon" && !gameState.equippedItems.weapon) autoEquip = true;
-    if (item.type === "armor" && !gameState.equippedItems.armor) autoEquip = true;
-
-    if (emptySlotIndex === -1 && !autoEquip) {
-      addToLog("Your inventory is full!", "danger");
-      return;
-    }
-
-    if (item.sounds?.take) {
-      playSoundFile(item.sounds.take);
-    } else if (item.type === "weapon") {
-      playSoundFile("sword-take.wav");
-    } else {
-      playItemSound();
-    }
-
-    let logMessage = "";
-    if (autoEquip) {
-      logMessage = `Taken: ${item.name} (Equipped)`;
-    } else {
-      logMessage = `Taken: ${item.name}`;
-    }
-
-    dispatch({ type: "TAKE_ITEM", itemId: item.id, autoEquip, logMessage });
-  };
-
-  const dropItem = (itemId: string) => {
-    if (gameState.equippedItems.weapon === itemId) {
-      dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
-    } else if (gameState.equippedItems.armor === itemId) {
-      dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
-    } else {
-      const itemIndex = gameState.inventory.items.findIndex(id => id === itemId);
-      if (itemIndex !== -1) {
-        dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
-      }
-    }
-  };
-
-  const equipItem = (itemId: string) => {
-    const itemIndex = gameState.inventory.items.findIndex(id => id === itemId);
-
-    if (itemIndex === -1) {
-      addToLog("You don't have that.", "system");
-      return;
-    }
-
-    const item = ITEMS[itemId];
-
-    let equipMessage = "";
-    if (item.type === "weapon") {
-      equipMessage = `You wield the ${item.name}.`;
-    } else if (item.type === "armor") {
-      equipMessage = `You equip the ${item.name}.`;
-    }
-
-    dispatch({ type: "EQUIP_ITEM", itemId, logMessage: equipMessage });
-  };
-
-  const startCombat = () => {
-    if (stopBattleMusicRef.current) stopBattleMusicRef.current();
-    const stopMusic = playSoundFile("battle-music.mp3", 0.3);
-    stopBattleMusicRef.current = stopMusic;
-    dispatch({ type: "START_COMBAT" });
-  };
-
-  const handleCombatAction = (action: "ATTACK" | "BLOCK" | "IDLE") => {
-    if (!gameState.combat || gameState.combat.isProcessing) return;
-
-    const playerWeaponId = gameState.equippedItems.weapon;
-    const playerWeapon = playerWeaponId ? ITEMS[playerWeaponId] : null;
-
-    if (action === "ATTACK" || action === "BLOCK") {
-      playSoundFile(playerWeapon?.sounds?.windup ?? "sword-combat-windup.mp3");
-    }
-
-    dispatch({ type: "SET_COMBAT_PROCESSING", processing: true, playerAction: action });
-
-    const room = gameState.rooms[gameState.currentRoomId];
-    if (!room.enemy) return;
-
-    const enemy = room.enemy;
-    const moves = ["ATTACK", "ATTACK", "ATTACK", "BLOCK", "IDLE"];
-    const enemyAction = moves[Math.floor(Math.random() * moves.length)] as "ATTACK" | "BLOCK" | "IDLE";
-
-    const pMove = action;
-    const eMove = enemyAction;
-
-    const pAtk = gameState.attack;
-    const pDef = gameState.defense;
-    const eAtk = room.enemy.attack || 10;
-    const eDef = room.enemy.defense || 5;
-
-    let logMsg = "";
-    let playerDamageTaken = 0;
-    let enemyDamageTaken = 0;
-    let logType: LogEntry["type"] = "combat";
-    let combatResult: CombatResult | null = null;
-
-    let soundToPlay = "";
-
-    if (pMove === "ATTACK") {
-      switch (eMove) {
-        case "IDLE":
-          enemyDamageTaken = pAtk;
-          logMsg = `CRIT! You hit for ${enemyDamageTaken} damage!`;
-          logType = "success";
-          combatResult = { type: "crit", message: logMsg };
-          soundToPlay = playerWeapon?.sounds?.crit ?? "sword-combat-crit.wav";
-          break;
-
-        case "BLOCK":
-          enemyDamageTaken = Math.max(0, pAtk - eDef);
-          if (enemyDamageTaken > 0) {
-            logMsg = `Blocked! You hit for ${enemyDamageTaken} damage.`;
-            logType = "info";
-          } else {
-            logMsg = "Blocked! No damage.";
-            logType = "info";
-          }
-          combatResult = { type: "block", message: logMsg };
-          soundToPlay = playerWeapon?.sounds?.block ?? "item-equipped.wav";
-          break;
-
-        case "ATTACK": {
-          const pClashDmg = Math.floor(eAtk * 0.5);
-          const eClashDmg = Math.floor(pAtk * 0.5);
-
-          playerDamageTaken = pClashDmg;
-          enemyDamageTaken = eClashDmg;
-
-          logMsg = "CLASH! Weapons collide!";
-          logType = "clash";
-          combatResult = { type: "clash", message: logMsg };
-
-          soundToPlay = playerWeapon?.sounds?.clash || "sword-combat-clash.mp3";
-          break;
-        }
-      }
-    } else if (pMove === "BLOCK") {
-      if (eMove === "ATTACK") {
-        const mitigatedDmg = Math.floor(eAtk * 0.5);
-        playerDamageTaken = Math.max(0, mitigatedDmg - pDef);
-
-        if (playerDamageTaken > 0) {
-          logMsg = `Blocked! Took ${playerDamageTaken} damage.`;
-          logType = "warning";
-        } else {
-          logMsg = "Perfect Block!";
-          logType = "success";
-        }
-        combatResult = { type: "block", message: logMsg };
-
-        if (playerWeapon?.sounds?.block) {
-          soundToPlay = playerWeapon.sounds.block;
-        } else {
-          soundToPlay = "item-equipped.wav";
-        }
-
-      } else {
-        logMsg = "Both hesitated...";
-        logType = "miss";
-        combatResult = { type: "miss", message: logMsg };
-      }
-    }
-
-    setTimeout(() => {
-      dispatch({ type: "SET_ENEMY_ACTION", action: enemyAction });
-      playSoundFile(playerWeapon?.sounds?.attack ?? "sword-combat-attack.mp3");
-      if (soundToPlay) playSoundFile(soundToPlay);
-
-      dispatch({ type: "ADD_LOG", message: logMsg, logType });
-      if (combatResult) {
-        dispatch({ type: "SET_COMBAT_RESULT", result: combatResult });
-      }
-
-      if (enemyDamageTaken > 0 || playerDamageTaken > 0) {
-        const currentEnemyHp = enemy.hp - enemyDamageTaken;
-
-        if (currentEnemyHp <= 0) {
-          if (stopBattleMusicRef.current) {
-            stopBattleMusicRef.current();
-            stopBattleMusicRef.current = null;
-          }
-
-          setTimeout(() => {
-            playSoundFile("enemy-defeat.mp3");
-          }, 500);
-
-          dispatch({ type: "SET_ENEMY_ACTION", action: "DEFEAT" });
-
-          const dropId = enemy.drop;
-          setTimeout(() => {
-            dispatch({ type: "ENEMY_DEFEAT", enemyName: enemy.name, dropId, logMessage: enemy.defeatMessage, damageDealt: enemyDamageTaken });
-          }, 1500);
-        } else {
-          const playerDied = gameState.health - playerDamageTaken <= 0;
-          dispatch({
-            type: "COMBAT_ROUND",
-            damageDealt: enemyDamageTaken,
-            damageTaken: playerDamageTaken,
-            enemyName: enemy.name,
-            logMessage: logMsg,
-            playerDied
-          });
-        }
-      }
-    }, 500);
-
-    setTimeout(() => {
-      dispatch({ type: "COMBAT_ROUND_END" });
-    }, 2000);
-  };
-
-  const useItem = (itemId: string) => {
-    const room = gameState.rooms[gameState.currentRoomId];
-
-    const itemIndex = gameState.inventory.items.findIndex(id => id === itemId);
-    if (itemIndex === -1) {
-      addToLog("You don't have that.", "system");
-      return;
-    }
-
-    const item = ITEMS[itemId];
-
-    if (item.type === "consumable" && item.effect) {
-      dispatch({
-        type: "USE_CONSUMABLE",
-        itemId,
-        effect: item.effect,
-        logMessage: `You used ${item.name}.`
-      });
-      return;
-    }
-    if (item.type === "key") {
-      const facingDirection = gameState.lastMoveDirection;
-      const lockedExit = room.lockedExits?.[facingDirection];
-
-      if (lockedExit) {
-        if (lockedExit.keyId === item.id) {
-          dispatch({ type: "UNLOCK_DOOR", direction: facingDirection, keyId: item.id, logMessage: `Unlocked ${facingDirection} door with ${item.name}.` });
-        } else {
-          addToLog("That key doesn't fit this door.", "system");
-        }
-      } else {
-        addToLog("You must face a locked door to use a key.", "system");
-      }
-      return;
-    }
-    if (["weapon", "armor"].includes(item.type)) {
-      equipItem(itemId);
-      return;
-    }
-  };
-
   return {
     gameState,
     questLog: gameState.questLog,
@@ -560,24 +177,7 @@ export const useGame = () => {
     currentRoom,
     hasItem,
     handleMove,
-    handleTransitionEnd: () => {
-      if (walkingTimerRef.current) {
-        clearTimeout(walkingTimerRef.current);
-        walkingTimerRef.current = null;
-      }
-      setWalkStepScale(1);
-      setIsWalking(false);
-      setWalkingDirection(null);
-
-      if (pendingMove) {
-        dispatch({ type: "MOVE", direction: pendingMove.direction, nextRoomId: pendingMove.nextRoomId });
-        processRoomEntry(pendingMove.nextRoomId);
-      }
-      setActiveTransitionVideo(null);
-      setPendingMove(null);
-      setIsShutterActive(true);
-      setTimeout(() => setIsShutterActive(false), 250);
-    },
+    handleTransitionEnd,
     activeTransitionVideo,
     isShutterActive,
     inspectRoom,
