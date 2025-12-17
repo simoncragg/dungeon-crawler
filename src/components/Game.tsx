@@ -34,6 +34,7 @@ export default function Game() {
     takeItem,
     dropItem,
     equipItem,
+    unequipItem,
     startCombat,
     handleCombatAction,
     useItem,
@@ -237,7 +238,9 @@ export default function Game() {
             onClose={() => setViewingItemId(null)}
             onUse={useItem}
             onEquip={equipItem}
+            onUnequip={unequipItem}
             onDrop={dropItem}
+            canUnequip={gameState.inventory.items.some(i => i === null)}
           />
         )
       }

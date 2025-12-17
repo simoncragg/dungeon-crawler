@@ -26,15 +26,19 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     }
 
     const item = ITEMS[itemId];
+    playSoundFile(item.sounds?.take ?? "equip.mp3");
+    dispatch({ type: "EQUIP_ITEM", itemId, logMessage: `You equip the ${item.name}.` });
+  };
 
-    let equipMessage = "";
-    if (item.type === "weapon") {
-      equipMessage = `You wield the ${item.name}.`;
-    } else if (item.type === "armor") {
-      equipMessage = `You equip the ${item.name}.`;
+  const unequipItem = (itemId: string) => {
+    const emptySlotIndex = gameState.inventory.items.findIndex(slot => slot === null);
+    if (emptySlotIndex === -1) {
+      addToLog("Inventory full! Cannot unequip.", "danger");
+      return;
     }
-
-    dispatch({ type: "EQUIP_ITEM", itemId, logMessage: equipMessage });
+    const item = ITEMS[itemId];
+    playSoundFile(item.sounds?.unequip ?? "unequip.mp3");
+    dispatch({ type: "UNEQUIP_ITEM", itemId, logMessage: `Unequipped ${item.name}.` });
   };
 
   const takeItem = (itemId: string) => {
@@ -48,10 +52,19 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     const emptySlotIndex = gameState.inventory.items.findIndex(slot => slot === null);
 
     let autoEquip = false;
+    // Check if we will auto-equip (when slot is empty)
     if (item.type === "weapon" && !gameState.equippedItems.weapon) autoEquip = true;
     if (item.type === "armor" && !gameState.equippedItems.armor) autoEquip = true;
 
-    if (emptySlotIndex === -1 && !autoEquip) {
+    // We need a free slot if:
+    // 1. We are NOT auto-equipping into an empty slot (so it goes to inventory)
+    // 2. OR We ARE auto-equipping but will swap (so old item goes to inventory) -> The swap logic implies we are NOT auto-equipping into an *empty* slot, so logic holds.
+    // Wait, if we swap, my variable `autoEquip` above is false.
+    // So `needsSlot` logic:
+    // If autoEquip is true, we don't need a slot.
+    // If autoEquip is false, we need a slot (either for the new item, or for the old swapped item).
+
+    if (!autoEquip && emptySlotIndex === -1) {
       addToLog("Your inventory is full!", "danger");
       return;
     }
@@ -65,7 +78,18 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     }
 
     let logMessage = "";
-    if (autoEquip) {
+    // Note: The reducer handles the "Swap" log message logic implicitly or we can adjust here if we knew.
+    // But since we dispatch TAKE_ITEM, the reducer does the work.
+    // We just need to give a generic "Attempting to take" or let reducer log?
+    // The reducer updates the log. But here we construct `logMessage` passed to action.
+    // If we swap, it's nice to say "Equipped X".
+
+    // We can predict if we will swap:
+    let willSwap = false;
+    if (item.type === "weapon" && gameState.equippedItems.weapon) willSwap = true;
+    if (item.type === "armor" && gameState.equippedItems.armor) willSwap = true;
+
+    if (autoEquip || willSwap) {
       logMessage = `Taken: ${item.name} (Equipped)`;
     } else {
       logMessage = `Taken: ${item.name}`;
@@ -132,6 +156,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     takeItem,
     dropItem,
     equipItem,
+    unequipItem,
     useItem,
     hasItem
   };

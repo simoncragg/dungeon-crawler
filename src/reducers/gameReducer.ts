@@ -60,14 +60,61 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         items: currentRoom.items.filter(id => id !== itemId)
       };
 
-      if (item.type === "weapon" && !newEquippedItems.weapon) {
-        newEquippedItems.weapon = itemId;
-      } else if (item.type === "armor" && !newEquippedItems.armor) {
-        newEquippedItems.armor = itemId;
-      } else {
+      let taken = false;
+
+      if (item.type === "weapon") {
+        if (!newEquippedItems.weapon) {
+          newEquippedItems.weapon = itemId;
+          taken = true;
+        } else {
+          // Try to swap
+          const slotIdx = newInventory.items.findIndex(s => s === null);
+          if (slotIdx !== -1) {
+            newInventory.items[slotIdx] = newEquippedItems.weapon;
+            newEquippedItems.weapon = itemId;
+            taken = true;
+          } else {
+            // Inventory full, cannot swap
+            return {
+              ...state,
+              questLog: addLog(state.questLog, "Inventory full! Cannot swap weapon.", "danger"),
+              feedback: getFeedback("Inventory full!", "danger")
+            };
+          }
+        }
+      } else if (item.type === "armor") {
+        if (!newEquippedItems.armor) {
+          newEquippedItems.armor = itemId;
+          taken = true;
+        } else {
+          // Try to swap
+          const slotIdx = newInventory.items.findIndex(s => s === null);
+          if (slotIdx !== -1) {
+            newInventory.items[slotIdx] = newEquippedItems.armor;
+            newEquippedItems.armor = itemId;
+            taken = true;
+          } else {
+            // Inventory full, cannot swap
+            return {
+              ...state,
+              questLog: addLog(state.questLog, "Inventory full! Cannot swap armor.", "danger"),
+              feedback: getFeedback("Inventory full!", "danger")
+            };
+          }
+        }
+      }
+
+      if (!taken) {
         const slotIdx = newInventory.items.findIndex(s => s === null);
         if (slotIdx !== -1) {
           newInventory.items[slotIdx] = itemId;
+        } else {
+          // Should be caught by UI or logic before dispatch, but safety net
+          return {
+            ...state,
+            questLog: addLog(state.questLog, "Inventory full!", "danger"),
+            feedback: getFeedback("Inventory full!", "danger")
+          };
         }
       }
 
@@ -88,7 +135,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     case "DROP_ITEM": {
       const { itemId, logMessage } = action;
       const currentRoom = state.rooms[state.currentRoomId];
-      const newInventory = { ...state.inventory };
+      const newInventory = {
+        ...state.inventory,
+        items: [...state.inventory.items]
+      };
       const newEquippedItems = { ...state.equippedItems };
       const newRooms = { ...state.rooms };
 
@@ -125,7 +175,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     case "EQUIP_ITEM": {
       const { itemId, logMessage } = action;
       const item = ITEMS[itemId];
-      const newInventory = { ...state.inventory };
+      const newInventory = {
+        ...state.inventory,
+        items: [...state.inventory.items]
+      };
       const newEquippedItems = { ...state.equippedItems };
 
       const itemIndex = newInventory.items.indexOf(itemId);
@@ -133,7 +186,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       if (item.type === "weapon") {
         const current = newEquippedItems.weapon;
         newEquippedItems.weapon = itemId;
-        newInventory.items[itemIndex] = current;
+        newInventory.items[itemIndex] = current; // Swap or null if nothing equipped
       } else if (item.type === "armor") {
         const current = newEquippedItems.armor;
         newEquippedItems.armor = itemId;
@@ -153,9 +206,50 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       };
     }
 
+    case "UNEQUIP_ITEM": {
+      const { itemId, logMessage } = action;
+      const newInventory = {
+        ...state.inventory,
+        items: [...state.inventory.items]
+      };
+      const newEquippedItems = { ...state.equippedItems };
+
+      const slotIdx = newInventory.items.findIndex(s => s === null);
+      if (slotIdx === -1) {
+        return {
+          ...state,
+          questLog: addLog(state.questLog, "Inventory full! Cannot unequip.", "danger"),
+          feedback: getFeedback("Inventory Full!", "danger")
+        };
+      }
+
+      if (newEquippedItems.weapon === itemId) {
+        newEquippedItems.weapon = null;
+        newInventory.items[slotIdx] = itemId;
+      } else if (newEquippedItems.armor === itemId) {
+        newEquippedItems.armor = null;
+        newInventory.items[slotIdx] = itemId;
+      }
+
+      const { attack, defense } = getStats(newEquippedItems);
+
+      return {
+        ...state,
+        inventory: newInventory,
+        equippedItems: newEquippedItems,
+        attack,
+        defense,
+        questLog: addLog(state.questLog, logMessage, "info"),
+        feedback: getFeedback(logMessage, "info")
+      };
+    }
+
     case "USE_CONSUMABLE": {
       const { itemId, effect, logMessage } = action;
-      const newInventory = { ...state.inventory };
+      const newInventory = {
+        ...state.inventory,
+        items: [...state.inventory.items]
+      };
       const itemIndex = newInventory.items.indexOf(itemId);
 
       if (itemIndex !== -1) {

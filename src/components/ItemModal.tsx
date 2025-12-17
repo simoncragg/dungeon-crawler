@@ -8,10 +8,12 @@ interface ItemModalProps {
   onClose: () => void;
   onUse: (itemId: string) => void;
   onEquip: (itemId: string) => void;
+  onUnequip: (itemId: string) => void;
   onDrop: (itemId: string) => void;
+  canUnequip: boolean;
 }
 
-const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onDrop }) => {
+const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onUnequip, onDrop, canUnequip }) => {
   const item = ITEMS[itemId];
   if (!item) return null;
 
@@ -78,21 +80,32 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
           )}
 
           {["weapon", "armor"].includes(item.type) && (
-            <button
-              onClick={() => {
-                if (!isEquipped) {
+            isEquipped ? (
+              <button
+                onClick={() => {
+                  onUnequip(item.id);
+                  onClose();
+                }}
+                disabled={!canUnequip}
+                className={`flex-1 py-3 rounded-lg text-sm font-bold transition-colors shadow-lg ${!canUnequip
+                  ? "bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700"
+                  : "bg-amber-600 hover:bg-amber-500 text-white shadow-amber-900/20"
+                  }`}
+                title={!canUnequip ? "Inventory Full" : ""}
+              >
+                Unequip
+              </button>
+            ) : (
+              <button
+                onClick={() => {
                   onEquip(item.id);
                   onClose();
-                }
-              }}
-              disabled={isEquipped}
-              className={`flex-1 py-3 rounded-lg text-sm font-bold transition-colors shadow-lg ${isEquipped
-                ? "bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700"
-                : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-900/20"
-                }`}
-            >
-              Equip
-            </button>
+                }}
+                className="flex-1 py-3 rounded-lg text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/20 transition-colors"
+              >
+                Equip
+              </button>
+            )
           )}
 
           <button

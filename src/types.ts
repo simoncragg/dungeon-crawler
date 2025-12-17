@@ -48,6 +48,7 @@ export type Item = {
     crit?: string;
     clash?: string;
     windup?: string;
+    unequip?: string;
   };
 };
 
@@ -139,4 +140,5 @@ export type GameAction =
   | { type: "COMBAT_ROUND_END" }
   | { type: "SET_COMBAT_PROCESSING"; processing: boolean; playerAction?: CombatAction }
   | { type: "SET_ENEMY_ACTION"; action: CombatAction }
+  | { type: "UNEQUIP_ITEM"; itemId: string; logMessage: string }
   | { type: "SET_COMBAT_RESULT"; result: CombatResult };

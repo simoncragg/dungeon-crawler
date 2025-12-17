@@ -80,7 +80,7 @@ export const useGame = () => {
   /*
    * useInventory
   */
-  const { takeItem, dropItem, equipItem, useItem, hasItem } = useInventory({
+  const { takeItem, dropItem, equipItem, unequipItem, useItem, hasItem } = useInventory({
     gameState,
     dispatch,
     addToLog,
@@ -184,6 +184,7 @@ export const useGame = () => {
     takeItem,
     dropItem,
     equipItem,
+    unequipItem,
     startCombat,
     handleCombatAction,
     useItem,
