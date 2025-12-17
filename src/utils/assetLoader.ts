@@ -65,15 +65,6 @@ export const getInitialAssets = (): string[] => {
   assets.add("/audio/battle-music.mp3");
   assets.add("/audio/sword-defeat.mp3");
 
-  // Item Sounds (Global for now, could be lazy loaded but they are small)
-  Object.values(ITEMS).forEach(item => {
-    if (item.sounds) {
-      Object.values(item.sounds).forEach(sound => {
-        assets.add(`/audio/${sound}`);
-      });
-    }
-  });
-
   // Start Room assets
   const startRoomAssets = getRoomAssets("start");
   startRoomAssets.forEach(asset => assets.add(asset));
