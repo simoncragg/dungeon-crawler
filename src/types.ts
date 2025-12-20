@@ -143,12 +143,12 @@ export interface CombatOutcome {
   successfulParry: boolean;
 }
 
-export interface ResolveCombatTurnRequest {
+export interface ResolveCombatTurnParams {
   playerAction: PlayerCombatAction;
   enemyAction: CombatAction;
   gameState: GameState;
   playerWeapon: EquippedWeapon | EquippedItem | null;
-  enemy: { attack: number; defense: number; name: string };
+  enemy: { hp: number; attack: number; defense: number; name: string };
   successfulParry: boolean;
 }
 

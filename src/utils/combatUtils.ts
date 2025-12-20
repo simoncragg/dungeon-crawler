@@ -5,7 +5,7 @@ import type {
   EquippedWeapon,
   PlayerCombatAction,
   CombatOutcome,
-  ResolveCombatTurnRequest as ResolveCombatTurnParams
+  ResolveCombatTurnParams
 } from "../types";
 import { ITEMS } from "../data/gameData";
 
@@ -319,12 +319,30 @@ export const resolveCombatTurn = ({
     return resolveStagger(pAtk, eDef, playerWeapon, outcome);
   }
 
+  let finalOutcome: CombatOutcome;
+
   switch (playerAction) {
-    case "RIPOSTE": return resolveRiposte(pAtk, playerWeapon, outcome);
-    case "ATTACK": return resolveAttack(pAtk, eAtk, eDef, enemyAction, playerWeapon, outcome);
-    case "BLOCK": return resolveBlock(enemyAction, eAtk, pDef, playerWeapon, outcome);
-    case "PARRY": return resolveParry(enemyAction, eAtk, pDef, playerWeapon, outcome);
+    case "RIPOSTE":
+      finalOutcome = resolveRiposte(pAtk, playerWeapon, outcome);
+      break;
+    case "ATTACK":
+      finalOutcome = resolveAttack(pAtk, eAtk, eDef, enemyAction, playerWeapon, outcome);
+      break;
+    case "BLOCK":
+      finalOutcome = resolveBlock(enemyAction, eAtk, pDef, playerWeapon, outcome);
+      break;
+    case "PARRY":
+      finalOutcome = resolveParry(enemyAction, eAtk, pDef, playerWeapon, outcome);
+      break;
+    default:
+      finalOutcome = resolveIdle(enemyAction, eAtk, outcome);
+      break;
   }
 
-  return resolveIdle(enemyAction, eAtk, outcome);
+  const isFatal = enemy.hp - finalOutcome.enemyDamageTaken <= 0;
+  if (isFatal && finalOutcome.enemyDamageTaken > 0) {
+    finalOutcome.soundToPlay = getCombatSound("attack", playerWeapon);
+  }
+
+  return finalOutcome;
 };

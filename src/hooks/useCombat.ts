@@ -16,9 +16,9 @@ interface UseCombatProps {
 }
 
 export const useCombat = ({ gameState, dispatch, playSoundFile }: UseCombatProps) => {
-  const stopBattleMusicRef = useRef<(() => void) | null>(null);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const telegraphTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stopBattleMusicRef = useRef<(() => void) | null>(null);
 
   const clearCombatTimers = React.useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -90,7 +90,7 @@ export const useCombat = ({ gameState, dispatch, playSoundFile }: UseCombatProps
       enemyAction,
       gameState,
       playerWeapon,
-      enemy: { attack: enemy.attack || 10, defense: enemy.defense || 5, name: enemy.name },
+      enemy: { hp: enemy.hp, attack: enemy.attack || 10, defense: enemy.defense || 5, name: enemy.name },
       successfulParry
     });
 
@@ -102,8 +102,6 @@ export const useCombat = ({ gameState, dispatch, playSoundFile }: UseCombatProps
       setTimeout(() => {
         if (outcome.soundToPlay) {
           playSoundFile(outcome.soundToPlay);
-        } else if (playerAction === "ATTACK" || playerAction === "RIPOSTE") {
-          playSoundFile(playerWeapon?.sounds?.attack ?? "sword-combat-attack.mp3");
         }
       }, hitDelay);
     }
