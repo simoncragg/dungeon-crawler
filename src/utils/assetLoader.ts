@@ -67,6 +67,7 @@ export const getInitialAssets = (): string[] => {
   assets.add("/audio/battle-music.mp3");
   assets.add("/audio/sword-defeat.mp3");
   assets.add("/audio/crit-damage.mp3");
+  assets.add("/audio/swing.mp3");
 
   // Start Room assets
   const startRoomAssets = getRoomAssets("start");
