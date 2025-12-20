@@ -45,6 +45,25 @@ button:not(:disabled) {
 }
 
 /* Animations */
+
+@keyframes blink-close {
+  0% {
+    height: 0vh;
+  }
+
+  50% {
+    height: 51vh;
+  }
+
+  100% {
+    height: 0vh;
+  }
+}
+
+.animate-eyelid {
+  animation: blink-close 0.25s linear forwards;
+}
+
 @keyframes shake {
 
   0%,
@@ -136,6 +155,26 @@ button:not(:disabled) {
   animation: defeat 0.8s forwards ease-in;
 }
 
+@keyframes stagger {
+
+  0%,
+  100% {
+    transform: rotate(0deg) translateX(0);
+  }
+
+  25% {
+    transform: rotate(-0.5deg) translateX(-2px);
+  }
+
+  75% {
+    transform: rotate(0.5deg) translateX(2px);
+  }
+}
+
+.animate-stagger {
+  animation: stagger 3.2s ease-in-out infinite;
+}
+
 @keyframes breathe {
   0% {
     transform: translateY(0);
@@ -150,46 +189,58 @@ button:not(:disabled) {
   }
 }
 
-@keyframes strike-sequence {
+@keyframes strike {
   0% {
     transform: rotate(0deg) translate(0, 0);
   }
 
   25% {
-    transform: rotate(90deg) translate(150%, 50%);
+    transform: rotate(90deg) translate(50%, 12%) scale(0.9);
     opacity: 1;
   }
 
   62% {
-    transform: rotate(90deg) translate(150%, 50%);
+    transform: rotate(90deg) translate(50%, 12%) scale(0.9);
     opacity: 1;
   }
 
   63% {
-    transform: rotate(0deg) translate(180%, 0%) scale(1.1);
+    transform: rotate(0deg) translate(20%, 2%) scale(0.95);
     opacity: 1;
   }
 
   100% {
-    transform: rotate(-120deg) scale(1.1);
+    transform: rotate(-120deg) translate(0%, 10%) scale(1.0);
     opacity: 1;
   }
 }
 
-@keyframes blink-close {
+@keyframes parry {
   0% {
-    height: 0vh;
+    transform: translate(0, 0) rotate(0deg);
   }
 
-  50% {
-    height: 51vh;
+  30% {
+    transform: translate(-30%, 5%) rotate(-100deg) scale(1.0);
+  }
+
+  60% {
+    transform: translate(-30%, 5%) rotate(-100deg) scale(1.0);
   }
 
   100% {
-    height: 0vh;
+    transform: translate(80%, 15%) rotate(180deg) scale(1.1);
   }
 }
 
-.animate-eyelid {
-  animation: blink-close 0.25s linear forwards;
+@keyframes riposte {
+  0% {
+    transform: rotate(90deg) translate(50%, 15%) scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: rotate(-120deg) translate(0%, 0%) scale(1.0);
+    opacity: 1;
+  }
 }

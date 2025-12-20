@@ -30,10 +30,10 @@ export const ITEMS: Record<string, Item> = {
       bottom: "-28%",
       rotation: "-15deg",
     },
-    stats: { attack: 10 },
+    stats: { attack: 10, defense: 0, parryChance: 0.4, critChance: 0.2 },
     sounds: {
       take: "sword-take.wav",
-      attack: "sword-combat-attack.wav",
+      attack: "sword-combat-attack.mp3",
       block: "sword-combat-block.wav",
       crit: "sword-combat-crit.wav",
       clash: "sword-combat-clash.wav",
@@ -46,7 +46,7 @@ export const ITEMS: Record<string, Item> = {
     description: "A splintered wooden shield. Adds +5 Defense.",
     type: "armor",
     icon: Shield,
-    stats: { defense: 5 },
+    stats: { attack: 0, defense: 5, parryChance: 0.1, critChance: 0 },
   },
   "note": {
     id: "note",

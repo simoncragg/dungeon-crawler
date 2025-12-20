@@ -1,11 +1,11 @@
 import React, { useState, useRef } from "react";
-import type { Direction, GameState, LogEntry } from "../types";
+import type { Direction, GameState, LogEntry, GameAction } from "../types";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 import { DIRECTIONS } from "../data/gameData";
 
 interface UseMovementProps {
   gameState: GameState;
-  dispatch: React.Dispatch<any>;
+  dispatch: React.Dispatch<GameAction>;
   addToLog: (text: string, type?: LogEntry["type"]) => void;
 
   playAmbientLoop: (file: string | null, fadeDuration?: number) => void;

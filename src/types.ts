@@ -31,12 +31,22 @@ export type WeaponOverlayConfig = {
   rotation?: string;
 };
 
+export type BaseStats = {
+  attack?: number;
+  defense?: number;
+  parryChance?: number;
+};
+
+export type WeaponStats = BaseStats & {
+  critChance: number;
+};
+
 export type Item = {
   id: string;
   name: string;
   description: string;
   type: ItemType;
-  stats?: { attack?: number; defense?: number };
+  stats?: BaseStats | WeaponStats;
   effect?: (gameState: GameState) => Partial<GameState>;
   icon?: React.ElementType;
   image?: string;
@@ -50,6 +60,14 @@ export type Item = {
     windup?: string;
     unequip?: string;
   };
+};
+
+export type EquippedItem = Item & {
+  stats: Required<BaseStats>;
+};
+
+export type EquippedWeapon = Item & {
+  stats: Required<WeaponStats>;
 };
 
 export type Room = {
@@ -103,7 +121,8 @@ export type Inventory = {
   items: (string | null)[];
 };
 
-export type CombatAction = "ATTACK" | "BLOCK" | "IDLE" | "DAMAGE" | "DEFEAT";
+export type PlayerCombatAction = "ATTACK" | "BLOCK" | "PARRY" | "RIPOSTE" | "IDLE";
+export type CombatAction = PlayerCombatAction | "DAMAGE" | "DEFEAT" | "STAGGER" | "TELEGRAPH" | "STAGGER_HIT";
 
 export type CombatResultType = "crit" | "hit" | "block" | "clash" | "parry" | "miss";
 
@@ -111,6 +130,27 @@ export type CombatResult = {
   type: CombatResultType;
   message: string;
 };
+
+export interface CombatOutcome {
+  playerDamageTaken: number;
+  enemyDamageTaken: number;
+  logMsg: string;
+  logType: LogEntry["type"];
+  combatResult: CombatResult | null;
+  riposteAvailable: boolean;
+  soundToPlay: string;
+  finalEnemyAction: CombatAction;
+  successfulParry: boolean;
+}
+
+export interface ResolveCombatTurnRequest {
+  playerAction: PlayerCombatAction;
+  enemyAction: CombatAction;
+  gameState: GameState;
+  playerWeapon: EquippedWeapon | EquippedItem | null;
+  enemy: { attack: number; defense: number; name: string };
+  successfulParry: boolean;
+}
 
 export type CombatState = {
   inCombat: boolean;
@@ -121,6 +161,7 @@ export type CombatState = {
   enemyId: string;
   enemyImage: string;
   lastResult: CombatResult | null;
+  canRiposte?: boolean;
 };
 
 export type GameAction =
@@ -138,7 +179,8 @@ export type GameAction =
   | { type: "SET_NARRATOR_VISIBLE"; visible: boolean }
   | { type: "START_COMBAT" }
   | { type: "COMBAT_ROUND_END" }
-  | { type: "SET_COMBAT_PROCESSING"; processing: boolean; playerAction?: CombatAction }
+  | { type: "SET_COMBAT_PROCESSING"; processing: boolean; playerAction?: PlayerCombatAction }
   | { type: "SET_ENEMY_ACTION"; action: CombatAction }
   | { type: "UNEQUIP_ITEM"; itemId: string; logMessage: string }
-  | { type: "SET_COMBAT_RESULT"; result: CombatResult };
+  | { type: "SET_COMBAT_RESULT"; result: CombatResult }
+  | { type: "SET_COMBAT_RIPOSTE"; canRiposte: boolean };

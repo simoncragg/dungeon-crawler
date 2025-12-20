@@ -55,11 +55,33 @@ const weaponOverlayStrategies: WeaponOverlayStrategy[] = [
     },
   },
   {
+    name: "Riposte",
+    matches: (combat) => combat?.isProcessing === true && combat?.playerAction === "RIPOSTE",
+    getResult: () => ({
+      activePose: "",
+      currentAnimation: "riposte 0.4s linear forwards",
+      transitionSpeed: "0s",
+    }),
+  },
+  {
+    name: "Parry",
+    matches: (combat) =>
+      (combat?.isProcessing === true && combat?.playerAction === "PARRY") ||
+      (combat?.lastResult?.type === "parry"),
+    getResult: () => {
+      return {
+        activePose: "",
+        currentAnimation: "parry 1.0s linear forwards",
+        transitionSpeed: "0s",
+      };
+    },
+  },
+  {
     name: "Attack",
     matches: (combat) => combat?.isProcessing === true && combat?.playerAction === "ATTACK",
     getResult: () => ({
       activePose: "",
-      currentAnimation: "strike-sequence 0.8s linear forwards",
+      currentAnimation: "strike 0.8s linear forwards",
       transitionSpeed: "0s",
     }),
   },

@@ -75,15 +75,25 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
           </div>
 
           {item.stats && (
-            <div className="flex gap-2">
-              {item.stats.attack && (
+            <div className="flex gap-2 flex-wrap">
+              {item.stats.attack !== undefined && item.stats.attack > 0 && (
                 <div className="px-2 py-1 bg-orange-950/30 border border-orange-900/50 rounded text-sm text-orange-400 font-bold">
                   +{item.stats.attack} Attack
                 </div>
               )}
-              {item.stats.defense && (
+              {item.stats.defense !== undefined && item.stats.defense > 0 && (
                 <div className="px-2 py-1 bg-blue-950/30 border border-blue-900/50 rounded text-sm text-blue-400 font-bold">
-                  +{item.stats.defense} Defense
+                  {item.stats.defense > 0 ? "+" : ""}{item.stats.defense} Defense Points
+                </div>
+              )}
+              {item.stats.parryChance !== undefined && item.stats.parryChance > 0 && (
+                <div className="px-2 py-1 bg-yellow-950/30 border border-yellow-900/50 rounded text-sm text-yellow-400 font-bold">
+                  {Math.round(item.stats.parryChance * 100)}% Parry Chance
+                </div>
+              )}
+              {("critChance" in item.stats) && item.stats.critChance > 0 && (
+                <div className="px-2 py-1 bg-red-950/30 border border-red-900/50 rounded text-sm text-red-400 font-bold">
+                  {Math.round(item.stats.critChance * 100)}% Crit. Chance
                 </div>
               )}
             </div>

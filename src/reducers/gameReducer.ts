@@ -8,6 +8,9 @@ const getStats = (equipped: { weapon: string | null; armor: string | null }) => 
 };
 
 export const getEnemyImage = (enemyId: string, action: CombatAction = "IDLE") => {
+  if (action === "STAGGER_HIT" || action === "STAGGER") {
+    return `/images/enemies/${enemyId}-stagger.png`;
+  }
   return `/images/enemies/${enemyId}-${action.toLowerCase()}.png`;
 };
 
@@ -20,7 +23,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
   const getFeedback = (message: string, type: LogEntry["type"] = "system"): Feedback | null => {
     if (type === "room-title" || type === "room-description") return null;
     if (type === "system" && message.length > 50) return null;
-    return { message, type, id: Date.now() };
+    return { message, type, id: Date.now() + Math.random() };
   };
 
   switch (action.type) {
@@ -390,7 +393,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       let enemyAction = state.combat?.enemyAction || "IDLE";
       let enemyImage = state.combat?.enemyImage || "";
 
-      if (state.combat && damageDealt > 0 && enemyAction === "IDLE") {
+      if (state.combat && damageDealt > 0 && (enemyAction === "IDLE" || enemyAction === "STAGGER")) {
         enemyAction = "DAMAGE";
         enemyImage = getEnemyImage(state.combat.enemyId, "DAMAGE");
       } else if (state.combat) {
@@ -422,13 +425,25 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           playerAction: undefined,
           enemyAction: "IDLE",
           enemyImage: getEnemyImage(state.combat.enemyId, "IDLE"),
-          lastResult: null
+          lastResult: null,
+          canRiposte: false
+        }
+      };
+    }
+
+    case "SET_COMBAT_RIPOSTE": {
+      if (!state.combat) return state;
+      return {
+        ...state,
+        combat: {
+          ...state.combat,
+          canRiposte: action.canRiposte
         }
       };
     }
 
     case "ENEMY_DEFEAT": {
-      const { dropId, logMessage, damageDealt, enemyName } = action;
+      const { dropId, logMessage } = action;
       const newRooms = { ...state.rooms };
       const currentRoom = newRooms[state.currentRoomId];
 
@@ -441,8 +456,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
       newRooms[state.currentRoomId] = newRoom;
 
-      let newLog = addLog(state.questLog, `You hit ${enemyName} for ${damageDealt} DMG.`, "success");
-      newLog = addLog(newLog, logMessage, "success");
+      const newLog = addLog(state.questLog, logMessage, "success");
 
       return {
         ...state,

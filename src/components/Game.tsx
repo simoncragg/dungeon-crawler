@@ -84,23 +84,25 @@ export default function Game() {
             ref={viewportRef}
             className="relative z-10 h-full aspect-video shadow-2xl overflow-hidden will-change-transform"
           >
-            {currentRoom.videoLoop || activeTransitionVideo ? (
-              <video
-                ref={videoRef}
-                src={activeTransitionVideo || currentRoom.videoLoop?.path}
-                autoPlay
-                loop={!activeTransitionVideo}
-                onEnded={activeTransitionVideo ? handleTransitionEnd : undefined}
-                playsInline
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <img
-                src={currentRoom.image}
-                alt={currentRoom.name}
-                className="w-full h-full object-cover"
-              />
-            )}
+            <div className={`w-full h-full transition-all duration-1000 ${gameState.combat?.enemyAction === 'STAGGER' ? 'animate-ken-burns' : ''}`}>
+              {currentRoom.videoLoop || activeTransitionVideo ? (
+                <video
+                  ref={videoRef}
+                  src={activeTransitionVideo || currentRoom.videoLoop?.path}
+                  autoPlay
+                  loop={!activeTransitionVideo}
+                  onEnded={activeTransitionVideo ? handleTransitionEnd : undefined}
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={currentRoom.image}
+                  alt={currentRoom.name}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
 
             <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${!inCombat ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
               <FeedbackOverlay
@@ -167,7 +169,15 @@ export default function Game() {
             {
               currentRoom.enemy && (isEnemyRevealed || inCombat) && (
                 <div className="absolute inset-0 z-20 flex items-end justify-center pointer-events-none">
-                  <div key="enemy-sprite" className={`transition-all duration-1000 ease-in ${(gameState.combat?.enemyAction === 'DAMAGE') ? 'drop-shadow-[0_0_20px_rgba(255,0,0,0.8)]' : (gameState.combat?.enemyAction === 'DEFEAT' ? 'animate-defeat drop-shadow-2xl' : ((gameState.combat?.enemyAction === 'IDLE' || !gameState.combat) ? 'drop-shadow-2xl animate-idle' : 'drop-shadow-2xl'))}`}>
+                  <div
+                    key="enemy-sprite"
+                    className={`transition-all duration-1000 ease-in drop-shadow-2xl ${gameState.combat?.enemyAction === 'DAMAGE' ? 'drop-shadow-[0_0_20px_rgba(255,0,0,0.8)]' :
+                      gameState.combat?.enemyAction === 'STAGGER_HIT' ? 'drop-shadow-[0_0_30px_rgba(255,0,0,0.9)] brightness-125' :
+                        gameState.combat?.enemyAction === 'DEFEAT' ? 'animate-defeat' :
+                          gameState.combat?.enemyAction === 'STAGGER' ? 'animate-stagger' :
+                            (gameState.combat?.enemyAction === 'IDLE' || !gameState.combat) ? 'animate-idle' : ''
+                      }`}
+                  >
                     <img
                       src={gameState.combat?.enemyImage || `/images/enemies/${currentRoom.enemy.id}-idle.png`}
                       alt={currentRoom.enemy.name}
