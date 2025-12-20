@@ -70,6 +70,15 @@ export type EquippedWeapon = Item & {
   stats: Required<WeaponStats>;
 };
 
+export type Hotspot = {
+  direction?: Direction;
+  top: string;
+  left: string;
+  width: string;
+  height: string;
+  label?: string;
+};
+
 export type Room = {
   id: string;
   name: string;
@@ -103,6 +112,7 @@ export type Room = {
     defeatMessage: string;
     drop?: string;
   };
+  hotspots?: Hotspot[];
 };
 
 export type LogEntry = {

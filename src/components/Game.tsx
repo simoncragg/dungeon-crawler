@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useGame } from "../hooks/useGame";
 import { BookOpen } from "lucide-react";
 
@@ -15,6 +15,7 @@ import FeedbackOverlay from "./FeedbackOverlay";
 import CombatOverlay from "./CombatOverlay";
 import WeaponOverlay from "./WeaponOverlay";
 import ShutterBlink from "./ShutterBlink";
+import RoomHotspots from "./RoomHotspots";
 
 export default function Game() {
   const {
@@ -66,6 +67,19 @@ export default function Game() {
     }
   }, [videoRef, currentRoom.videoLoop]);
 
+  const [isDebugMode, setIsDebugMode] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'd') {
+        setIsDebugMode((prev: boolean) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden relative">
       <ShutterBlink isActive={isShutterActive} />
@@ -104,7 +118,16 @@ export default function Game() {
               )}
             </div>
 
-            <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${!inCombat ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+            <RoomHotspots
+              hotspots={currentRoom.hotspots}
+              onHotspotClick={(hotspot) => {
+                if (hotspot.direction) handleMove(hotspot.direction);
+              }}
+              disabled={isWalking || inCombat || gameState.isNarratorVisible}
+              debug={isDebugMode}
+            />
+
+            <div className={`absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ${!inCombat ? "opacity-100" : "opacity-0"}`}>
               <FeedbackOverlay
                 message={feedback?.message || null}
                 delay={["damage", "warning"].includes(feedback?.type || "") ? 500 : 0}
@@ -128,9 +151,8 @@ export default function Game() {
               <BookOpen size={24} />
             </button>
 
-            <div className={`absolute inset-0 z-30 transition-opacity duration-500 ${showStats && !inCombat ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
-
-              <div className="absolute bottom-12 left-8 w-32 h-32">
+            <div className={`absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ${showStats && !inCombat ? "opacity-100" : "opacity-0"}`}>
+              <div className="absolute bottom-12 left-8 w-32 h-32 pointer-events-auto">
                 <DirectionPad
                   currentRoom={currentRoom}
                   isWalking={isWalking}
@@ -140,7 +162,7 @@ export default function Game() {
                 />
               </div>
 
-              <div className="absolute top-8 right-8 w-64">
+              <div className="absolute top-8 right-8 w-64 pointer-events-auto">
                 <ActionPanel
                   currentRoom={currentRoom}
                   isEnemyRevealed={isEnemyRevealed}
@@ -152,7 +174,7 @@ export default function Game() {
                 />
               </div>
 
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-end h-16">
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-end h-16 pointer-events-auto">
                 <EquippedItems
                   equippedItems={gameState.equippedItems}
                   isWalking={isWalking}

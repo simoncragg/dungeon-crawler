@@ -92,7 +92,10 @@ export const WORLD: Record<string, Room> = {
     },
     transitionVideos: {
       north: "/video/scenes/transition-from-damp-cell-to-dark-hallway.mp4"
-    }
+    },
+    hotspots: [
+      { direction: "north", top: "25%", left: "40%", width: "20%", height: "55%", label: "Cell Door" }
+    ]
   },
   "hallway": {
     id: "hallway",
@@ -116,6 +119,11 @@ export const WORLD: Record<string, Room> = {
     image: "/images/scenes/dark-hallway.png",
     heldItemBrightness: 0.4,
     audioLoop: "/audio/eerie-echoes.mp3",
+    hotspots: [
+      { direction: "north", top: "30%", left: "40%", width: "20%", height: "45%", label: "North Gate" },
+      { direction: "east", top: "10%", left: "80%", width: "10%", height: "80%", label: "Archives Door" },
+      { direction: "west", top: "10%", left: "10%", width: "10%", height: "80%", label: "Armory Door" },
+    ],
   },
   "archives": {
     id: "archives",
