@@ -26,6 +26,8 @@ export const getRoomAssets = (roomId: string): string[] => {
     assets.add(getEnemyImage(room.enemy.id, "DAMAGE"));
     assets.add(getEnemyImage(room.enemy.id, "BLOCK"));
     assets.add(getEnemyImage(room.enemy.id, "ATTACK"));
+    assets.add(getEnemyImage(room.enemy.id, "TELEGRAPH"));
+    assets.add(getEnemyImage(room.enemy.id, "STAGGER"));
   }
 
   // items
