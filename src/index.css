@@ -12,6 +12,10 @@ button:not(:disabled) {
   @apply cursor-pointer;
 }
 
+button:disabled {
+  cursor: default;
+}
+
 @theme {
   --font-serif: "Crimson Text", serif;
   --font-medieval: "MedievalSharp", cursive;

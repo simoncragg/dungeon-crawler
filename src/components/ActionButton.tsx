@@ -14,7 +14,7 @@ const ActionButton = ({ icon: Icon, label, disabled = false, danger = false, isW
     onClick={onClick}
     disabled={disabled || isWalking}
     className={`w-full flex items-center justify-center gap-2 p-2 rounded-lg border-2 transition-all active:scale-95 h-full shadow-md ${disabled || isWalking
-      ? "bg-stone-900 border-stone-800 text-stone-700 cursor-not-allowed"
+      ? "bg-stone-900 border-stone-800 text-stone-700"
       : danger
         ? "bg-red-900 border-red-800 hover:bg-red-800 text-red-100"
         : "bg-stone-800 border-stone-600 hover:bg-stone-700 text-stone-200"
