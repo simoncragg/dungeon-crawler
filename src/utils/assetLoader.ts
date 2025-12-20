@@ -1,6 +1,41 @@
 import { ITEMS, WORLD } from "../data/gameData";
 import { getEnemyImage } from "../reducers/gameReducer";
 import { decodeAudioData, setBuffer } from "./audioSystem";
+import type { Room } from "../types";
+
+const getExitAssets = (room: Room, assets: Set<string>) => {
+  if (room.lockedExits) {
+    Object.values(room.lockedExits).forEach(locked => {
+      if (locked.unlockImage) assets.add(locked.unlockImage);
+    });
+  }
+};
+
+const getEnemyAssets = (room: Room, assets: Set<string>) => {
+  if (room.enemy) {
+    const { id } = room.enemy;
+    assets.add(getEnemyImage(id, "IDLE"));
+    assets.add(getEnemyImage(id, "DAMAGE"));
+    assets.add(getEnemyImage(id, "BLOCK"));
+    assets.add(getEnemyImage(id, "ATTACK"));
+    assets.add(getEnemyImage(id, "TELEGRAPH"));
+    assets.add(getEnemyImage(id, "STAGGER"));
+  }
+};
+
+const getItemAssets = (room: Room, assets: Set<string>) => {
+  if (room.items) {
+    room.items.forEach((itemId: string) => {
+      const item = ITEMS[itemId];
+      if (item.image) assets.add(item.image);
+      if (item.sounds) {
+        Object.values(item.sounds).forEach(sound => {
+          assets.add(`/audio/${sound}`);
+        });
+      }
+    });
+  }
+};
 
 export const getRoomAssets = (roomId: string): string[] => {
   const assets: Set<string> = new Set();
@@ -13,52 +48,16 @@ export const getRoomAssets = (roomId: string): string[] => {
   if (room.videoLoop?.path) assets.add(room.videoLoop.path);
   if (room.narration?.path) assets.add(room.narration.path);
 
-  // Unlocked exit images
-  if (room.lockedExits) {
-    Object.values(room.lockedExits).forEach(locked => {
-      if (locked.unlockImage) assets.add(locked.unlockImage);
-    });
-  }
-
-  // Enemy images
-  if (room.enemy) {
-    assets.add(getEnemyImage(room.enemy.id, "IDLE"));
-    assets.add(getEnemyImage(room.enemy.id, "DAMAGE"));
-    assets.add(getEnemyImage(room.enemy.id, "BLOCK"));
-    assets.add(getEnemyImage(room.enemy.id, "ATTACK"));
-    assets.add(getEnemyImage(room.enemy.id, "TELEGRAPH"));
-    assets.add(getEnemyImage(room.enemy.id, "STAGGER"));
-  }
-
-  // items
-  if (room.items) {
-    room.items.forEach(itemId => {
-      const item = ITEMS[itemId];
-      if (item.image) {
-        assets.add(item.image);
-      }
-
-      if (item.sounds) {
-        Object.values(item.sounds).forEach(sound => {
-          assets.add(`/audio/${sound}`);
-        });
-      }
-    });
-  }
+  getExitAssets(room, assets);
+  getEnemyAssets(room, assets);
+  getItemAssets(room, assets);
 
   return Array.from(assets);
 };
 
-export const getInitialAssets = (): string[] => {
-  const assets: Set<string> = new Set();
-
-  // Title Screen Audio
+const getGlobalAssets = (assets: Set<string>) => {
   assets.add("/audio/boom.mp3");
-
-  // Intro Audio
   assets.add("/audio/narration/intro.mp3");
-
-  // Global sounds
   assets.add("/audio/inspect.mp3");
   assets.add("/audio/equip.mp3");
   assets.add("/audio/unequip.mp3");
@@ -68,10 +67,13 @@ export const getInitialAssets = (): string[] => {
   assets.add("/audio/sword-defeat.mp3");
   assets.add("/audio/crit-damage.mp3");
   assets.add("/audio/swing.mp3");
+};
 
-  // Start Room assets
-  const startRoomAssets = getRoomAssets("start");
-  startRoomAssets.forEach(asset => assets.add(asset));
+export const getInitialAssets = (): string[] => {
+  const assets: Set<string> = new Set();
+
+  getGlobalAssets(assets);
+  getRoomAssets("start").forEach(asset => assets.add(asset));
 
   return Array.from(assets);
 };
@@ -79,9 +81,37 @@ export const getInitialAssets = (): string[] => {
 // Track loaded assets to prevent duplicate requests
 const loadedAssets = new Set<string>();
 
+const loadAudioAsset = async (src: string): Promise<void> => {
+  try {
+    const response = await fetch(src);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await decodeAudioData(arrayBuffer);
+    setBuffer(src, audioBuffer);
+  } catch (e) {
+    console.warn(`Failed to load audio: ${src}`, e);
+  }
+};
+
+const loadVideoAsset = async (src: string): Promise<void> => {
+  try {
+    const response = await fetch(src);
+    await response.blob();
+  } catch (e) {
+    console.warn(`Failed to preload video: ${src}`, e);
+  }
+};
+
+const loadImageAsset = async (src: string): Promise<void> => {
+  const img = new Image();
+  img.src = src;
+  try {
+    await img.decode();
+  } catch (e) {
+    console.warn(`Failed to decode image: ${src}`, e);
+  }
+};
+
 export const preloadAssets = async (assets: string[], onProgress?: (progress: number) => void) => {
-  let loadedCount = 0;
-  // Filter out already loaded assets
   const assetsToLoad = assets.filter(src => !loadedAssets.has(src));
   const total = assetsToLoad.length;
 
@@ -90,52 +120,24 @@ export const preloadAssets = async (assets: string[], onProgress?: (progress: nu
     return;
   }
 
+  let loadedCount = 0;
   const updateProgress = () => {
     loadedCount++;
     onProgress?.(Math.round((loadedCount / total) * 100));
   };
 
   const loadPromises = assetsToLoad.map(async (src) => {
-    // Mark as loaded immediately to prevent race conditions
     loadedAssets.add(src);
 
-    // Audio file
     if (src.endsWith('.mp3') || src.endsWith('.wav')) {
-      try {
-        const response = await fetch(src);
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await decodeAudioData(arrayBuffer);
-        setBuffer(src, audioBuffer);
-        updateProgress();
-      } catch (e) {
-        console.warn(`Failed to load audio: ${src}`, e);
-        updateProgress();
-      }
+      await loadAudioAsset(src);
+    } else if (src.endsWith('.mp4')) {
+      await loadVideoAsset(src);
+    } else {
+      await loadImageAsset(src);
     }
-    // Video file
-    else if (src.endsWith('.mp4')) {
-      try {
-        // Fetch/Blob approach to force partial cache
-        const response = await fetch(src);
-        await response.blob();
-        updateProgress();
-      } catch (e) {
-        console.warn(`Failed to preload video: ${src}`, e);
-        updateProgress();
-      }
-    }
-    // Image file
-    else {
-      const img = new Image();
-      img.src = src;
-      try {
-        await img.decode();
-        updateProgress();
-      } catch (e) {
-        console.warn(`Failed to decode image: ${src}`, e);
-        updateProgress();
-      }
-    }
+
+    updateProgress();
   });
 
   await Promise.all(loadPromises);
