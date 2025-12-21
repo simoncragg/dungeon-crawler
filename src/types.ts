@@ -70,14 +70,27 @@ export type EquippedWeapon = Item & {
   stats: Required<WeaponStats>;
 };
 
-export type Hotspot = {
-  direction?: Direction;
+export type BaseHotspot = {
   top: string;
   left: string;
   width: string;
   height: string;
   label?: string;
 };
+
+export type DoorHotspot = BaseHotspot & {
+  type: "door";
+  direction: Direction;
+};
+
+export type ItemHotspot = BaseHotspot & {
+  type: "item";
+  itemId: string;
+  rotation?: string;
+  brightness?: number;
+};
+
+export type Hotspot = DoorHotspot | ItemHotspot;
 
 export type Room = {
   id: string;

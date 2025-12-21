@@ -119,12 +119,14 @@ export default function Game() {
             </div>
 
             <RoomHotspots
-              hotspots={currentRoom.hotspots}
+              hotspots={currentRoom.hotspots?.filter(h => h.type === "door" || currentRoom.items.includes(h.itemId))}
               onHotspotClick={(hotspot) => {
-                if (hotspot.direction) handleMove(hotspot.direction);
+                if (hotspot.type === "door") handleMove(hotspot.direction);
+                if (hotspot.type === "item") takeItem(hotspot.itemId);
               }}
               disabled={isWalking || inCombat || gameState.isNarratorVisible}
               debug={isDebugMode}
+              itemsRevealed={hasInspected}
             />
 
             <div className={`absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ${!inCombat ? "opacity-100" : "opacity-0"}`}>

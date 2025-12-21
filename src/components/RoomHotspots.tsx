@@ -1,3 +1,4 @@
+import { ITEMS } from "../data/gameData";
 import type { Hotspot } from "../types";
 
 interface RoomHotspotsProps {
@@ -5,16 +6,17 @@ interface RoomHotspotsProps {
   onHotspotClick: (hotspot: Hotspot) => void;
   disabled?: boolean;
   debug?: boolean;
+  itemsRevealed?: boolean;
 }
 
-export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug }: RoomHotspotsProps) {
+export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug, itemsRevealed }: RoomHotspotsProps) {
   if (!hotspots || hotspots.length === 0) return null;
 
   return (
     <div className={`absolute inset-0 z-10 ${disabled && !debug ? "pointer-events-none" : "pointer-events-auto"}`}>
-      {hotspots.map((hotspot, index) => (
+      {hotspots.map((hotspot) => (
         <button
-          key={`${hotspot.direction || 'hotspot'}-${index}`}
+          key={hotspot.type === "item" ? hotspot.itemId : hotspot.direction}
           onClick={() => onHotspotClick(hotspot)}
           className={`absolute group overflow-hidden transition-all ${debug ? "border-2 border-dashed border-emerald-500/50 bg-emerald-500/10" : "border-none"}`}
           style={{
@@ -23,13 +25,30 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
             width: hotspot.width,
             height: hotspot.height,
           }}
-          aria-label={hotspot.label || `Move ${hotspot.direction}`}
-          title={hotspot.label || `Move ${hotspot.direction}`}
+          aria-label={hotspot.label || (hotspot.type === "item" ? `Take ${ITEMS[hotspot.itemId]?.name}` : `Move ${hotspot.direction}`)}
+          title={hotspot.label || (hotspot.type === "item" ? `Take ${ITEMS[hotspot.itemId]?.name}` : `Move ${hotspot.direction}`)}
           disabled={disabled && !debug}
         >
+          {hotspot.type === "item" && ITEMS[hotspot.itemId]?.image && (
+            <div
+              className={`w-full h-full transition-all duration-700 ${itemsRevealed ? 'opacity-100 scale-100 blur-none' : 'opacity-0 scale-95 blur-sm'}`}
+              style={{
+                filter: `brightness(${hotspot.brightness ?? 1})`,
+                transform: hotspot.rotation ? `rotate(${hotspot.rotation})` : undefined,
+                pointerEvents: itemsRevealed ? 'auto' : 'none'
+              }}
+            >
+              <img
+                src={ITEMS[hotspot.itemId].image}
+                alt={ITEMS[hotspot.itemId].name}
+                className="w-full h-full object-contain pointer-events-none drop-shadow-lg"
+              />
+            </div>
+          )}
+
           {debug && (
             <div className="absolute top-1 left-1 bg-emerald-950/80 text-emerald-400 text-[10px] px-1 py-0.5 rounded border border-emerald-500/30 whitespace-nowrap font-mono pointer-events-none">
-              {hotspot.direction?.toUpperCase() || 'HOTSPOT'}
+              {hotspot.type === "door" ? hotspot.direction?.toUpperCase() : `ITEM: ${hotspot.itemId}`}
               {hotspot.label && `: ${hotspot.label}`}
             </div>
           )}
