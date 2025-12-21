@@ -127,6 +127,7 @@ export default function Game() {
               disabled={isWalking || inCombat || gameState.isNarratorVisible}
               debug={isDebugMode}
               itemsRevealed={hasInspected}
+              isTransitioning={!!activeTransitionVideo}
             />
 
             <div className={`absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ${!inCombat ? "opacity-100" : "opacity-0"}`}>
