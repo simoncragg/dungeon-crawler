@@ -48,8 +48,6 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
           </button>
         </div>
 
-
-
         {/* Hero Image Area */}
         {item.image && (
           <div className="w-full h-64 bg-black/40 flex items-center justify-center overflow-hidden relative group border-y border-stone-800">
@@ -63,14 +61,21 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
                   setIsTall(true);
                 }
               }}
-              className={`h-full w-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-transform duration-700 ${isTall ? "-rotate-[55deg] scale-[1.35]" : "group-hover:scale-110"}`}
+              className={`max-w-full max-h-full m-auto transition-transform duration-700`}
+              style={{
+                transform: `
+                  ${!item.modalRotation && isTall ? "rotate(-55deg) scale(1.35)" : ""}
+                  ${item.modalScale ? `scale(${item.modalScale})` : ""}
+                  ${item.modalRotation ? `rotate(${item.modalRotation})` : ""}
+                `.trim(),
+              }}
             />
           </div>
         )}
 
         {/* Modal Body */}
-        <div className="p-5 space-y-4">
-          <div className="bg-stone-950/50 p-4 rounded-lg border border-stone-800 text-stone-300 text-lg leading-relaxed italic shadow-inner">
+        <div className="p-4 space-y-4">
+          <div className="bg-stone-950/50 p-3 rounded-lg border border-stone-800 text-stone-300 text-lg leading-relaxed italic shadow-inner">
             {item.description}
           </div>
 

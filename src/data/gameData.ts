@@ -39,6 +39,8 @@ export const ITEMS: Record<string, Item> = {
       clash: "sword-combat-clash.wav",
       windup: "sword-combat-windup.mp3",
     },
+    modalRotation: "-55deg",
+    modalScale: 1.35,
   },
   "wooden-shield": {
     id: "wooden-shield",
@@ -55,6 +57,7 @@ export const ITEMS: Record<string, Item> = {
     type: "item",
     icon: FileText,
     image: "/images/items/crumpled-note.png",
+    modalScale: 0.6,
   },
   "glowing-gem": {
     id: "glowing-gem",

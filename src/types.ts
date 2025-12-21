@@ -50,6 +50,8 @@ export type Item = {
   effect?: (gameState: GameState) => Partial<GameState>;
   icon?: React.ElementType;
   image?: string;
+  modalScale?: number;
+  modalRotation?: string;
   overlayConfig?: WeaponOverlayConfig;
   sounds?: {
     take?: string;
