@@ -180,7 +180,6 @@ export default function Game() {
               <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-end h-16 pointer-events-auto">
                 <EquippedItems
                   equippedItems={gameState.equippedItems}
-                  isWalking={isWalking}
                   onInspect={setViewingItemId}
                 />
                 <Inventory
@@ -276,6 +275,7 @@ export default function Game() {
             onUnequip={unequipItem}
             onDrop={dropItem}
             canUnequip={gameState.inventory.items.some(i => i === null)}
+            isDroppable={!isWalking}
           />
         )
       }

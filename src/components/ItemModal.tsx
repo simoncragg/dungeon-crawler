@@ -14,7 +14,7 @@ interface ItemModalProps {
   isDroppable?: boolean;
 }
 
-const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onUnequip, onDrop, canUnequip }) => {
+const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onUnequip, onDrop, canUnequip, isDroppable = true }) => {
   const item = ITEMS[itemId];
   const [isTall, setIsTall] = React.useState(false);
 
@@ -159,7 +159,12 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
               onDrop(item.id);
               onClose();
             }}
-            className="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider font-medieval bg-stone-800 hover:bg-red-900/50 border border-stone-700 hover:border-red-800 text-stone-300 hover:text-red-200 transition-colors flex items-center justify-center gap-2"
+            disabled={isDroppable === false}
+            className={`flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider font-medieval border transition-colors flex items-center justify-center gap-2 ${isDroppable === false
+              ? "bg-stone-800 text-stone-500 cursor-not-allowed border-stone-700"
+              : "bg-stone-800 hover:bg-red-900/50 border-stone-700 hover:border-red-800 text-stone-300 hover:text-red-200"
+              }`}
+            title={isDroppable === false ? "Cannot drop while moving" : ""}
           >
             Drop
           </button>

@@ -5,11 +5,10 @@ interface EquippedSlotProps {
   type: string;
   itemId: string | null;
   icon: React.ElementType;
-  isWalking: boolean;
   onInspect: (id: string) => void;
 }
 
-const EquippedSlot = ({ type, itemId, icon: PlaceholderIcon, isWalking, onInspect }: EquippedSlotProps) => {
+const EquippedSlot = ({ type, itemId, icon: PlaceholderIcon, onInspect }: EquippedSlotProps) => {
   const item = itemId ? ITEMS[itemId] : null;
   const ItemIcon = item ? item.icon : null;
   if (!itemId) {
@@ -26,7 +25,6 @@ const EquippedSlot = ({ type, itemId, icon: PlaceholderIcon, isWalking, onInspec
   return (
     <button
       onClick={() => onInspect(itemId)}
-      disabled={isWalking}
       className="w-12 h-full rounded-lg border-2 flex flex-col items-center justify-center relative transition-all shadow-sm bg-stone-800 border-stone-600 text-emerald-400 hover:bg-stone-700 hover:border-emerald-500/50 hover:scale-105 group overflow-hidden"
       title={item?.name}
     >
