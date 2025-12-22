@@ -2,6 +2,14 @@
 
 export type ItemType = "item" | "weapon" | "armor" | "consumable" | "key";
 
+export type GlowEffect = {
+  color: string;
+  blur?: string;
+  pulse?: boolean;
+  offsetY?: string;
+  intensity?: 1 | 2 | 3;
+};
+
 export type GameState = {
   currentRoomId: string;
   inventory: Inventory;
@@ -58,6 +66,7 @@ export type Item = {
     scale?: number;
     rotation?: string;
   };
+  glow?: GlowEffect;
   overlayConfig?: WeaponOverlayConfig;
   sounds?: {
     take?: string;

@@ -144,20 +144,65 @@ button:disabled {
   animation: ken-burns 20s ease-in-out infinite alternate;
 }
 
-@keyframes glow-pulse {
+@keyframes glow-pulse-1 {
 
   0%,
   100% {
-    filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.8)) drop-shadow(0 0 30px rgba(16, 185, 129, 0.4));
+    filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%));
   }
 
   50% {
-    filter: drop-shadow(0 0 25px rgba(16, 185, 129, 1)) drop-shadow(0 0 60px rgba(16, 185, 129, 0.8));
+    filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-lg, 30px) var(--glow-color, #10b981));
   }
 }
 
-.animate-glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
+@keyframes glow-pulse-2 {
+
+  0%,
+  100% {
+    filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%));
+  }
+
+  50% {
+    filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-lg, 30px) var(--glow-color, #10b981)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-lg, 30px) var(--glow-color, #10b981));
+  }
+}
+
+@keyframes glow-pulse-3 {
+
+  0%,
+  100% {
+    filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%));
+  }
+
+  50% {
+    filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-lg, 30px) var(--glow-color, #10b981)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-lg, 30px) var(--glow-color, #10b981)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-lg, 30px) var(--glow-color, #10b981));
+  }
+}
+
+/* Base Glow Classes */
+.glow-1 {
+  filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%));
+}
+
+.glow-2 {
+  filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%));
+}
+
+.glow-3 {
+  filter: brightness(var(--glow-brightness, 1)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%)) drop-shadow(0 var(--glow-offset-y, 0px) var(--glow-blur-sm, 15px) color-mix(in srgb, var(--glow-color, #10b981), transparent 10%));
+}
+
+.glow-pulse-1 {
+  animation: glow-pulse-1 2s ease-in-out infinite;
+}
+
+.glow-pulse-2 {
+  animation: glow-pulse-2 2s ease-in-out infinite;
+}
+
+.glow-pulse-3 {
+  animation: glow-pulse-3 2s ease-in-out infinite;
 }
 
 @keyframes defeat {

@@ -67,6 +67,7 @@ export const ITEMS: Record<string, Item> = {
     image: "/images/items/potion.png",
     slotStyle: { scale: 0.9 },
     modalStyle: { scale: 0.8, rotation: "0deg" },
+    glow: { color: "#ef4444", offsetY: "4px", blur: "10px", intensity: 1 },
     effect: (state) => ({ health: Math.min(state.health + 50, state.maxHealth) }),
   },
   "glowing-gem": {
@@ -78,6 +79,7 @@ export const ITEMS: Record<string, Item> = {
     image: "/images/items/glowing-gem.png",
     slotStyle: { scale: 0.9 },
     modalStyle: { scale: 0.6 },
+    glow: { color: "#10b981", blur: "48px", pulse: true, intensity: 3 },
   },
 };
 
@@ -182,7 +184,7 @@ export const WORLD: Record<string, Room> = {
     heldItemBrightness: 0.4,
     hotspots: [
       {
-        type: "item", itemId: "potion", top: "66%", left: "34%", width: "6%", height: "14%", scale: 1.0, brightness: 0.6, label: "Health Potion"
+        type: "item", itemId: "potion", top: "66%", left: "34%", width: "6%", height: "14%", scale: 1.0, brightness: 0.7, label: "Health Potion"
       },
       { type: "item", itemId: "glowing-gem", top: "51%", left: "55%", width: "2%", height: "4%", rotation: "-22deg", scale: 0.8, brightness: 1.2, label: "Glowing Gem" },
     ]

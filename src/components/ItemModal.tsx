@@ -11,6 +11,7 @@ interface ItemModalProps {
   onUnequip: (itemId: string) => void;
   onDrop: (itemId: string) => void;
   canUnequip: boolean;
+  isDroppable?: boolean;
 }
 
 const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onUnequip, onDrop, canUnequip }) => {
@@ -61,8 +62,12 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
                   setIsTall(true);
                 }
               }}
-              className="max-w-full max-h-full m-auto transition-transform duration-700"
+              className={`max-w-full max-h-full m-auto transition-transform duration-700 ${item.glow ? (item.glow.pulse ? 'glow-pulse-1' : 'glow-1') : ''}`}
               style={{
+                "--glow-color": item.glow?.color,
+                "--glow-offset-y": item.glow?.offsetY || "0px",
+                "--glow-blur-sm": item.glow?.blur || "15px",
+                "--glow-blur-lg": `calc(${item.glow?.blur || "15px"} * 1.4)`,
                 transform: `
                   ${!item.modalStyle?.rotation && isTall ? "rotate(-55deg) scale(1.35)" : ""}
                   ${item.modalStyle?.scale ? `scale(${item.modalStyle.scale})` : ""}

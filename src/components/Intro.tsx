@@ -93,8 +93,14 @@ export default function Intro({ onComplete }: IntroProps) {
       >
         <Gem
           size={80}
-          className={`text-emerald-500 fill-emerald-500/10 animate-pulse animate-glow-pulse transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isScalingDown || !isGemVisible ? "scale-0" : "scale-100"
+          className={`text-emerald-500 fill-emerald-500/10 animate-pulse glow-pulse-3 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isScalingDown || !isGemVisible ? "scale-0" : "scale-100"
             }`}
+          style={{
+            "--glow-color": "#10b981",
+            "--glow-blur-sm": "20px",
+            "--glow-blur-lg": "50px",
+            "--glow-brightness": "1.2"
+          } as React.CSSProperties}
           strokeWidth={1}
         />
       </div>
