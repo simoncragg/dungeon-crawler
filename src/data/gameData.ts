@@ -9,7 +9,7 @@ export const ITEMS: Record<string, Item> = {
     type: "item",
     icon: FileText,
     image: "/images/items/crumpled-note.png",
-    modalScale: 0.6,
+    modalStyle: { scale: 0.6 },
     slotStyle: { scale: 1.0 },
   },
   "rusty-sword": {
@@ -34,8 +34,7 @@ export const ITEMS: Record<string, Item> = {
       clash: "sword-combat-clash.wav",
       windup: "sword-combat-windup.mp3",
     },
-    modalRotation: "-55deg",
-    modalScale: 1.35,
+    modalStyle: { scale: 1.35, rotation: "-55deg" },
     slotStyle: { scale: 1.4, rotation: "-45deg" },
   },
   "buckler-shield": {
@@ -45,9 +44,8 @@ export const ITEMS: Record<string, Item> = {
     type: "armor",
     icon: Shield,
     image: "/images/items/buckler-shield.png",
+    modalStyle: { scale: 0.8, rotation: "0deg" },
     stats: { attack: 0, defense: 5, parryChance: 0.1, critChance: 0 },
-    modalScale: 0.8,
-    modalRotation: "0deg",
     slotStyle: { scale: 1.0 },
   },
   "rusty-key": {
@@ -58,7 +56,7 @@ export const ITEMS: Record<string, Item> = {
     icon: Key,
     image: "/images/items/rusty-key.png",
     slotStyle: { scale: 1.0, rotation: "45deg" },
-    modalRotation: "45deg",
+    modalStyle: { scale: 1.0, rotation: "45deg" },
   },
   "potion": {
     id: "potion",
@@ -68,8 +66,7 @@ export const ITEMS: Record<string, Item> = {
     icon: FlaskConical,
     image: "/images/items/potion.png",
     slotStyle: { scale: 0.9 },
-    modalScale: 0.8,
-    modalRotation: "0deg",
+    modalStyle: { scale: 0.8, rotation: "0deg" },
     effect: (state) => ({ health: Math.min(state.health + 50, state.maxHealth) }),
   },
   "glowing-gem": {
@@ -79,9 +76,8 @@ export const ITEMS: Record<string, Item> = {
     type: "key",
     icon: Gem,
     image: "/images/items/glowing-gem.png",
-    slotStyle: { scale: 0.8 },
-    modalScale: 0.6,
-    modalRotation: "0deg",
+    slotStyle: { scale: 0.9 },
+    modalStyle: { scale: 0.6 },
   },
 };
 

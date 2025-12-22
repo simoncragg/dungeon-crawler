@@ -50,8 +50,10 @@ export type Item = {
   effect?: (gameState: GameState) => Partial<GameState>;
   icon?: React.ElementType;
   image?: string;
-  modalScale?: number;
-  modalRotation?: string;
+  modalStyle?: {
+    scale?: number;
+    rotation?: string;
+  };
   slotStyle?: {
     scale?: number;
     rotation?: string;

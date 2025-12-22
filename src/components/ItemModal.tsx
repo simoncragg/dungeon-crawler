@@ -61,14 +61,14 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
                   setIsTall(true);
                 }
               }}
-              className={`max-w-full max-h-full m-auto transition-transform duration-700`}
+              className="max-w-full max-h-full m-auto transition-transform duration-700"
               style={{
                 transform: `
-                  ${!item.modalRotation && isTall ? "rotate(-55deg) scale(1.35)" : ""}
-                  ${item.modalScale ? `scale(${item.modalScale})` : ""}
-                  ${item.modalRotation ? `rotate(${item.modalRotation})` : ""}
+                  ${!item.modalStyle?.rotation && isTall ? "rotate(-55deg) scale(1.35)" : ""}
+                  ${item.modalStyle?.scale ? `scale(${item.modalStyle.scale})` : ""}
+                  ${item.modalStyle?.rotation ? `rotate(${item.modalStyle.rotation})` : ""}
                 `.trim(),
-              }}
+              } as React.CSSProperties}
             />
           </div>
         )}
