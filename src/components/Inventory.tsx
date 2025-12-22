@@ -28,10 +28,24 @@ export default function Inventory({ items, isWalking, onInspect }: InventoryProp
               key={index}
               onClick={() => onInspect(itemId)}
               disabled={isWalking}
-              className="shrink-0 h-12 w-12 rounded border-2 flex flex-col items-center justify-center relative transition-colors bg-stone-800 border-stone-600 text-stone-400 hover:bg-stone-700 hover:text-amber-200 hover:border-amber-700/50 shadow-sm"
+              className="shrink-0 h-12 w-12 rounded border-2 flex flex-col items-center justify-center relative transition-all bg-stone-800 border-stone-600 text-stone-400 hover:bg-stone-700 hover:text-amber-200 hover:border-amber-700/50 hover:scale-105 shadow-sm group overflow-hidden"
               title={item.name}
             >
-              {Icon && <Icon size={18} />}
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full object-contain p-1 opacity-80 group-hover:opacity-100 transition-all"
+                  style={{
+                    transform: item.slotStyle ? `
+                      ${item.slotStyle.scale ? `scale(${item.slotStyle.scale})` : ''} 
+                      ${item.slotStyle.rotation ? `rotate(${item.slotStyle.rotation})` : ''}
+                    `.trim() : undefined
+                  }}
+                />
+              ) : (
+                Icon && <Icon size={18} />
+              )}
             </button>
           );
         })

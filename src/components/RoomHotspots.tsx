@@ -38,7 +38,10 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
               className={`w-full h-full transition-all duration-200 ${itemsRevealed ? 'opacity-100 scale-100 blur-none' : 'opacity-0 scale-95 blur-sm'}`}
               style={{
                 filter: `brightness(${hotspot.brightness ?? 1})`,
-                transform: hotspot.rotation ? `rotate(${hotspot.rotation})` : undefined,
+                transform: `
+                  ${hotspot.rotation ? `rotate(${hotspot.rotation})` : ""}
+                  ${hotspot.scale ? `scale(${hotspot.scale})` : ""}
+                `.trim() || undefined,
                 pointerEvents: itemsRevealed ? 'auto' : 'none'
               }}
             >

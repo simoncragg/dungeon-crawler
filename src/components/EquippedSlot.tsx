@@ -27,11 +27,25 @@ const EquippedSlot = ({ type, itemId, icon: PlaceholderIcon, isWalking, onInspec
     <button
       onClick={() => onInspect(itemId)}
       disabled={isWalking}
-      className="w-12 h-full rounded-lg border-2 flex flex-col items-center justify-center relative transition-colors shadow-sm bg-stone-800 border-stone-600 text-emerald-400 hover:bg-stone-700 hover:border-emerald-500/50"
+      className="w-12 h-full rounded-lg border-2 flex flex-col items-center justify-center relative transition-all shadow-sm bg-stone-800 border-stone-600 text-emerald-400 hover:bg-stone-700 hover:border-emerald-500/50 hover:scale-105 group overflow-hidden"
       title={item?.name}
     >
-      {ItemIcon && <ItemIcon size={20} />}
-      <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow shadow-emerald-500/50"></div>
+      {item?.image ? (
+        <img
+          src={item.image}
+          alt={item.name}
+          className="w-full h-full object-contain p-1 opacity-80 group-hover:opacity-100 transition-all"
+          style={{
+            transform: item.slotStyle ? `
+              ${item.slotStyle.scale ? `scale(${item.slotStyle.scale})` : ''}
+              ${item.slotStyle.rotation ? `rotate(${item.slotStyle.rotation})` : ''}
+            `.trim() : undefined
+          }}
+        />
+      ) : (
+        ItemIcon && <ItemIcon size={20} />
+      )}
+      <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow shadow-emerald-500/50 z-10"></div>
     </button>
   );
 };

@@ -52,6 +52,10 @@ export type Item = {
   image?: string;
   modalScale?: number;
   modalRotation?: string;
+  slotStyle?: {
+    scale?: number;
+    rotation?: string;
+  };
   overlayConfig?: WeaponOverlayConfig;
   sounds?: {
     take?: string;
@@ -78,6 +82,7 @@ export type BaseHotspot = {
   width: string;
   height: string;
   label?: string;
+  scale?: number;
 };
 
 export type DoorHotspot = BaseHotspot & {

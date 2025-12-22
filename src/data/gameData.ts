@@ -2,20 +2,15 @@ import { Key, FlaskConical, Sword, Shield, FileText, Gem } from "lucide-react";
 import type { Item, Room, Direction } from "../types";
 
 export const ITEMS: Record<string, Item> = {
-  "rusty-key": {
-    id: "rusty-key",
-    name: "Rusty Key",
-    description: "An old iron key. It looks brittle.",
-    type: "key",
-    icon: Key,
-  },
-  "potion": {
-    id: "potion",
-    name: "Red Potion",
-    description: "A bubbling red liquid. Heals 50 HP.",
-    type: "consumable",
-    icon: FlaskConical,
-    effect: (state) => ({ health: Math.min(state.health + 50, state.maxHealth) }),
+  "crumpled-note": {
+    id: "crumpled-note",
+    name: "Crumpled Note",
+    description: "You unfold the paper. It reads: \"The Guard stole my key! I hid my sword in the cell, but he is too strong to fight without it!\"",
+    type: "item",
+    icon: FileText,
+    image: "/images/items/crumpled-note.png",
+    modalScale: 0.6,
+    slotStyle: { scale: 1.0 },
   },
   "rusty-sword": {
     id: "rusty-sword",
@@ -41,23 +36,41 @@ export const ITEMS: Record<string, Item> = {
     },
     modalRotation: "-55deg",
     modalScale: 1.35,
+    slotStyle: { scale: 1.4, rotation: "-45deg" },
   },
-  "wooden-shield": {
-    id: "wooden-shield",
-    name: "Wooden Shield",
-    description: "A splintered wooden shield. Adds +5 Defense.",
+  "buckler-shield": {
+    id: "buckler-shield",
+    name: "Buckler Shield",
+    description: "A simple yet effective shield. Adds +5 Defense.",
     type: "armor",
     icon: Shield,
+    image: "/images/items/buckler-shield.png",
     stats: { attack: 0, defense: 5, parryChance: 0.1, critChance: 0 },
+    modalScale: 0.8,
+    modalRotation: "0deg",
+    slotStyle: { scale: 1.0 },
   },
-  "note": {
-    id: "note",
-    name: "Crumpled Note",
-    description: "You unfold the paper. It reads: \"The Guard stole my key! I hid my sword in the cell, but he is too strong to fight without it!\"",
-    type: "item",
-    icon: FileText,
-    image: "/images/items/crumpled-note.png",
-    modalScale: 0.6,
+  "rusty-key": {
+    id: "rusty-key",
+    name: "Rusty Key",
+    description: "An old iron key. It looks brittle.",
+    type: "key",
+    icon: Key,
+    image: "/images/items/rusty-key.png",
+    slotStyle: { scale: 1.0, rotation: "45deg" },
+    modalRotation: "45deg",
+  },
+  "potion": {
+    id: "potion",
+    name: "Red Potion",
+    description: "A bubbling red liquid. Heals 50 HP.",
+    type: "consumable",
+    icon: FlaskConical,
+    image: "/images/items/potion.png",
+    slotStyle: { scale: 0.9 },
+    modalScale: 0.8,
+    modalRotation: "0deg",
+    effect: (state) => ({ health: Math.min(state.health + 50, state.maxHealth) }),
   },
   "glowing-gem": {
     id: "glowing-gem",
@@ -65,6 +78,10 @@ export const ITEMS: Record<string, Item> = {
     description: "A stone pulsing with blue light. It feels warm to the touch.",
     type: "key",
     icon: Gem,
+    image: "/images/items/glowing-gem.png",
+    slotStyle: { scale: 0.8 },
+    modalScale: 0.6,
+    modalRotation: "0deg",
   },
 };
 
@@ -80,7 +97,7 @@ export const WORLD: Record<string, Room> = {
       "Time to move.",
     ],
     exits: { north: "hallway" },
-    items: ["note", "rusty-sword"],
+    items: ["crumpled-note", "rusty-sword"],
     coordinates: { x: 0, y: 0 },
     shortName: "CELL",
     image: "/images/scenes/damp-cell.png",
@@ -99,8 +116,8 @@ export const WORLD: Record<string, Room> = {
     },
     hotspots: [
       { type: "door", direction: "north", top: "25%", left: "40%", width: "20%", height: "55%", label: "Cell Door" },
-      { type: "item", itemId: "rusty-sword", top: "55%", left: "70%", width: "5%", height: "30%", rotation: "185deg", brightness: 0.5 },
-      { type: "item", itemId: "note", top: "85%", left: "25%", width: "10%", height: "10%", rotation: "15deg", brightness: 0.7 }
+      { type: "item", itemId: "crumpled-note", top: "85%", left: "25%", width: "10%", height: "10%", rotation: "15deg", brightness: 0.7, label: "CrumpledNote" },
+      { type: "item", itemId: "rusty-sword", top: "55%", left: "70%", width: "5%", height: "30%", rotation: "185deg", brightness: 0.5, label: "Rusty Sword" },
     ]
   },
   "hallway": {
@@ -115,7 +132,7 @@ export const WORLD: Record<string, Room> = {
       "You are a rat in a maze, and the walls are murmuring your name. Which path will you choose?"
     ],
     exits: { south: "start", east: "archives", west: "armory", north: "forest" },
-    items: ["wooden-shield"],
+    items: ["buckler-shield"],
     coordinates: { x: 0, y: 1 },
     shortName: "HALL",
     lockedExits: {
@@ -129,18 +146,8 @@ export const WORLD: Record<string, Room> = {
       { type: "door", direction: "north", top: "30%", left: "40%", width: "20%", height: "45%", label: "North Gate" },
       { type: "door", direction: "east", top: "10%", left: "80%", width: "10%", height: "80%", label: "Archives Door" },
       { type: "door", direction: "west", top: "10%", left: "10%", width: "10%", height: "80%", label: "Armory Door" },
+      { type: "item", itemId: "buckler-shield", top: "70%", left: "19%", width: "16%", height: "16%", rotation: "15deg", brightness: 0.5, label: "Buckler Shield" }
     ],
-  },
-  "archives": {
-    id: "archives",
-    name: "Dusty Archives",
-    description: "Shelves of rotting books. Dust motes dance in the air.",
-    exits: { west: "hallway" },
-    items: ["glowing-gem", "potion"],
-    coordinates: { x: 1, y: 1 },
-    shortName: "ARCHIVES",
-    image: "/images/scenes/archives.png",
-    heldItemBrightness: 0.4,
   },
   "armory": {
     id: "armory",
@@ -163,6 +170,26 @@ export const WORLD: Record<string, Room> = {
     shortName: "ARMORY",
     image: "/images/scenes/armory.png",
     heldItemBrightness: 0.5,
+    hotspots: [
+      { type: "item", itemId: "rusty-key", top: "30%", left: "40%", width: "20%", height: "45%", rotation: "90deg", scale: 0.8, brightness: 1.0, label: "Rusty Key" },
+    ]
+  },
+  "archives": {
+    id: "archives",
+    name: "Dusty Archives",
+    description: "Shelves of rotting books. Dust motes dance in the air.",
+    exits: { west: "hallway" },
+    items: ["glowing-gem", "potion"],
+    coordinates: { x: 1, y: 1 },
+    shortName: "ARCHIVES",
+    image: "/images/scenes/archives.png",
+    heldItemBrightness: 0.4,
+    hotspots: [
+      {
+        type: "item", itemId: "potion", top: "66%", left: "34%", width: "6%", height: "14%", scale: 1.0, brightness: 0.6, label: "Health Potion"
+      },
+      { type: "item", itemId: "glowing-gem", top: "51%", left: "55%", width: "2%", height: "4%", rotation: "-22deg", scale: 0.8, brightness: 1.2, label: "Glowing Gem" },
+    ]
   },
   "forest": {
     id: "forest",
