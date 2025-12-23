@@ -139,6 +139,10 @@ export const WORLD: Record<string, Room> = {
     },
     image: "/images/scenes/dark-hallway.png",
     heldItemBrightness: 0.4,
+    narration: {
+      path: "/audio/narration/dark-hallway.mp3",
+      volume: 0.7,
+    },
     audioLoop: "/audio/eerie-echoes.mp3",
     hotspots: [
       { type: "door", direction: "north", top: "30%", left: "40%", width: "20%", height: "45%", label: "North Gate" },
