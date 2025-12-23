@@ -40,21 +40,24 @@ export const useGame = () => {
       addToLog(nextRoom.name, "room-title");
       addToLog(nextRoom.description, "room-description");
 
+      if (nextRoom.narration?.text) {
+        addToLog(nextRoom.narration!.text!, "narration");
+      }
+
       if (nextRoom.enemy) {
         const enemyName = nextRoom.enemy.name;
         if (isRevisit) {
           addToLog(`A ${enemyName} blocks your path!`, "danger");
         } else {
-          const delay = nextRoom.description.length * 10 + 500;
           setTimeout(() => {
             addToLog(`A ${enemyName} blocks your path!`, "danger");
             setIsEnemyRevealed(true);
-            dispatch({ type: "SET_NARRATOR_VISIBLE", visible: false });
+            dispatch({ type: "SET_QUEST_LOG_OPEN", open: false });
             playSoundFile("danger.mp3");
-          }, delay);
+          }, 500);
         }
       }
-    }, 600);
+    }, 1200);
   }, [gameState.rooms, gameState.visitedRooms, addToLog, playSoundFile]);
 
   /*
@@ -189,7 +192,7 @@ export const useGame = () => {
     handleCombatAction,
     useItem,
     feedback: gameState.feedback || { message: null, type: null, id: 0 },
-    setNarratorVisible: (visible: boolean) => dispatch({ type: "SET_NARRATOR_VISIBLE", visible }),
+    setQuestLogOpen: (open: boolean) => dispatch({ type: "SET_QUEST_LOG_OPEN", open }),
     videoRef
   };
 };

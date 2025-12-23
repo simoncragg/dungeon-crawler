@@ -3,8 +3,8 @@ import { useGame } from "../hooks/useGame";
 import { BookOpen } from "lucide-react";
 
 import ItemModal from "./ItemModal";
-
-import SceneNarrator from "./SceneNarrator";
+import SceneTitle from "./SceneTitle";
+import QuestLog from "./QuestLog";
 import WorldMap from "./WorldMap";
 import EquippedItems from "./EquippedItems";
 import Inventory from "./Inventory";
@@ -40,7 +40,7 @@ export default function Game() {
     handleCombatAction,
     useItem,
     feedback,
-    setNarratorVisible,
+    setQuestLogOpen,
     videoRef,
     activeTransitionVideo,
     handleTransitionEnd,
@@ -48,7 +48,7 @@ export default function Game() {
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
-  const showStats = !gameState.isNarratorVisible;
+  const showStats = !gameState.isQuestLogOpen;
   const isShakeEffect = ["damage", "warning", "clash"].includes(feedback?.type || "");
 
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -124,7 +124,7 @@ export default function Game() {
                 if (hotspot.type === "door") handleMove(hotspot.direction);
                 if (hotspot.type === "item") takeItem(hotspot.itemId);
               }}
-              disabled={isWalking || inCombat || gameState.isNarratorVisible}
+              disabled={isWalking || inCombat || gameState.isQuestLogOpen}
               debug={isDebugMode}
               itemsRevealed={hasInspected}
               isTransitioning={!!activeTransitionVideo}
@@ -147,9 +147,9 @@ export default function Game() {
             </div>
 
             <button
-              onClick={() => setNarratorVisible(true)}
-              className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 p-2 bg-black/50 hover:bg-black/70 text-emerald-400 hover:text-emerald-300 rounded-full border border-emerald-900/50 transition-all hover:scale-110 shadow-lg backdrop-blur-sm ${!gameState.isNarratorVisible && !inCombat ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-90"}`}
-              aria-label="Show Narrative"
+              onClick={() => setQuestLogOpen(true)}
+              className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 p-2 bg-black/50 hover:bg-black/70 text-emerald-400 hover:text-emerald-300 rounded-full border border-emerald-900/50 transition-all hover:scale-110 shadow-lg backdrop-blur-sm ${!gameState.isQuestLogOpen && !inCombat ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-90"}`}
+              aria-label="Quest Log"
             >
               <BookOpen size={24} />
             </button>
@@ -248,22 +248,20 @@ export default function Game() {
                 onAction={handleCombatAction}
               />
             )}
+
+
           </div>
         </div>
       </div>
-
       <div className="relative z-10 flex flex-col h-full justify-end pointer-events-none">
-
-        <div className={`shrink-0 pb-4 px-4 min-h-[200px] flex flex-col justify-end ${gameState.isNarratorVisible ? "pointer-events-auto" : "pointer-events-none"}`}>
-          {gameState.isNarratorVisible && (
-            <SceneNarrator
-              currentRoom={currentRoom}
-              onContinue={() => setNarratorVisible(false)}
-            />
-          )}
+        <div className="shrink-0 pb-32 px-4 flex flex-col items-center justify-end">
+          <SceneTitle
+            key={currentRoom.name}
+            title={currentRoom.name}
+            forceHide={!!feedback?.message}
+          />
         </div>
       </div>
-
       {
         viewingItemId && (
           <ItemModal
@@ -279,6 +277,13 @@ export default function Game() {
           />
         )
       }
+
+      {gameState.isQuestLogOpen && (
+        <QuestLog
+          questLog={gameState.questLog}
+          onClose={() => setQuestLogOpen(false)}
+        />
+      )}
     </div>
   );
 }

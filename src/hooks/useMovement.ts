@@ -126,10 +126,6 @@ export const useMovement = ({
       return;
     }
 
-    if (!isLocked) {
-      dispatch({ type: "SET_QUEST_LOG", log: [] });
-    }
-
     setIsWalking(true);
     setWalkingDirection(direction);
 

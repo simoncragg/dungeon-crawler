@@ -19,9 +19,10 @@ export const INITIAL_STATE: GameState = {
   questLog: [
     { id: 0, type: "room-title", text: WORLD["start"].name },
     { id: 1, type: "room-description", text: WORLD["start"].description },
+    { id: 2, type: "narration", text: WORLD["start"].narration?.text || "" },
   ],
   feedback: null,
-  isNarratorVisible: true,
+  isQuestLogOpen: false,
   combat: null,
   attack: 5,
   defense: 0

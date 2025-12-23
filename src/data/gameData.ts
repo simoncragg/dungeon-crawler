@@ -87,13 +87,7 @@ export const WORLD: Record<string, Room> = {
   "start": {
     id: "start",
     name: "Damp Cell",
-    description: "You wake with a start! Such a strange dream...",
-    narrative: [
-      "You wake with a start! Such a strange dream...",
-      "The cell door! It's... open!",
-      "This is your chance, but you must act quickly!",
-      "Time to move.",
-    ],
+    description: "The moss-slicked walls of the cell weep with moisture, illuminated by the flicker of restless torches. The heavy wooden door has been left ajar.",
     exits: { north: "hallway" },
     items: ["crumpled-note", "rusty-sword"],
     coordinates: { x: 0, y: 0 },
@@ -106,6 +100,7 @@ export const WORLD: Record<string, Room> = {
     audioLoop: "/audio/dripping-water.mp3",
     heldItemBrightness: 0.3,
     narration: {
+      text: "You wake with a start! Such a strange dream... The cell door! It's... open! This is your chance, but you must act quickly! Time to move.",
       path: "/audio/narration/damp-cell.mp3",
       volume: 0.7,
     },
@@ -121,14 +116,7 @@ export const WORLD: Record<string, Room> = {
   "hallway": {
     id: "hallway",
     name: "Dark Hallway",
-    description: "A long corridor. Archives (East), Armory (West), Exit (North).",
-    narrative: [
-      "You find yourself in a dim, stone junction where the air feels heavy enough to choke on. The floor is slick with moisture, and the high walls weep streaks of green slime that glisten in the gloom. This place offers no peace; the silence is strangled by a dissonant chorus of unseen whispers and the faint, wet sound of weeping that seems to drift from the stones themselves.",
-      "Directly North, the whispers rise to a thrumming crescendo. A swirling seal of violet runes hovers over the heavy double doors, pulsing with the rhythmic heartbeat of an ancient lock spell. It demands a key you do not yet possess.",
-      "To the West, the Armory door is shut tight—rough wood scarred with deep, violent scratches. Yet, through the cracks, the scent of cold rust bleeds out, accompanied by the phantom clatter of shifting steel.",
-      "To the East, the Archives beckon, marked by a tarnished brass plaque. The darkness there sounds different—softer, filled with the dry rustling of rotting parchment and secrets that are restless in their sleep.",
-      "You are a rat in a maze, and the walls are murmuring your name. Which path will you choose?"
-    ],
+    description: "A dimly lit junction between stone walls choked with damp and moss. Beams of light spill from high above onto a floor of cracked slate and stagnant puddles, but a shimmering lock spell bars the way north.",
     exits: { south: "start", east: "archives", west: "armory", north: "forest" },
     items: ["buckler-shield"],
     coordinates: { x: 0, y: 1 },
@@ -140,6 +128,7 @@ export const WORLD: Record<string, Room> = {
     image: "/images/scenes/dark-hallway.png",
     heldItemBrightness: 0.4,
     narration: {
+      text: "That's old magic! You'll need a gem.",
       path: "/audio/narration/dark-hallway.mp3",
       volume: 0.7,
     },

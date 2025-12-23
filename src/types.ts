@@ -25,7 +25,7 @@ export type GameState = {
   rooms: Record<string, Room>;
   questLog: LogEntry[];
   feedback: Feedback | null;
-  isNarratorVisible: boolean;
+  isQuestLogOpen: boolean;
   combat: CombatState | null;
   // Stats
   attack: number;
@@ -114,7 +114,6 @@ export type Room = {
   id: string;
   name: string;
   description: string;
-  narrative?: string[];
   exits: Partial<Record<Direction, string>>;
   items: string[];
   lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string }>>;
@@ -128,6 +127,7 @@ export type Room = {
   heldItemBrightness?: number;
   narration?: {
     path: string;
+    text?: string;
     volume?: number;
   };
   transitionVideos?: Partial<Record<Direction, string>>;
@@ -148,7 +148,7 @@ export type Room = {
 
 export type LogEntry = {
   id: number;
-  type: "room-title" | "room-description" | "info" | "warning" | "danger" | "success" | "combat" | "system" | "damage" | "clash" | "miss";
+  type: "room-title" | "room-description" | "narration" | "info" | "warning" | "danger" | "success" | "combat" | "system" | "damage" | "clash" | "miss";
   text: string;
 };
 
@@ -217,7 +217,7 @@ export type GameAction =
   | { type: "ADD_LOG"; message: string; logType?: LogEntry["type"] }
   | { type: "SET_QUEST_LOG"; log: LogEntry[] }
   | { type: "CLEAR_FEEDBACK" }
-  | { type: "SET_NARRATOR_VISIBLE"; visible: boolean }
+  | { type: "SET_QUEST_LOG_OPEN"; open: boolean }
   | { type: "START_COMBAT" }
   | { type: "COMBAT_ROUND_END" }
   | { type: "SET_COMBAT_PROCESSING"; processing: boolean; playerAction?: PlayerCombatAction }

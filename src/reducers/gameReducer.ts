@@ -21,7 +21,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
   };
 
   const getFeedback = (message: string, type: LogEntry["type"] = "system"): Feedback | null => {
-    if (type === "room-title" || type === "room-description") return null;
+    if (type === "room-title" || type === "room-description" || type === "narration") return null;
     if (type === "system" && message.length > 50) return null;
     return { message, type, id: Date.now() + Math.random() };
   };
@@ -35,14 +35,13 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         visitedRooms: Array.from(new Set([...state.visitedRooms, nextRoomId])),
         lastMoveDirection: direction,
         feedback: null,
-        isNarratorVisible: !state.visitedRooms.includes(nextRoomId)
       };
     }
 
-    case "SET_NARRATOR_VISIBLE": {
+    case "SET_QUEST_LOG_OPEN": {
       return {
         ...state,
-        isNarratorVisible: action.visible
+        isQuestLogOpen: action.open
       };
     }
 
