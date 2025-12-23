@@ -126,6 +126,10 @@ export const WORLD: Record<string, Room> = {
       east: { keyId: "rusty-key", lockedMessage: "The heavy oak door is locked." }
     },
     image: "/images/scenes/dark-hallway.png",
+    videoLoop: {
+      path: "/video/scenes/dark-hallway.mp4",
+      volume: 0.2
+    },
     heldItemBrightness: 0.4,
     narration: {
       text: "That's old magic! You'll need a gem.",
