@@ -134,7 +134,7 @@ export const WORLD: Record<string, Room> = {
     narration: {
       text: "That's old magic! You'll need a gem.",
       path: "/audio/narration/dark-hallway.mp3",
-      volume: 0.7,
+      volume: 0.8,
     },
     audioLoop: "/audio/eerie-echoes.mp3",
     hotspots: [
