@@ -1,6 +1,6 @@
 import { useReducer, useState, useEffect, useRef, useCallback } from "react";
-
 import type { LogEntry } from "../types";
+
 import { ITEMS } from "../data/gameData";
 import { INITIAL_STATE } from "../data/initialState";
 
@@ -14,6 +14,7 @@ import { useInventory } from "./useInventory";
 export const useGame = () => {
 
   const [gameState, dispatch] = useReducer(gameReducer, INITIAL_STATE);
+  const currentRoom = gameState.rooms[gameState.currentRoomId];
 
   const [hasInspected, setHasInspected] = useState(false);
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
@@ -61,18 +62,11 @@ export const useGame = () => {
   }, [gameState.rooms, gameState.visitedRooms, addToLog, playSoundFile]);
 
   /*
-   * useMovement
+   * Movement & Transitions
   */
-  const {
-    isWalking,
-    walkingDirection,
-    walkStepScale,
-    activeTransitionVideo,
-    isShutterActive,
-    handleMove,
-    handleTransitionEnd
-  } = useMovement({
+  const movement = useMovement({
     gameState,
+    currentRoom,
     dispatch,
     addToLog,
     playAmbientLoop,
@@ -111,7 +105,6 @@ export const useGame = () => {
   }, [gameState.feedback]);
 
   const stopNarrationRef = useRef<(() => void) | null>(null);
-  const currentRoom = gameState.rooms[gameState.currentRoomId];
 
   useEffect(() => {
     playAmbientLoop(currentRoom.audioLoop || null);
@@ -171,18 +164,12 @@ export const useGame = () => {
     hasInspected,
     viewingItemId,
     setViewingItemId,
-    isWalking,
-    walkingDirection,
-    walkStepScale,
     isEnemyRevealed,
     attackPower: gameState.attack,
     defensePower: gameState.defense,
     currentRoom,
     hasItem,
-    handleMove,
-    handleTransitionEnd,
-    activeTransitionVideo,
-    isShutterActive,
+    ...movement,
     inspectRoom,
     takeItem,
     dropItem,

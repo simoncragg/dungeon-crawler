@@ -44,7 +44,9 @@ export default function Game() {
     videoRef,
     activeTransitionVideo,
     handleTransitionEnd,
-    isShutterActive
+    handleVideoTimeUpdate,
+    isShutterActive,
+    sceneTitleProps
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
@@ -82,7 +84,6 @@ export default function Game() {
 
   return (
     <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden relative">
-      <ShutterBlink isActive={isShutterActive} />
 
       <div className="absolute inset-0 z-0">
         <div className="relative w-full h-full bg-black overflow-hidden flex items-center justify-center">
@@ -99,13 +100,12 @@ export default function Game() {
             className="relative z-10 h-full aspect-video shadow-2xl overflow-hidden will-change-transform"
           >
             <div className={`w-full h-full transition-all duration-1000 ${gameState.combat?.enemyAction === 'STAGGER' ? 'animate-ken-burns' : ''}`}>
-              {currentRoom.videoLoop || activeTransitionVideo ? (
+              {currentRoom.videoLoop ? (
                 <video
                   ref={videoRef}
-                  src={activeTransitionVideo || currentRoom.videoLoop?.path}
+                  src={currentRoom.videoLoop?.path}
                   autoPlay
-                  loop={!activeTransitionVideo}
-                  onEnded={activeTransitionVideo ? handleTransitionEnd : undefined}
+                  loop
                   playsInline
                   className="w-full h-full object-cover"
                 />
@@ -116,12 +116,27 @@ export default function Game() {
                   className="w-full h-full object-cover"
                 />
               )}
+
+              {activeTransitionVideo && (
+                <div className="absolute inset-0 z-10">
+                  <video
+                    src={activeTransitionVideo}
+                    autoPlay
+                    className="w-full h-full object-cover"
+                    onEnded={handleTransitionEnd}
+                    onTimeUpdate={handleVideoTimeUpdate}
+                  />
+                </div>
+              )}
+
             </div>
 
             <RoomHotspots
-              hotspots={currentRoom.hotspots?.filter(h => h.type === "door" || currentRoom.items.includes(h.itemId))}
+              hotspots={currentRoom.hotspots?.filter((h: any) => h.type === "door" || currentRoom.items.includes(h.itemId))}
               onHotspotClick={(hotspot) => {
-                if (hotspot.type === "door") handleMove(hotspot.direction);
+                if (hotspot.type === "door") {
+                  handleMove(hotspot.direction);
+                }
                 if (hotspot.type === "item") takeItem(hotspot.itemId);
               }}
               disabled={isWalking || inCombat || gameState.isQuestLogOpen}
@@ -228,7 +243,7 @@ export default function Game() {
 
             {/* Vignette filter */}
             <div
-              className={`absolute inset-0 z-20 pointer-events-none transition-colors duration-300 ${(["damage"].includes(feedback?.type || ""))
+              className={`absolute inset-0 z-15 pointer-events-none transition-colors duration-300 ${(["damage"].includes(feedback?.type || ""))
                 ? "bg-gradient-to-t from-red-900/60 via-red-900/10 to-red-900/30"
                 : "bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/30"
                 }`}
@@ -254,11 +269,7 @@ export default function Game() {
       </div>
       <div className="relative z-10 flex flex-col h-full justify-end pointer-events-none">
         <div className="shrink-0 pb-32 px-4 flex flex-col items-center justify-end">
-          <SceneTitle
-            key={currentRoom.name}
-            title={currentRoom.name}
-            forceHide={!!feedback?.message}
-          />
+          <SceneTitle {...sceneTitleProps} />
         </div>
       </div>
       {
@@ -284,6 +295,8 @@ export default function Game() {
           onClose={() => setQuestLogOpen(false)}
         />
       )}
+
+      <ShutterBlink isActive={isShutterActive} />
     </div>
   );
 }

@@ -1,13 +1,13 @@
-import React, { useState, useRef } from "react";
-import type { Direction, GameState, LogEntry, GameAction } from "../types";
+import { useState, useRef, useCallback } from "react";
+import type { Direction, Room, GameState, LogEntry, GameAction } from "../types";
 import { MOVEMENT_SETTINGS } from "../data/constants";
-import { DIRECTIONS } from "../data/gameData";
+import { useTransition } from "./useTransition";
 
 interface UseMovementProps {
   gameState: GameState;
+  currentRoom: Room;
   dispatch: React.Dispatch<GameAction>;
   addToLog: (text: string, type?: LogEntry["type"]) => void;
-
   playAmbientLoop: (file: string | null, fadeDuration?: number) => void;
   playShuffleSound: () => void;
   processRoomEntry: (nextRoomId: string) => void;
@@ -15,6 +15,7 @@ interface UseMovementProps {
 
 export const useMovement = ({
   gameState,
+  currentRoom,
   dispatch,
   addToLog,
   playAmbientLoop,
@@ -24,62 +25,37 @@ export const useMovement = ({
   const [isWalking, setIsWalking] = useState(false);
   const [walkingDirection, setWalkingDirection] = useState<Direction | null>(null);
   const [walkStepScale, setWalkStepScale] = useState(1);
-  const [activeTransitionVideo, setActiveTransitionVideo] = useState<string | null>(null);
-  const [pendingMove, setPendingMove] = useState<{ direction: Direction; nextRoomId: string } | null>(null);
-  const [isShutterActive, setIsShutterActive] = useState(false);
 
   const walkingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const executeMove = (direction: Direction) => {
-    const room = gameState.rooms[gameState.currentRoomId];
-    const nextRoomId = room.exits[direction];
+  const {
+    activeTransitionVideo,
+    pendingMove,
+    isShutterActive,
+    sceneTitleProps,
+    startTransition,
+    handleVideoTimeUpdate,
+    resetTransition,
+    triggerShutter
+  } = useTransition(currentRoom, gameState.rooms, gameState.feedback || { message: null }, isWalking);
 
-    if (!nextRoomId) {
-      addToLog("You can't go that way.", "system");
-      return;
+  const stopWalking = useCallback(() => {
+    if (walkingTimerRef.current) {
+      clearTimeout(walkingTimerRef.current);
+      walkingTimerRef.current = null;
     }
-
-    // Check for locked exits
-    if (room.lockedExits && room.lockedExits[direction]) {
-      dispatch({ type: "MOVE", direction, nextRoomId: gameState.currentRoomId });
-      addToLog(room.lockedExits[direction].lockedMessage, "warning");
-      setIsWalking(false);
-      setWalkingDirection(null);
-      return;
-    }
-
-    // Check for transition video
-    if (room.transitionVideos && room.transitionVideos[direction]) {
-      setActiveTransitionVideo(room.transitionVideos[direction]!);
-      setPendingMove({ direction, nextRoomId });
-      return;
-    }
-
-    dispatch({ type: "MOVE", direction, nextRoomId });
-    processRoomEntry(nextRoomId);
-
     setIsWalking(false);
     setWalkingDirection(null);
-  };
+    setWalkStepScale(1);
+  }, []);
 
-  const performTransitionMove = (direction: Direction, nextRoomId: string) => {
-    setIsShutterActive(true);
-    setTimeout(() => setIsShutterActive(false), 250);
-    executeMove(direction);
+  const startWalking = useCallback((direction: Direction) => {
+    stopWalking();
+    setIsWalking(true);
+    setWalkingDirection(direction);
 
-    const nextRoom = gameState.rooms[nextRoomId];
-    if (nextRoom) {
-      playAmbientLoop(nextRoom.audioLoop || null, MOVEMENT_SETTINGS.TRANSITION_CROSSFADE_DURATION);
-    }
-
-    const baseInterval = MOVEMENT_SETTINGS.TRANSITION_BASE_INTERVAL;
     let stepCounter = 0;
-
-    if (walkingTimerRef.current) clearTimeout(walkingTimerRef.current);
-
-    setWalkStepScale(-1);
-    playShuffleSound();
-    stepCounter++;
+    const baseInterval = MOVEMENT_SETTINGS.TRANSITION_BASE_INTERVAL;
 
     const scheduleNextStep = () => {
       const variance = Math.random() * (MOVEMENT_SETTINGS.TRANSITION_VARIANCE * 2) - MOVEMENT_SETTINGS.TRANSITION_VARIANCE;
@@ -94,9 +70,13 @@ export const useMovement = ({
     };
 
     scheduleNextStep();
-  };
+  }, [playShuffleSound, stopWalking]);
 
-  const performStandardMove = (direction: Direction, stepCount: number, startDelay: number, stepInterval: number) => {
+  const performStandardMoveSteps = useCallback((direction: Direction, stepCount: number, startDelay: number, stepInterval: number, onComplete: () => void) => {
+    stopWalking();
+    setIsWalking(true);
+    setWalkingDirection(direction);
+
     for (let i = 0; i < stepCount; i++) {
       setTimeout(() => {
         setWalkStepScale(i % 2 === 0 ? -1 : 1);
@@ -105,69 +85,61 @@ export const useMovement = ({
     }
 
     setTimeout(() => {
-      setWalkStepScale(1);
-      executeMove(direction);
+      stopWalking();
+      onComplete();
     }, startDelay + (stepCount * stepInterval));
-  };
+  }, [playShuffleSound, stopWalking]);
 
-  const handleMove = (direction: Direction) => {
-    if (!DIRECTIONS.includes(direction)) {
-      addToLog("Go where?", "system");
-      return;
-    }
-
-    const currentRoom = gameState.rooms[gameState.currentRoomId];
-    const isFleeing = !!currentRoom.enemy;
+  const handleMove = useCallback((direction: Direction) => {
+    const nextRoomId = currentRoom.exits[direction];
     const isLocked = currentRoom.lockedExits && currentRoom.lockedExits[direction];
-    const hasExit = !!currentRoom.exits[direction];
 
-    if (!hasExit && !isLocked) {
+    if (!nextRoomId && !isLocked) {
       addToLog("You can't go that way.", "system");
       return;
     }
 
-    setIsWalking(true);
-    setWalkingDirection(direction);
+    if (isLocked) {
+      const lockedExit = currentRoom.lockedExits?.[direction];
+      if (lockedExit) {
+        performStandardMoveSteps(direction, MOVEMENT_SETTINGS.LOCKED_STEP_COUNT, 300, MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL, () => {
+          addToLog(lockedExit.lockedMessage, "warning");
+          dispatch({ type: "MOVE", direction, nextRoomId: gameState.currentRoomId });
+        });
+      }
+      return;
+    }
 
-    const textRenderDelay = 0;
+    const transitionVideo = currentRoom.transitionVideos?.[direction];
 
-    let stepCount = MOVEMENT_SETTINGS.STANDARD_STEP_COUNT;
-    if (isFleeing) stepCount = MOVEMENT_SETTINGS.FLEEING_STEP_COUNT;
-    if (isLocked) stepCount = MOVEMENT_SETTINGS.LOCKED_STEP_COUNT;
-
-    const stepInterval = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_INTERVAL : MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL;
-    const startDelay = (isFleeing ? 150 : 300) + textRenderDelay;
-
-    const isTransition = currentRoom.transitionVideos && currentRoom.transitionVideos[direction] && !isLocked;
-
-    if (isTransition) {
-      const nextRoomId = currentRoom.exits[direction];
-      if (nextRoomId) {
-        performTransitionMove(direction, nextRoomId);
+    if (transitionVideo) {
+      triggerShutter();
+      startTransition(transitionVideo, direction, nextRoomId!);
+      startWalking(direction);
+      const nextRoom = gameState.rooms[nextRoomId!];
+      if (nextRoom) {
+        playAmbientLoop(nextRoom.audioLoop || null, MOVEMENT_SETTINGS.TRANSITION_CROSSFADE_DURATION);
       }
     } else {
-      performStandardMove(direction, stepCount, startDelay, stepInterval);
-    }
-  };
+      const isFleeing = !!currentRoom.enemy;
+      const stepCount = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_COUNT : MOVEMENT_SETTINGS.STANDARD_STEP_COUNT;
+      const stepInterval = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_INTERVAL : MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL;
 
-  const handleTransitionEnd = () => {
-    if (walkingTimerRef.current) {
-      clearTimeout(walkingTimerRef.current);
-      walkingTimerRef.current = null;
+      performStandardMoveSteps(direction, stepCount, 300, stepInterval, () => {
+        dispatch({ type: "MOVE", direction, nextRoomId: nextRoomId! });
+        processRoomEntry(nextRoomId!);
+      });
     }
-    setWalkStepScale(1);
-    setIsWalking(false);
-    setWalkingDirection(null);
+  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, dispatch, gameState.currentRoomId, gameState.rooms, playAmbientLoop, processRoomEntry]);
 
+  const handleTransitionEnd = useCallback(() => {
     if (pendingMove) {
       dispatch({ type: "MOVE", direction: pendingMove.direction, nextRoomId: pendingMove.nextRoomId });
       processRoomEntry(pendingMove.nextRoomId);
     }
-    setActiveTransitionVideo(null);
-    setPendingMove(null);
-    setIsShutterActive(true);
-    setTimeout(() => setIsShutterActive(false), 250);
-  };
+    resetTransition();
+    stopWalking();
+  }, [pendingMove, dispatch, processRoomEntry, resetTransition, stopWalking]);
 
   return {
     isWalking,
@@ -175,7 +147,10 @@ export const useMovement = ({
     walkStepScale,
     activeTransitionVideo,
     isShutterActive,
+    sceneTitleProps,
     handleMove,
-    handleTransitionEnd
+    handleTransitionEnd,
+    handleVideoTimeUpdate,
+    pendingMove
   };
 };
