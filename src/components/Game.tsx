@@ -184,7 +184,6 @@ export default function Game() {
                 />
                 <Inventory
                   items={gameState.inventory.items}
-                  isWalking={isWalking}
                   onInspect={setViewingItemId}
                 />
               </div>
@@ -274,6 +273,7 @@ export default function Game() {
             onDrop={dropItem}
             canUnequip={gameState.inventory.items.some(i => i === null)}
             isDroppable={!isWalking}
+            isUsable={!isWalking}
           />
         )
       }

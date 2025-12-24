@@ -12,9 +12,10 @@ interface ItemModalProps {
   onDrop: (itemId: string) => void;
   canUnequip: boolean;
   isDroppable?: boolean;
+  isUsable?: boolean;
 }
 
-const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onUnequip, onDrop, canUnequip, isDroppable = true }) => {
+const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onUnequip, onDrop, canUnequip, isDroppable = true, isUsable = true }) => {
   const item = ITEMS[itemId];
   const [isTall, setIsTall] = React.useState(false);
 
@@ -119,7 +120,12 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
                 onUse(item.id);
                 onClose();
               }}
-              className="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider font-medieval bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-lg shadow-emerald-900/20"
+              disabled={isUsable === false}
+              className={`flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider font-medieval transition-colors shadow-lg ${isUsable === false
+                ? "bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700"
+                : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20"
+                }`}
+              title={isUsable === false ? "Cannot use while moving" : ""}
             >
               Use {item.type === "key" ? "Key" : "Item"}
             </button>
