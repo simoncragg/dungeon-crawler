@@ -104,14 +104,14 @@ export const WORLD: Record<string, Room> = {
       path: "/audio/narration/damp-cell.mp3",
       volume: 0.7,
     },
-    transitionVideos: {
-      north: "/video/scenes/transition-from-damp-cell-to-dark-hallway.mp4"
-    },
     hotspots: [
       { type: "door", direction: "north", top: "25%", left: "40%", width: "20%", height: "55%", label: "Cell Door" },
       { type: "item", itemId: "crumpled-note", top: "85%", left: "25%", width: "10%", height: "10%", rotation: "15deg", brightness: 0.7, label: "CrumpledNote" },
       { type: "item", itemId: "rusty-sword", top: "55%", left: "70%", width: "5%", height: "30%", rotation: "185deg", brightness: 0.5, label: "Rusty Sword" },
-    ]
+    ],
+    transitionVideos: {
+      north: "/video/scenes/transition-from-damp-cell-to-dark-hallway.mp4"
+    },
   },
   "hallway": {
     id: "hallway",
@@ -143,6 +143,9 @@ export const WORLD: Record<string, Room> = {
       { type: "door", direction: "west", top: "10%", left: "10%", width: "10%", height: "80%", label: "Armory Door" },
       { type: "item", itemId: "buckler-shield", top: "70%", left: "19%", width: "16%", height: "16%", rotation: "15deg", brightness: 0.5, label: "Buckler Shield" }
     ],
+    transitionVideos: {
+      west: "/video/scenes/transition-from-dark-hallway-to-armory.mp4"
+    }
   },
   "armory": {
     id: "armory",
