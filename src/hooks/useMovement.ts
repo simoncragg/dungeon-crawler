@@ -45,6 +45,12 @@ export const useMovement = ({
     onMidpoint: () => {
       if (pendingMove) {
         dispatch({ type: "MOVE", nextRoomId: pendingMove.nextRoomId });
+
+        // Start audio crossover at the visual midpoint
+        const nextRoom = gameState.rooms[pendingMove.nextRoomId];
+        if (nextRoom) {
+          playAmbientLoop(nextRoom.audioLoop || null, MOVEMENT_SETTINGS.TRANSITION_CROSSFADE_DURATION);
+        }
       }
     }
   });
@@ -125,10 +131,6 @@ export const useMovement = ({
       triggerShutter();
       startTransition(transitionVideo, nextRoomId!);
       startWalking(direction);
-      const nextRoom = gameState.rooms[nextRoomId!];
-      if (nextRoom) {
-        playAmbientLoop(nextRoom.audioLoop || null, MOVEMENT_SETTINGS.TRANSITION_CROSSFADE_DURATION);
-      }
     } else {
       const isFleeing = !!currentRoom.enemy;
       const stepCount = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_COUNT : MOVEMENT_SETTINGS.STANDARD_STEP_COUNT;
