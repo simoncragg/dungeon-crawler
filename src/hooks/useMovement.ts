@@ -37,7 +37,17 @@ export const useMovement = ({
     handleVideoTimeUpdate,
     resetTransition,
     triggerShutter
-  } = useTransition(currentRoom, gameState.rooms, gameState.feedback || { message: null }, isWalking);
+  } = useTransition({
+    currentRoom,
+    rooms: gameState.rooms,
+    feedback: gameState.feedback || { message: null },
+    isWalking,
+    onMidpoint: () => {
+      if (pendingMove) {
+        dispatch({ type: "MOVE", nextRoomId: pendingMove.nextRoomId });
+      }
+    }
+  });
 
   const stopWalking = useCallback(() => {
     if (walkingTimerRef.current) {
@@ -133,12 +143,11 @@ export const useMovement = ({
 
   const handleTransitionEnd = useCallback(() => {
     if (pendingMove) {
-      dispatch({ type: "MOVE", nextRoomId: pendingMove.nextRoomId });
       processRoomEntry(pendingMove.nextRoomId);
     }
     resetTransition();
     stopWalking();
-  }, [pendingMove, dispatch, processRoomEntry, resetTransition, stopWalking]);
+  }, [pendingMove, processRoomEntry, resetTransition, stopWalking]);
 
   return {
     isWalking,

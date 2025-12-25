@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { WORLD } from "../data/gameData";
+import type { Direction } from "../types";
 
 const WorldMap = ({ currentRoomId, visitedRooms }: { currentRoomId: string, visitedRooms: string[] }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -83,9 +84,30 @@ const WorldMap = ({ currentRoomId, visitedRooms }: { currentRoomId: string, visi
         ctx.strokeStyle = "#475569";
         ctx.lineWidth = 1;
         ctx.strokeRect(x - gridSize / 2, y - gridSize / 2, gridSize, gridSize);
-        ctx.fillStyle = "#0f172a";
+        ctx.fillStyle = "#111827";
         ctx.fillRect(x - gridSize / 2 + 2, y - gridSize / 2 + 2, gridSize - 4, gridSize - 4);
       }
+
+      // Draw doors for seen rooms
+      const doorSize = 8;
+      const doorThickness = 3;
+      ctx.fillStyle = "#111827";
+
+      Object.keys(room.exits).forEach(dir => {
+        const exitId = room.exits[dir as Direction];
+        if (exitId && seenRooms.has(exitId)) {
+          ctx.beginPath();
+          if (dir === "north") {
+            ctx.fillRect(x - doorSize / 2, y - gridSize / 2 - 1, doorSize, doorThickness);
+          } else if (dir === "south") {
+            ctx.fillRect(x - doorSize / 2, y + gridSize / 2 - doorThickness + 1, doorSize, doorThickness);
+          } else if (dir === "east") {
+            ctx.fillRect(x + gridSize / 2 - doorThickness + 1, y - doorSize / 2, doorThickness, doorSize);
+          } else if (dir === "west") {
+            ctx.fillRect(x - gridSize / 2 - 1, y - doorSize / 2, doorThickness, doorSize);
+          }
+        }
+      });
 
       const showLabel = isCurrent || isVisited || room.isSignposted;
 
@@ -96,7 +118,6 @@ const WorldMap = ({ currentRoomId, visitedRooms }: { currentRoomId: string, visi
         ctx.fillText(room.shortName, x, y + gridSize / 2 + 14);
       }
     });
-
   }, [currentRoomId, visitedRooms]);
 
   return (

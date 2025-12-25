@@ -97,6 +97,8 @@ export const useGame = () => {
   const stopNarrationRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
+    if (movement.activeTransitionVideo) return;
+
     playAmbientLoop(currentRoom.audioLoop || null);
 
     if (stopNarrationRef.current) {
@@ -119,6 +121,7 @@ export const useGame = () => {
     gameState.currentRoomId,
     currentRoom.narration,
     currentRoom.audioLoop,
+    movement.activeTransitionVideo,
     playAmbientLoop,
     playNarration
   ]);
