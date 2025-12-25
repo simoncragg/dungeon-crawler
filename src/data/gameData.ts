@@ -174,7 +174,8 @@ export const WORLD: Record<string, Room> = {
     facing: "west",
     hotspots: [
       { type: "item", itemId: "rusty-key", top: "30%", left: "40%", width: "20%", height: "45%", rotation: "90deg", scale: 0.8, brightness: 1.0, label: "Rusty Key" },
-    ]
+    ],
+    isSignposted: true
   },
   "archives": {
     id: "archives",
@@ -192,7 +193,8 @@ export const WORLD: Record<string, Room> = {
         type: "item", itemId: "potion", top: "66%", left: "34%", width: "6%", height: "14%", scale: 1.0, brightness: 0.7, label: "Health Potion"
       },
       { type: "item", itemId: "glowing-gem", top: "51%", left: "55%", width: "2%", height: "4%", rotation: "-22deg", scale: 0.8, brightness: 1.2, label: "Glowing Gem" },
-    ]
+    ],
+    isSignposted: true
   },
   "forest": {
     id: "forest",

@@ -87,7 +87,9 @@ const WorldMap = ({ currentRoomId, visitedRooms }: { currentRoomId: string, visi
         ctx.fillRect(x - gridSize / 2 + 2, y - gridSize / 2 + 2, gridSize - 4, gridSize - 4);
       }
 
-      if (room.shortName) {
+      const showLabel = isCurrent || isVisited || room.isSignposted;
+
+      if (showLabel && room.shortName) {
         ctx.font = "bold 14px monospace";
         ctx.textAlign = "center";
         ctx.fillStyle = isCurrent ? "#10b981" : "#94a3b8";

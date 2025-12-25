@@ -144,6 +144,7 @@ export type Room = {
   };
   hotspots?: Hotspot[];
   facing: Direction;
+  isSignposted?: boolean;
 };
 
 export type LogEntry = {
