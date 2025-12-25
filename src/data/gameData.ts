@@ -112,6 +112,7 @@ export const WORLD: Record<string, Room> = {
     transitionVideos: {
       north: "/video/scenes/transition-from-damp-cell-to-dark-hallway.mp4"
     },
+    facing: "north"
   },
   "hallway": {
     id: "hallway",
@@ -146,7 +147,8 @@ export const WORLD: Record<string, Room> = {
     transitionVideos: {
       east: "/video/scenes/transition-from-dark-hallway-to-archives.mp4",
       west: "/video/scenes/transition-from-dark-hallway-to-armory.mp4"
-    }
+    },
+    facing: "north"
   },
   "armory": {
     id: "armory",
@@ -169,6 +171,7 @@ export const WORLD: Record<string, Room> = {
     shortName: "ARMORY",
     image: "/images/scenes/armory.png",
     heldItemBrightness: 0.5,
+    facing: "west",
     hotspots: [
       { type: "item", itemId: "rusty-key", top: "30%", left: "40%", width: "20%", height: "45%", rotation: "90deg", scale: 0.8, brightness: 1.0, label: "Rusty Key" },
     ]
@@ -183,6 +186,7 @@ export const WORLD: Record<string, Room> = {
     shortName: "ARCHIVES",
     image: "/images/scenes/archives.png",
     heldItemBrightness: 0.4,
+    facing: "east",
     hotspots: [
       {
         type: "item", itemId: "potion", top: "66%", left: "34%", width: "6%", height: "14%", scale: 1.0, brightness: 0.7, label: "Health Potion"
@@ -200,6 +204,7 @@ export const WORLD: Record<string, Room> = {
     shortName: "EXIT",
     image: "/images/scenes/forest.png",
     heldItemBrightness: 0.3,
+    facing: "north"
   }
 };
 

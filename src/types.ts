@@ -21,7 +21,6 @@ export type GameState = {
   health: number;
   maxHealth: number;
   flags: Record<string, boolean>;
-  lastMoveDirection: Direction;
   rooms: Record<string, Room>;
   questLog: LogEntry[];
   feedback: Feedback | null;
@@ -144,6 +143,7 @@ export type Room = {
     drop?: string;
   };
   hotspots?: Hotspot[];
+  facing: Direction;
 };
 
 export type LogEntry = {
@@ -206,7 +206,7 @@ export type CombatState = {
 };
 
 export type GameAction =
-  | { type: "MOVE"; direction: Direction; nextRoomId: string }
+  | { type: "MOVE"; nextRoomId: string }
   | { type: "TAKE_ITEM"; itemId: string; autoEquip: boolean; logMessage: string }
   | { type: "DROP_ITEM"; itemId: string; logMessage: string }
   | { type: "EQUIP_ITEM"; itemId: string; logMessage: string }

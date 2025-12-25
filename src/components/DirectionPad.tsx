@@ -7,7 +7,7 @@ import NavButton from "./NavButton";
 interface DirectionPadProps {
   currentRoom: Room;
   isWalking: boolean;
-  lastMoveDirection: Direction;
+  facingDirection: Direction;
   walkStepScale: number;
   onMove: (direction: Direction) => void;
 }
@@ -15,7 +15,7 @@ interface DirectionPadProps {
 const DirectionPad: React.FC<DirectionPadProps> = ({
   currentRoom,
   isWalking,
-  lastMoveDirection,
+  facingDirection,
   walkStepScale,
   onMove,
 }) => {
@@ -35,11 +35,11 @@ const DirectionPad: React.FC<DirectionPadProps> = ({
       <div
         className="flex items-center justify-center text-stone-600 w-full h-full transition-transform duration-300 ease-out"
         style={{
-          transform: `rotate(${lastMoveDirection === "east"
+          transform: `rotate(${facingDirection === "east"
             ? 90
-            : lastMoveDirection === "south"
+            : facingDirection === "south"
               ? 180
-              : lastMoveDirection === "west"
+              : facingDirection === "west"
                 ? -90
                 : 0
             }deg)`,

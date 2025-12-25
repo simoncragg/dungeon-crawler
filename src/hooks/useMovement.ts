@@ -104,7 +104,6 @@ export const useMovement = ({
       if (lockedExit) {
         performStandardMoveSteps(direction, MOVEMENT_SETTINGS.LOCKED_STEP_COUNT, 300, MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL, () => {
           addToLog(lockedExit.lockedMessage, "warning");
-          dispatch({ type: "MOVE", direction, nextRoomId: gameState.currentRoomId });
         });
       }
       return;
@@ -114,7 +113,7 @@ export const useMovement = ({
 
     if (transitionVideo) {
       triggerShutter();
-      startTransition(transitionVideo, direction, nextRoomId!);
+      startTransition(transitionVideo, nextRoomId!);
       startWalking(direction);
       const nextRoom = gameState.rooms[nextRoomId!];
       if (nextRoom) {
@@ -126,15 +125,15 @@ export const useMovement = ({
       const stepInterval = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_INTERVAL : MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL;
 
       performStandardMoveSteps(direction, stepCount, 300, stepInterval, () => {
-        dispatch({ type: "MOVE", direction, nextRoomId: nextRoomId! });
+        dispatch({ type: "MOVE", nextRoomId: nextRoomId! });
         processRoomEntry(nextRoomId!);
       });
     }
-  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, dispatch, gameState.currentRoomId, gameState.rooms, playAmbientLoop, processRoomEntry]);
+  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, dispatch, gameState.rooms, playAmbientLoop, processRoomEntry, triggerShutter]);
 
   const handleTransitionEnd = useCallback(() => {
     if (pendingMove) {
-      dispatch({ type: "MOVE", direction: pendingMove.direction, nextRoomId: pendingMove.nextRoomId });
+      dispatch({ type: "MOVE", nextRoomId: pendingMove.nextRoomId });
       processRoomEntry(pendingMove.nextRoomId);
     }
     resetTransition();

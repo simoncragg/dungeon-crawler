@@ -14,7 +14,6 @@ export const INITIAL_STATE: GameState = {
   health: 100,
   maxHealth: 100,
   flags: {},
-  lastMoveDirection: "north",
   rooms: WORLD,
   questLog: [
     { id: 0, type: "room-title", text: WORLD["start"].name },

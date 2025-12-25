@@ -1,5 +1,5 @@
 import React from "react";
-import type { GameState, LogEntry, GameAction } from "../types";
+import type { GameState, LogEntry, GameAction, Direction } from "../types";
 import { ITEMS } from "../data/gameData";
 
 interface UseInventoryProps {
@@ -117,18 +117,22 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
       return;
     }
     if (item.type === "key") {
-      const facingDirection = gameState.lastMoveDirection;
-      const lockedExit = room.lockedExits?.[facingDirection];
+      if (room.lockedExits) {
+        const matchingDirection = (Object.keys(room.lockedExits) as Direction[]).find(
+          dir => room.lockedExits![dir]?.keyId === item.id
+        );
 
-      if (lockedExit) {
-        if (lockedExit.keyId === item.id) {
-          dispatch({ type: "UNLOCK_DOOR", direction: facingDirection, keyId: item.id, logMessage: `Unlocked ${facingDirection} door with ${item.name}.` });
-        } else {
-          addToLog("That key doesn't fit this door.", "system");
+        if (matchingDirection) {
+          dispatch({
+            type: "UNLOCK_DOOR",
+            direction: matchingDirection,
+            keyId: item.id,
+            logMessage: `Unlocked the way to the ${matchingDirection} with ${item.name}.`
+          });
+          return;
         }
-      } else {
-        addToLog("You must face a locked door to use a key.", "system");
       }
+      addToLog(`The ${item.name} doesn't seem to fit any doors here.`, "system");
       return;
     }
     if (["weapon", "armor"].includes(item.type)) {

@@ -28,12 +28,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
   switch (action.type) {
     case "MOVE": {
-      const { nextRoomId, direction } = action;
+      const { nextRoomId } = action;
       return {
         ...state,
         currentRoomId: nextRoomId,
         visitedRooms: Array.from(new Set([...state.visitedRooms, nextRoomId])),
-        lastMoveDirection: direction,
         feedback: null,
       };
     }

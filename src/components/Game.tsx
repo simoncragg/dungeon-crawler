@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { useGame } from "../hooks/useGame";
+import type { Hotspot } from "../types";
 import { BookOpen } from "lucide-react";
 
 import ItemModal from "./ItemModal";
@@ -132,7 +133,7 @@ export default function Game() {
             </div>
 
             <RoomHotspots
-              hotspots={currentRoom.hotspots?.filter((h: any) => h.type === "door" || currentRoom.items.includes(h.itemId))}
+              hotspots={currentRoom.hotspots?.filter((h: Hotspot) => h.type === "door" || currentRoom.items.includes(h.itemId))}
               onHotspotClick={(hotspot) => {
                 if (hotspot.type === "door") {
                   handleMove(hotspot.direction);
@@ -174,7 +175,7 @@ export default function Game() {
                 <DirectionPad
                   currentRoom={currentRoom}
                   isWalking={isWalking}
-                  lastMoveDirection={walkingDirection || gameState.lastMoveDirection}
+                  facingDirection={walkingDirection || currentRoom.facing}
                   walkStepScale={walkStepScale}
                   onMove={handleMove}
                 />
