@@ -18,7 +18,7 @@ export const useGame = () => {
 
   const [hasInspected, setHasInspected] = useState(false);
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
-  const [isEnemyRevealed, setIsEnemyRevealed] = useState(true);
+  const [isEnemyRevealed, setIsEnemyRevealed] = useState(false);
 
   useRoomPreloader(gameState.currentRoomId, gameState.inventory.items);
 
@@ -30,12 +30,8 @@ export const useGame = () => {
 
   const processRoomEntry = useCallback((nextRoomId: string) => {
     setHasInspected(false);
+    setIsEnemyRevealed(false);
     const nextRoom = gameState.rooms[nextRoomId];
-    const isRevisit = gameState.visitedRooms.includes(nextRoomId);
-
-    if (nextRoom.enemy) {
-      setIsEnemyRevealed(isRevisit);
-    }
 
     setTimeout(() => {
       addToLog(nextRoom.name, "room-title");
@@ -47,19 +43,13 @@ export const useGame = () => {
 
       if (nextRoom.enemy) {
         const enemyName = nextRoom.enemy.name;
-        if (isRevisit) {
-          addToLog(`A ${enemyName} blocks your path!`, "danger");
-        } else {
-          setTimeout(() => {
-            addToLog(`A ${enemyName} blocks your path!`, "danger");
-            setIsEnemyRevealed(true);
-            dispatch({ type: "SET_QUEST_LOG_OPEN", open: false });
-            playSoundFile("danger.mp3");
-          }, 500);
-        }
+        addToLog(`A ${enemyName} blocks your path!`, "danger");
+        setIsEnemyRevealed(true);
+        dispatch({ type: "SET_QUEST_LOG_OPEN", open: false });
+        playSoundFile("danger.mp3");
       }
-    }, 1200);
-  }, [gameState.rooms, gameState.visitedRooms, addToLog, playSoundFile]);
+    }, 800);
+  }, [gameState.rooms, addToLog, playSoundFile, setIsEnemyRevealed]);
 
   /*
    * Movement & Transitions
