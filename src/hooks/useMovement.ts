@@ -141,7 +141,7 @@ export const useMovement = ({
         processRoomEntry(nextRoomId!);
       });
     }
-  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, dispatch, gameState.rooms, playAmbientLoop, processRoomEntry, triggerShutter]);
+  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, dispatch, processRoomEntry, triggerShutter]);
 
   const handleTransitionEnd = useCallback(() => {
     if (pendingMove) {
