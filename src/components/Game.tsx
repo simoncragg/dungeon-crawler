@@ -237,7 +237,7 @@ export default function Game() {
 
             <div className={`absolute bottom-4 right-4 z-30 opacity-80 hover:opacity-100 transition-opacity ${inCombat ? 'hidden' : ''}`}>
               <WorldMap
-                currentRoomId={gameState.currentRoomId}
+                currentRoomId={gameState.mapOverrideRoomId || gameState.currentRoomId}
                 visitedRooms={gameState.visitedRooms || []}
               />
             </div>

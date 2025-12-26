@@ -44,7 +44,7 @@ export const useMovement = ({
     isWalking,
     onMidpoint: () => {
       if (pendingMove) {
-        dispatch({ type: "MOVE", nextRoomId: pendingMove.nextRoomId });
+        dispatch({ type: "UPDATE_MAP_POSITION", roomId: pendingMove.nextRoomId });
 
         // Start audio crossover at the visual midpoint
         const nextRoom = gameState.rooms[pendingMove.nextRoomId];
@@ -145,11 +145,12 @@ export const useMovement = ({
 
   const handleTransitionEnd = useCallback(() => {
     if (pendingMove) {
+      dispatch({ type: "MOVE", nextRoomId: pendingMove.nextRoomId });
       processRoomEntry(pendingMove.nextRoomId);
     }
     resetTransition();
     stopWalking();
-  }, [pendingMove, processRoomEntry, resetTransition, stopWalking]);
+  }, [pendingMove, processRoomEntry, resetTransition, stopWalking, dispatch]);
 
   return {
     isWalking,

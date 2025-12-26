@@ -32,8 +32,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return {
         ...state,
         currentRoomId: nextRoomId,
+        mapOverrideRoomId: undefined,
         visitedRooms: Array.from(new Set([...state.visitedRooms, nextRoomId])),
         feedback: null,
+      };
+    }
+
+    case "UPDATE_MAP_POSITION": {
+      return {
+        ...state,
+        mapOverrideRoomId: action.roomId
       };
     }
 

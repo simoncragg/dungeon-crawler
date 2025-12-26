@@ -38,6 +38,7 @@ export type GameState = {
   // Stats
   attack: number;
   defense: number;
+  mapOverrideRoomId?: string;
 };
 
 export type WeaponOverlayConfig = {
@@ -227,4 +228,5 @@ export type GameAction =
   | { type: "SET_ENEMY_ACTION"; action: CombatAction }
   | { type: "UNEQUIP_ITEM"; itemId: string; logMessage: string }
   | { type: "SET_COMBAT_RESULT"; result: CombatResult }
-  | { type: "SET_COMBAT_RIPOSTE"; canRiposte: boolean };
+  | { type: "SET_COMBAT_RIPOSTE"; canRiposte: boolean }
+  | { type: "UPDATE_MAP_POSITION"; roomId: string };
