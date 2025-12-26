@@ -123,6 +123,7 @@ export default function Game() {
                   <video
                     src={activeTransitionVideo}
                     autoPlay
+                    playsInline
                     className="w-full h-full object-cover"
                     onEnded={handleTransitionEnd}
                     onTimeUpdate={handleVideoTimeUpdate}
