@@ -98,7 +98,7 @@ export default function Game() {
 
           <div
             ref={viewportRef}
-            className="relative z-10 h-full aspect-video shadow-2xl overflow-hidden will-change-transform"
+            className="relative z-10 h-full aspect-video shadow-2xl overflow-hidden will-change-transform shrink-0 max-w-none"
           >
             <div className={`w-full h-full transition-all duration-1000 ${gameState.combat?.enemyAction === 'STAGGER' ? 'animate-ken-burns' : ''}`}>
               {currentRoom.videoLoop ? (
