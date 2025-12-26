@@ -1,6 +1,5 @@
 import { getAudioContext, getBuffer, setBuffer, decodeAudioData } from "../utils/audioSystem";
-
-
+import type { SoundAsset } from "../types";
 
 const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => {
   const existing = getBuffer(key);
@@ -23,10 +22,7 @@ const playShuffleSound = () => {
   if (ctx.state === "suspended") ctx.resume();
 
   const t = ctx.currentTime;
-
-  // White Noise Footstep
   const buffer = createNoiseBuffer(ctx, 0.1, "shuffle");
-
   const noise = ctx.createBufferSource();
   noise.buffer = buffer;
 
@@ -51,9 +47,7 @@ const playItemSound = () => {
   if (ctx.state === "suspended") ctx.resume();
 
   const t = ctx.currentTime;
-
   const buffer = createNoiseBuffer(ctx, 0.3, "item");
-
   const noise = ctx.createBufferSource();
   noise.buffer = buffer;
 
@@ -72,6 +66,154 @@ const playItemSound = () => {
   filter.connect(gain);
   gain.connect(ctx.destination);
   noise.start(t);
+};
+
+interface AmbientTrack {
+  source: AudioBufferSourceNode;
+  gain: GainNode;
+  url: string;
+  isFadingOut?: boolean;
+}
+
+let currentAmbient: AmbientTrack | null = null;
+
+const playAmbientLoop = async (audioLoop: SoundAsset | null, fadeDuration: number | null = null) => {
+  if (currentAmbient?.url === audioLoop?.path && !currentAmbient?.isFadingOut) return;
+
+  const crossFadeDuration = fadeDuration ?? 1.0;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  const previousAmbient = currentAmbient;
+  if (previousAmbient) {
+    fadeOutAmbientLoop(previousAmbient, crossFadeDuration, ctx);
+  }
+
+  if (!audioLoop?.path) {
+    currentAmbient = null;
+    return;
+  }
+
+  const targetVolume = audioLoop.volume ?? 0.3;
+  const startVolume = crossFadeDuration > 0 ? 0 : targetVolume;
+  const result = await playAudioFromUrl(audioLoop.path, startVolume, true);
+
+  if (result) {
+    const isObsolete = currentAmbient !== previousAmbient;
+
+    if (isObsolete) {
+      try {
+        result.source.stop();
+      } catch {
+        // Ignore error if specific source stop fails
+      }
+      return;
+    }
+
+    currentAmbient = {
+      source: result.source,
+      gain: result.gain,
+      url: audioLoop.path,
+      isFadingOut: false
+    };
+
+    if (crossFadeDuration > 0) {
+      const t = ctx.currentTime;
+      result.gain.gain.setValueAtTime(0, t);
+      result.gain.gain.linearRampToValueAtTime(targetVolume, t + crossFadeDuration);
+    }
+  }
+};
+
+const fadeOutAmbientLoop = (track: AmbientTrack, duration: number, ctx: AudioContext) => {
+  track.isFadingOut = true;
+  try {
+    const t = ctx.currentTime;
+    track.gain.gain.cancelScheduledValues(t);
+    track.gain.gain.setValueAtTime(track.gain.gain.value, t);
+
+    if (duration > 0) {
+      track.gain.gain.linearRampToValueAtTime(0, t + duration);
+      track.source.stop(t + duration);
+    } else {
+      track.gain.gain.value = 0;
+      track.source.stop(t);
+    }
+  } catch (e) {
+    console.warn("Error stopping track:", e);
+  }
+};
+
+const playNarration = (url: string, volume: number = 1.0, onEnded?: () => void) => {
+  let sourceNode: AudioBufferSourceNode | null = null;
+  let isCancelled = false;
+
+  playAudioFromUrl(url, volume).then((result) => {
+    if (isCancelled) {
+      if (result) {
+        try {
+          result.source.stop();
+        } catch {
+          // Ignore
+        }
+      }
+      return;
+    }
+
+    if (result) {
+      sourceNode = result.source;
+      if (onEnded) {
+        sourceNode.onended = onEnded;
+      }
+    } else {
+      // Failed to play
+      if (onEnded) onEnded();
+    }
+  });
+
+  return () => {
+    isCancelled = true;
+    if (sourceNode) {
+      try {
+        sourceNode.stop();
+        sourceNode.onended = null;
+      } catch {
+        // Ignore
+      }
+    }
+  };
+};
+
+const playSoundFile = (audioFilename: string, volume: number = 0.5) => {
+  let source: AudioBufferSourceNode | null = null;
+  let isCancelled = false;
+
+  playAudioFromUrl(`/audio/${audioFilename}`, volume).then((result) => {
+    if (isCancelled) {
+      if (result) {
+        try {
+          result.source.stop();
+        } catch {
+          // Ignore
+        }
+      }
+      return;
+    }
+    if (result) {
+      source = result.source;
+    }
+  });
+
+  return () => {
+    isCancelled = true;
+    if (source) {
+      try {
+        source.stop();
+      } catch {
+        // Ignore
+      }
+    }
+  };
 };
 
 const playAudioFromUrl = async (url: string, volume: number = 1.0, loop: boolean = false): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
@@ -109,153 +251,6 @@ const playAudioFromUrl = async (url: string, volume: number = 1.0, loop: boolean
     console.error(`Failed to play audio from ${url}:`, error);
     return null;
   }
-};
-
-interface AmbientTrack {
-  source: AudioBufferSourceNode;
-  gain: GainNode;
-  url: string;
-  isFadingOut?: boolean;
-}
-
-const fadeOutTrack = (track: AmbientTrack, duration: number, ctx: AudioContext) => {
-  try {
-    const t = ctx.currentTime;
-    track.gain.gain.cancelScheduledValues(t);
-    track.gain.gain.setValueAtTime(track.gain.gain.value, t);
-
-    if (duration > 0) {
-      track.gain.gain.linearRampToValueAtTime(0, t + duration);
-      track.source.stop(t + duration);
-    } else {
-      track.gain.gain.value = 0;
-      track.source.stop(t);
-    }
-  } catch (e) {
-    console.warn("Error stopping track:", e);
-  }
-};
-
-let currentAmbient: AmbientTrack | null = null;
-
-const playAmbientLoop = async (audioLoop: string | null, crossFadeDuration: number = 0) => {
-  if (currentAmbient?.url === audioLoop && !currentAmbient.isFadingOut) return;
-
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
-  const trackToStop = currentAmbient;
-  if (trackToStop) {
-    fadeOutTrack(trackToStop, crossFadeDuration, ctx);
-  }
-
-  if (!audioLoop) {
-    currentAmbient = null;
-    return;
-  }
-
-  const targetVolume = 0.3;
-  const startVolume = crossFadeDuration > 0 ? 0 : targetVolume;
-
-  const result = await playAudioFromUrl(audioLoop, startVolume, true);
-
-  if (result) {
-    const isObsolete = currentAmbient !== trackToStop;
-
-    if (isObsolete) {
-      try {
-        result.source.stop();
-      } catch {
-        // Ignore error if specific source stop fails
-      }
-      return;
-    }
-
-    currentAmbient = {
-      source: result.source,
-      gain: result.gain,
-      url: audioLoop,
-      isFadingOut: false
-    };
-
-    if (crossFadeDuration > 0) {
-      const t = ctx.currentTime;
-      result.gain.gain.setValueAtTime(0, t);
-      result.gain.gain.linearRampToValueAtTime(targetVolume, t + crossFadeDuration);
-    }
-  }
-};
-
-const playSoundFile = (audioFilename: string, volume: number = 0.5) => {
-  let source: AudioBufferSourceNode | null = null;
-  let isCancelled = false;
-
-  playAudioFromUrl(`/audio/${audioFilename}`, volume).then((result) => {
-    if (isCancelled) {
-      if (result) {
-        try {
-          result.source.stop();
-        } catch {
-          // Ignore
-        }
-      }
-      return;
-    }
-    if (result) {
-      source = result.source;
-    }
-  });
-
-  return () => {
-    isCancelled = true;
-    if (source) {
-      try {
-        source.stop();
-      } catch {
-        // Ignore
-      }
-    }
-  };
-};
-
-const playNarration = (url: string, volume: number = 1.0, onEnded?: () => void) => {
-  let sourceNode: AudioBufferSourceNode | null = null;
-  let isCancelled = false;
-
-  playAudioFromUrl(url, volume).then((result) => {
-    if (isCancelled) {
-      if (result) {
-        try {
-          result.source.stop();
-        } catch {
-          // Ignore
-        }
-      }
-      return;
-    }
-
-    if (result) {
-      sourceNode = result.source;
-      if (onEnded) {
-        sourceNode.onended = onEnded;
-      }
-    } else {
-      // Failed to play
-      if (onEnded) onEnded();
-    }
-  });
-
-  return () => {
-    isCancelled = true;
-    if (sourceNode) {
-      try {
-        sourceNode.stop();
-        sourceNode.onended = null; // Prevent callback
-      } catch {
-        // Ignore
-      }
-    }
-  };
 };
 
 const useSoundFx = () => {

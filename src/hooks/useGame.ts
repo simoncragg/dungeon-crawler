@@ -22,7 +22,13 @@ export const useGame = () => {
 
   useRoomPreloader(gameState.currentRoomId, gameState.inventory.items);
 
-  const { playAmbientLoop, playShuffleSound, playItemSound, playSoundFile, playNarration } = useSoundFx();
+  const {
+    playAmbientLoop,
+    playShuffleSound,
+    playItemSound,
+    playSoundFile,
+    playNarration
+  } = useSoundFx();
 
   const addToLog = useCallback((text: string, type: LogEntry["type"] = "system") => {
     dispatch({ type: "ADD_LOG", message: text, logType: type });
@@ -109,7 +115,7 @@ export const useGame = () => {
     if (currentRoom.narration) {
       let audioStop: (() => void) | null = null;
       const timeoutId = setTimeout(() => {
-        audioStop = playNarration(currentRoom.narration!.path, currentRoom.narration!.volume || 1.0);
+        audioStop = playNarration(currentRoom.narration!.path, currentRoom.narration!.volume);
       }, 2000);
 
       stopNarrationRef.current = () => {

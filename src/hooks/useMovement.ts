@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import type { Direction, Room, GameState, LogEntry, GameAction } from "../types";
+import type { Direction, Room, GameState, LogEntry, GameAction, SoundAsset } from "../types";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 import { useTransition } from "./useTransition";
 
@@ -8,7 +8,7 @@ interface UseMovementProps {
   currentRoom: Room;
   dispatch: React.Dispatch<GameAction>;
   addToLog: (text: string, type?: LogEntry["type"]) => void;
-  playAmbientLoop: (file: string | null, fadeDuration?: number) => void;
+  playAmbientLoop: (audioLoop: SoundAsset | null, crossFadeDuration?: number) => void;
   playShuffleSound: () => void;
   processRoomEntry: (nextRoomId: string) => void;
 }

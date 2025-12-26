@@ -10,6 +10,15 @@ export type GlowEffect = {
   intensity?: 1 | 2 | 3;
 };
 
+export type SoundAsset = {
+  path: string;
+  volume?: number;
+};
+
+export type NarrationAsset = SoundAsset & {
+  text?: string;
+};
+
 export type GameState = {
   currentRoomId: string;
   inventory: Inventory;
@@ -119,18 +128,11 @@ export type Room = {
   coordinates: { x: number; y: number };
   shortName?: string;
   image: string;
-  videoLoop?: {
-    path: string;
-    volume?: number;
-  };
+  videoLoop?: SoundAsset;
   heldItemBrightness?: number;
-  narration?: {
-    path: string;
-    text?: string;
-    volume?: number;
-  };
+  narration?: NarrationAsset;
   transitionVideos?: Partial<Record<Direction, string>>;
-  audioLoop?: string;
+  audioLoop?: SoundAsset;
   enemy?: {
     id: string;
     name: string;

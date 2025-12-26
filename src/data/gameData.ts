@@ -97,7 +97,7 @@ export const WORLD: Record<string, Room> = {
       path: "/video/scenes/damp-cell.mp4",
       volume: 0.2
     },
-    audioLoop: "/audio/dripping-water.mp3",
+    audioLoop: { path: "/audio/dripping-water.mp3" },
     heldItemBrightness: 0.3,
     narration: {
       text: "You wake with a start! Such a strange dream... The cell door! It's... open! This is your chance, but you must act quickly! Time to move.",
@@ -137,7 +137,10 @@ export const WORLD: Record<string, Room> = {
       path: "/audio/narration/dark-hallway.mp3",
       volume: 0.8,
     },
-    audioLoop: "/audio/eerie-echoes.mp3",
+    audioLoop: {
+      path: "/audio/eerie-echoes.mp3",
+      volume: 0.1
+    },
     hotspots: [
       { type: "door", direction: "north", top: "30%", left: "40%", width: "20%", height: "45%", label: "North Gate" },
       { type: "door", direction: "east", top: "10%", left: "80%", width: "10%", height: "80%", label: "Archives Door" },

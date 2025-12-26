@@ -44,7 +44,7 @@ export const getRoomAssets = (roomId: string): string[] => {
   if (!room) return [];
 
   if (room.image) assets.add(room.image);
-  if (room.audioLoop) assets.add(room.audioLoop);
+  if (room.audioLoop?.path) assets.add(room.audioLoop.path);
   if (room.videoLoop?.path) assets.add(room.videoLoop.path);
   if (room.narration?.path) assets.add(room.narration.path);
 
