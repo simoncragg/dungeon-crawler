@@ -16,9 +16,7 @@ export const useGame = () => {
   const [gameState, dispatch] = useReducer(gameReducer, INITIAL_STATE);
   const currentRoom = gameState.rooms[gameState.currentRoomId];
 
-  const [hasInspected, setHasInspected] = useState(false);
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
-  const [isEnemyRevealed, setIsEnemyRevealed] = useState(false);
 
   useRoomPreloader(gameState.currentRoomId, gameState.inventory.items);
 
@@ -35,8 +33,6 @@ export const useGame = () => {
   }, []);
 
   const processRoomEntry = useCallback((nextRoomId: string) => {
-    setHasInspected(false);
-    setIsEnemyRevealed(false);
     const nextRoom = gameState.rooms[nextRoomId];
 
     setTimeout(() => {
@@ -50,12 +46,12 @@ export const useGame = () => {
       if (nextRoom.enemy) {
         const enemyName = nextRoom.enemy.name;
         addToLog(`A ${enemyName} blocks your path!`, "danger");
-        setIsEnemyRevealed(true);
+        dispatch({ type: "SET_ENEMY_REVEALED", revealed: true });
         dispatch({ type: "SET_QUEST_LOG_OPEN", open: false });
         playSoundFile("danger.mp3");
       }
     }, 800);
-  }, [gameState.rooms, addToLog, playSoundFile, setIsEnemyRevealed]);
+  }, [gameState.rooms, addToLog, playSoundFile]);
 
   /*
    * Movement & Transitions
@@ -93,9 +89,13 @@ export const useGame = () => {
   useEffect(() => {
     if (!gameState.feedback) return;
 
+    const messageLength = gameState.feedback.message?.length || 0;
+    // Base 3s + 60ms per character for reading time
+    const duration = Math.max(3000, messageLength * 60);
+
     const timer = setTimeout(() => {
       dispatch({ type: "CLEAR_FEEDBACK" });
-    }, 3000);
+    }, duration);
 
     return () => clearTimeout(timer);
   }, [gameState.feedback]);
@@ -132,6 +132,24 @@ export const useGame = () => {
     playNarration
   ]);
 
+  const lastProcessedDropTime = useRef<number>(0);
+
+  useEffect(() => {
+    if (gameState.latestDrop && gameState.latestDrop.timestamp > lastProcessedDropTime.current) {
+      if (ITEMS[gameState.latestDrop.itemId]) {
+        lastProcessedDropTime.current = gameState.latestDrop.timestamp;
+
+        // Sound still needs localized side effect, but state is already handled by reducer!
+        playSoundFile("enemy-item-drop.mp3");
+
+        const timer = setTimeout(() => {
+          dispatch({ type: "CLEAR_DROP_ANIMATION" });
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [gameState.latestDrop, playSoundFile]);
+
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -142,7 +160,7 @@ export const useGame = () => {
 
   const inspectRoom = () => {
     const room = gameState.rooms[gameState.currentRoomId];
-    setHasInspected(true);
+    dispatch({ type: "SET_HAS_INSPECTED", inspected: true });
     let desc = "You scan the area.";
     if (room.items.length > 0) {
       const itemNames = room.items.map(id => ITEMS[id].name).join(", ");
@@ -160,10 +178,10 @@ export const useGame = () => {
   return {
     gameState,
     questLog: gameState.questLog,
-    hasInspected,
+    hasInspected: gameState.hasInspected,
     viewingItemId,
     setViewingItemId,
-    isEnemyRevealed,
+    isEnemyRevealed: gameState.isEnemyRevealed,
     attackPower: gameState.attack,
     defensePower: gameState.defense,
     currentRoom,
@@ -177,6 +195,8 @@ export const useGame = () => {
     startCombat,
     handleCombatAction,
     useItem,
+    recentDropId: gameState.recentDropId,
+    isDropAnimating: gameState.isDropAnimating,
     feedback: gameState.feedback || { message: null, type: null, id: 0 },
     setQuestLogOpen: (open: boolean) => dispatch({ type: "SET_QUEST_LOG_OPEN", open }),
     videoRef

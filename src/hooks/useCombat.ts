@@ -138,11 +138,19 @@ export const useCombat = ({ gameState, dispatch, playSoundFile }: UseCombatProps
           setTimeout(() => playSoundFile("enemy-defeat.mp3"), 500);
           dispatch({ type: "SET_ENEMY_ACTION", action: "DEFEAT" });
           setTimeout(() => {
+            const dropItem = enemy.drop ? ITEMS[enemy.drop] : null;
+            const dropMsg = dropItem ? `The ${enemy.name.toLowerCase()} dropped a ${dropItem.name.toLowerCase()}.` : "";
+            const logMessages = [enemy.defeatMessage];
+            if (dropMsg) {
+              logMessages.push(dropMsg);
+            }
+
             dispatch({
               type: "ENEMY_DEFEAT",
               enemyName: enemy.name,
               dropId: enemy.drop,
-              logMessage: enemy.defeatMessage,
+              logMessages,
+              feedbackMessage: dropMsg || undefined,
               damageDealt: enemyDamageTaken
             });
           }, 1500);

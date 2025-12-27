@@ -35,6 +35,10 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         mapOverrideRoomId: undefined,
         visitedRooms: Array.from(new Set([...state.visitedRooms, nextRoomId])),
         feedback: null,
+        hasInspected: false,
+        isEnemyRevealed: false,
+        recentDropId: null,
+        isDropAnimating: false
       };
     }
 
@@ -449,7 +453,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     }
 
     case "ENEMY_DEFEAT": {
-      const { dropId, logMessage } = action;
+      const { dropId, logMessages } = action;
       const newRooms = { ...state.rooms };
       const currentRoom = newRooms[state.currentRoomId];
 
@@ -462,14 +466,21 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
       newRooms[state.currentRoomId] = newRoom;
 
-      const newLog = addLog(state.questLog, logMessage, "success");
+      let newLog = state.questLog;
+      logMessages.forEach(msg => {
+        newLog = addLog(newLog, msg, "success");
+      });
 
       return {
         ...state,
         rooms: newRooms,
         questLog: newLog,
-        feedback: getFeedback(logMessage, "success"),
-        combat: null
+        feedback: getFeedback(action.feedbackMessage || logMessages[0], "success"),
+        combat: null,
+        latestDrop: dropId ? { itemId: dropId, timestamp: Date.now() } : null,
+        recentDropId: dropId || null,
+        isDropAnimating: !!dropId,
+        hasInspected: !!dropId
       };
     }
 
@@ -493,6 +504,22 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         ...state,
         feedback: null
       };
+    }
+
+    case "SET_ENEMY_REVEALED": {
+      return { ...state, isEnemyRevealed: action.revealed };
+    }
+
+    case "SET_HAS_INSPECTED": {
+      return { ...state, hasInspected: action.inspected };
+    }
+
+    case "SET_DROP_ANIMATING": {
+      return { ...state, recentDropId: action.itemId, isDropAnimating: true };
+    }
+
+    case "CLEAR_DROP_ANIMATION": {
+      return { ...state, isDropAnimating: false };
     }
 
     default:

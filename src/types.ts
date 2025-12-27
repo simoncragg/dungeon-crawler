@@ -39,6 +39,11 @@ export type GameState = {
   attack: number;
   defense: number;
   mapOverrideRoomId?: string;
+  latestDrop: { itemId: string; timestamp: number } | null;
+  hasInspected: boolean;
+  isEnemyRevealed: boolean;
+  recentDropId: string | null;
+  isDropAnimating: boolean;
 };
 
 export type WeaponOverlayConfig = {
@@ -115,6 +120,7 @@ export type ItemHotspot = BaseHotspot & {
   itemId: string;
   rotation?: string;
   brightness?: number;
+  glow?: GlowEffect;
 };
 
 export type Hotspot = DoorHotspot | ItemHotspot;
@@ -217,7 +223,7 @@ export type GameAction =
   | { type: "USE_CONSUMABLE"; itemId: string; effect: (state: GameState) => Partial<GameState>; logMessage: string }
   | { type: "UNLOCK_DOOR"; direction: Direction; keyId: string; logMessage: string }
   | { type: "COMBAT_ROUND"; damageDealt: number; damageTaken: number; enemyName: string; logMessage: string; playerDied: boolean }
-  | { type: "ENEMY_DEFEAT"; enemyName: string; dropId?: string; logMessage: string; damageDealt: number }
+  | { type: "ENEMY_DEFEAT"; enemyName: string; dropId?: string; logMessages: string[]; feedbackMessage?: string; damageDealt: number }
   | { type: "ADD_LOG"; message: string; logType?: LogEntry["type"] }
   | { type: "SET_QUEST_LOG"; log: LogEntry[] }
   | { type: "CLEAR_FEEDBACK" }
@@ -229,4 +235,8 @@ export type GameAction =
   | { type: "UNEQUIP_ITEM"; itemId: string; logMessage: string }
   | { type: "SET_COMBAT_RESULT"; result: CombatResult }
   | { type: "SET_COMBAT_RIPOSTE"; canRiposte: boolean }
-  | { type: "UPDATE_MAP_POSITION"; roomId: string };
+  | { type: "UPDATE_MAP_POSITION"; roomId: string }
+  | { type: "SET_ENEMY_REVEALED"; revealed: boolean }
+  | { type: "SET_HAS_INSPECTED"; inspected: boolean }
+  | { type: "SET_DROP_ANIMATING"; itemId: string }
+  | { type: "CLEAR_DROP_ANIMATION" }

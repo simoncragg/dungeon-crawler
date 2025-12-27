@@ -297,6 +297,7 @@ button:disabled {
   }
 }
 
+
 @keyframes riposte {
   0% {
     transform: rotate(90deg) translate(50%, 15%) scale(1.2);
@@ -307,4 +308,21 @@ button:disabled {
     transform: rotate(-120deg) translate(0%, 0%) scale(1.0);
     opacity: 1;
   }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(20%) scale(0.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0) scale(1.0);
+    opacity: 1;
+  }
+}
+
+.animate-float-up {
+  animation: float-up 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  pointer-events: auto !important;
 }
