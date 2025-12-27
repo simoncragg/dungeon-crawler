@@ -29,5 +29,6 @@ export const INITIAL_STATE: GameState = {
   hasInspected: false,
   isEnemyRevealed: false,
   recentDropId: null,
-  isDropAnimating: false
+  isDropAnimating: false,
+  isFirstVisit: true
 };

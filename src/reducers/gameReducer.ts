@@ -38,7 +38,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         hasInspected: false,
         isEnemyRevealed: false,
         recentDropId: null,
-        isDropAnimating: false
+        isDropAnimating: false,
+        isFirstVisit: !state.visitedRooms.includes(nextRoomId)
       };
     }
 

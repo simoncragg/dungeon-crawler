@@ -44,6 +44,7 @@ export type GameState = {
   isEnemyRevealed: boolean;
   recentDropId: string | null;
   isDropAnimating: boolean;
+  isFirstVisit: boolean;
 };
 
 export type WeaponOverlayConfig = {

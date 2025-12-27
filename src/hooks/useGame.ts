@@ -39,7 +39,7 @@ export const useGame = () => {
       addToLog(nextRoom.name, "room-title");
       addToLog(nextRoom.description, "room-description");
 
-      if (nextRoom.narration?.text) {
+      if (nextRoom.narration?.text && gameState.isFirstVisit) {
         addToLog(nextRoom.narration!.text!, "narration");
       }
 
@@ -51,7 +51,7 @@ export const useGame = () => {
         playSoundFile("danger.mp3");
       }
     }, 800);
-  }, [gameState.rooms, addToLog, playSoundFile]);
+  }, [gameState.rooms, gameState.isFirstVisit, addToLog, playSoundFile]);
 
   /*
    * Movement & Transitions
@@ -112,7 +112,7 @@ export const useGame = () => {
       stopNarrationRef.current = null;
     }
 
-    if (currentRoom.narration) {
+    if (currentRoom.narration && gameState.isFirstVisit) {
       let audioStop: (() => void) | null = null;
       const timeoutId = setTimeout(() => {
         audioStop = playNarration(currentRoom.narration!.path, currentRoom.narration!.volume);
@@ -124,7 +124,7 @@ export const useGame = () => {
       };
     }
   }, [
-    gameState.currentRoomId,
+    gameState.isFirstVisit,
     currentRoom.narration,
     currentRoom.audioLoop,
     movement.activeTransitionVideo,
