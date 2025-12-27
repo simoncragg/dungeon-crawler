@@ -176,7 +176,7 @@ export const WORLD: Record<string, Room> = {
     heldItemBrightness: 0.5,
     facing: "west",
     hotspots: [
-      { type: "item", itemId: "rusty-key", top: "30%", left: "40%", width: "20%", height: "45%", rotation: "90deg", scale: 0.8, brightness: 1.0, label: "Rusty Key" },
+      { type: "item", itemId: "rusty-key", top: "30%", left: "40%", width: "20%", height: "45%", rotation: "90deg", scale: 0.8, brightness: 1.0, label: "Rusty Key", glow: { color: "rgba(6, 182, 212, 1)", intensity: 2, blur: "15px", pulse: true } },
     ],
     isSignposted: true
   },

@@ -24,5 +24,6 @@ export const INITIAL_STATE: GameState = {
   isQuestLogOpen: false,
   combat: null,
   attack: 5,
-  defense: 0
+  defense: 0,
+  latestDrop: null
 };

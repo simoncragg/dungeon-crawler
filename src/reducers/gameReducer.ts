@@ -469,7 +469,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         rooms: newRooms,
         questLog: newLog,
         feedback: getFeedback(logMessage, "success"),
-        combat: null
+        combat: null,
+        latestDrop: dropId ? { itemId: dropId, timestamp: Date.now() } : null
       };
     }
 

@@ -39,6 +39,7 @@ export type GameState = {
   attack: number;
   defense: number;
   mapOverrideRoomId?: string;
+  latestDrop: { itemId: string; timestamp: number } | null;
 };
 
 export type WeaponOverlayConfig = {
@@ -115,6 +116,7 @@ export type ItemHotspot = BaseHotspot & {
   itemId: string;
   rotation?: string;
   brightness?: number;
+  glow?: GlowEffect;
 };
 
 export type Hotspot = DoorHotspot | ItemHotspot;

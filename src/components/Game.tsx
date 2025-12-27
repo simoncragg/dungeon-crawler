@@ -39,7 +39,9 @@ export default function Game() {
     handleTransitionEnd,
     handleVideoTimeUpdate,
     isShutterActive,
-    sceneTitleProps
+    sceneTitleProps,
+    recentDropId,
+    isDropAnimating
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
@@ -139,6 +141,8 @@ export default function Game() {
             debug={isDebugMode}
             itemsRevealed={hasInspected}
             isTransitioning={!!activeTransitionVideo}
+            recentDropId={recentDropId}
+            isDropAnimating={isDropAnimating}
           />
 
           {/* Enemy Sprite - Part of the world */}

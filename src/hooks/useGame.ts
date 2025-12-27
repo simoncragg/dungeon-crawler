@@ -93,9 +93,13 @@ export const useGame = () => {
   useEffect(() => {
     if (!gameState.feedback) return;
 
+    const messageLength = gameState.feedback.message?.length || 0;
+    // Base 3s + 60ms per character for reading time
+    const duration = Math.max(3000, messageLength * 60);
+
     const timer = setTimeout(() => {
       dispatch({ type: "CLEAR_FEEDBACK" });
-    }, 3000);
+    }, duration);
 
     return () => clearTimeout(timer);
   }, [gameState.feedback]);
@@ -131,6 +135,35 @@ export const useGame = () => {
     playAmbientLoop,
     playNarration
   ]);
+
+  const [recentDropId, setRecentDropId] = useState<string | null>(null);
+  const [isDropAnimating, setIsDropAnimating] = useState(false);
+  const lastProcessedDropTime = useRef<number>(0);
+
+  useEffect(() => {
+    if (gameState.latestDrop && gameState.latestDrop.timestamp > lastProcessedDropTime.current) {
+      if (ITEMS[gameState.latestDrop.itemId]) {
+        lastProcessedDropTime.current = gameState.latestDrop.timestamp;
+
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setRecentDropId(gameState.latestDrop.itemId);
+        setIsDropAnimating(true);
+        setHasInspected(true);
+        playSoundFile("enemy-item-drop.mp3");
+
+        const timer = setTimeout(() => {
+          setIsDropAnimating(false);
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [gameState.latestDrop, playSoundFile]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRecentDropId(null);
+    setIsDropAnimating(false);
+  }, [gameState.currentRoomId]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -177,6 +210,8 @@ export const useGame = () => {
     startCombat,
     handleCombatAction,
     useItem,
+    recentDropId,
+    isDropAnimating,
     feedback: gameState.feedback || { message: null, type: null, id: 0 },
     setQuestLogOpen: (open: boolean) => dispatch({ type: "SET_QUEST_LOG_OPEN", open }),
     videoRef
