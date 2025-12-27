@@ -40,7 +40,7 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
         let itemAnimClass = "";
         if (isRecentDropId && isDropAnimating) {
           itemAnimClass = "animate-float-up z-50";
-        } else if ((itemsRevealed || isRecentDropId) && isItem) {
+        } else if (isRecentDropId) {
           itemAnimClass = "animate-idle";
         }
 
