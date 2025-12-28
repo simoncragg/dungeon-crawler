@@ -58,11 +58,6 @@ export default function Game() {
     }
   }, [feedback?.id, isShakeEffect]);
 
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.volume = currentRoom.videoLoop?.volume ?? 1.0;
-    }
-  }, [videoRef, currentRoom.videoLoop]);
 
   const [isDebugMode, setIsDebugMode] = useState(false);
 

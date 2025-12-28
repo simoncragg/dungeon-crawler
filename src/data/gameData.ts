@@ -129,7 +129,7 @@ export const WORLD: Record<string, Room> = {
     image: "/images/scenes/dark-hallway.png",
     videoLoop: {
       path: "/video/scenes/dark-hallway.mp4",
-      volume: 0.2
+      volume: 0.5
     },
     heldItemBrightness: 0.4,
     narration: {
@@ -139,7 +139,7 @@ export const WORLD: Record<string, Room> = {
     },
     audioLoop: {
       path: "/audio/eerie-echoes.mp3",
-      volume: 0.1
+      volume: 0.08
     },
     hotspots: [
       { type: "door", direction: "north", top: "30%", left: "40%", width: "20%", height: "45%", label: "North Gate" },
