@@ -30,6 +30,7 @@ export const useMovement = ({
 
   const {
     activeTransitionVideo,
+    activeTransitionVolume,
     pendingMove,
     isShutterActive,
     sceneTitleProps,
@@ -157,6 +158,7 @@ export const useMovement = ({
     walkingDirection,
     walkStepScale,
     activeTransitionVideo,
+    activeTransitionVolume,
     isShutterActive,
     sceneTitleProps,
     handleMove,

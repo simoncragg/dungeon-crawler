@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import type { Room } from "../types";
+import type { Room, SoundAsset } from "../types";
 
 interface UseTransitionProps {
     currentRoom: Room;
@@ -17,6 +17,7 @@ export const useTransition = ({
     onMidpoint
 }: UseTransitionProps) => {
     const [activeTransitionVideo, setActiveTransitionVideo] = useState<string | null>(null);
+    const [activeTransitionVolume, setActiveTransitionVolume] = useState<number>(0.4);
     const [pendingMove, setPendingMove] = useState<{ nextRoomId: string } | null>(null);
     const [transitionTitle, setTransitionTitle] = useState<{ id: string; name: string } | null>(null);
     const [isShutterActive, setIsShutterActive] = useState(false);
@@ -29,8 +30,14 @@ export const useTransition = ({
         setTimeout(() => setIsShutterActive(false), 400);
     }, []);
 
-    const startTransition = useCallback((video: string, nextRoomId: string) => {
-        setActiveTransitionVideo(video);
+    const startTransition = useCallback((video: string | SoundAsset, nextRoomId: string) => {
+        if (typeof video === 'string') {
+            setActiveTransitionVideo(video);
+            setActiveTransitionVolume(0.4);
+        } else {
+            setActiveTransitionVideo(video.path);
+            setActiveTransitionVolume(video.volume ?? 0.4);
+        }
         setPendingMove({ nextRoomId });
         setTransitionTitle({ id: currentRoom.id, name: currentRoom.name });
         midpointReachedRef.current = false;
@@ -52,6 +59,7 @@ export const useTransition = ({
 
     const resetTransition = useCallback(() => {
         setActiveTransitionVideo(null);
+        setActiveTransitionVolume(0.4);
         setPendingMove(null);
         setTransitionTitle(null);
         midpointReachedRef.current = false;
@@ -67,6 +75,7 @@ export const useTransition = ({
 
     return {
         activeTransitionVideo,
+        activeTransitionVolume,
         pendingMove,
         isShutterActive,
         sceneTitleProps,

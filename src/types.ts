@@ -139,7 +139,7 @@ export type Room = {
   videoLoop?: SoundAsset;
   heldItemBrightness?: number;
   narration?: NarrationAsset;
-  transitionVideos?: Partial<Record<Direction, string>>;
+  transitionVideos?: Partial<Record<Direction, string | SoundAsset>>;
   audioLoop?: SoundAsset;
   enemy?: {
     id: string;

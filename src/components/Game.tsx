@@ -36,6 +36,7 @@ export default function Game() {
     setQuestLogOpen,
     videoRef,
     activeTransitionVideo,
+    activeTransitionVolume,
     handleTransitionEnd,
     handleVideoTimeUpdate,
     isShutterActive,
@@ -49,6 +50,7 @@ export default function Game() {
   const isShakeEffect = ["damage", "warning", "clash"].includes(feedback?.type || "");
 
   const viewportRef = useRef<HTMLDivElement>(null);
+  const transitionVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (isShakeEffect && viewportRef.current) {
@@ -57,6 +59,12 @@ export default function Game() {
       viewportRef.current.classList.add("animate-shake");
     }
   }, [feedback?.id, isShakeEffect]);
+
+  useEffect(() => {
+    if (transitionVideoRef.current) {
+      transitionVideoRef.current.volume = activeTransitionVolume;
+    }
+  }, [activeTransitionVolume, activeTransitionVideo]);
 
 
   const [isDebugMode, setIsDebugMode] = useState(false);
@@ -112,6 +120,7 @@ export default function Game() {
             {activeTransitionVideo && (
               <div className="absolute inset-0 z-10">
                 <video
+                  ref={transitionVideoRef}
                   src={activeTransitionVideo}
                   autoPlay
                   playsInline
