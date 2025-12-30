@@ -66,7 +66,7 @@ export const useMovement = ({
     setWalkStepScale(1);
   }, []);
 
-  const startWalking = useCallback((direction: Direction) => {
+  const startWalking = useCallback((direction: Direction, shouldMute: boolean = false) => {
     stopWalking();
     setIsWalking(true);
     setWalkingDirection(direction);
@@ -80,7 +80,9 @@ export const useMovement = ({
 
       walkingTimerRef.current = setTimeout(() => {
         setWalkStepScale(stepCounter % 2 === 0 ? -1 : 1);
-        playShuffleSound();
+        if (!shouldMute) {
+          playShuffleSound();
+        }
         stepCounter++;
         scheduleNextStep();
       }, nextDelay);
@@ -131,7 +133,7 @@ export const useMovement = ({
     if (transitionVideo) {
       triggerShutter();
       startTransition(transitionVideo, nextRoomId!);
-      startWalking(direction);
+      startWalking(direction, true);
     } else {
       const isFleeing = !!currentRoom.enemy;
       const stepCount = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_COUNT : MOVEMENT_SETTINGS.STANDARD_STEP_COUNT;
