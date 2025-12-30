@@ -110,7 +110,7 @@ export const WORLD: Record<string, Room> = {
       { type: "item", itemId: "rusty-sword", top: "55%", left: "70%", width: "5%", height: "30%", rotation: "185deg", brightness: 0.5, label: "Rusty Sword" },
     ],
     transitionVideos: {
-      north: "/video/scenes/transition-from-damp-cell-to-dark-hallway.mp4"
+      north: { path: "/video/scenes/transition-from-damp-cell-to-dark-hallway.mp4", volume: 1.0 },
     },
     facing: "north"
   },
