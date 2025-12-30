@@ -28,8 +28,10 @@ export const useRoomPreloader = (currentRoomId: string, inventoryItems: (string 
       }
 
       if (shouldPreload) {
-        if (currentRoom.transitionVideos && currentRoom.transitionVideos[dir]) {
-          preloadAssets([currentRoom.transitionVideos[dir]!]).catch(console.warn);
+        const transitionVideo = currentRoom.transitionVideos?.[dir];
+        if (transitionVideo) {
+          const path = typeof transitionVideo === 'string' ? transitionVideo : transitionVideo.path;
+          preloadAssets([path]).catch(console.warn);
         }
 
         if (!hasPreloadedRoom(exitId)) {
