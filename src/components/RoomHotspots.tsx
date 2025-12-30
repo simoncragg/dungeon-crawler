@@ -1,4 +1,5 @@
 import { ITEMS } from "../data/gameData";
+import { getPreloadedUrl } from "../utils/assetLoader";
 import type { Hotspot, ItemHotspot } from "../types";
 
 interface RoomHotspotsProps {
@@ -93,7 +94,7 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
                     } as React.CSSProperties
                   }
                 >
-                  <img src={item.image} alt={item.name} className="w-full h-full object-contain pointer-events-none drop-shadow-lg" />
+                  <img src={getPreloadedUrl(item.image)} alt={item.name} className="w-full h-full object-contain pointer-events-none drop-shadow-lg" />
                 </div>
               </div>
             )}

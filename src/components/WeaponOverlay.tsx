@@ -1,5 +1,6 @@
 import React from "react";
 import { ITEMS } from "../data/gameData";
+import { getPreloadedUrl } from "../utils/assetLoader";
 import type { CombatState } from "../types";
 
 interface WeaponOverlayProps {
@@ -139,7 +140,7 @@ const WeaponOverlay = ({ weaponId, brightness = 0.3, combat }: WeaponOverlayProp
   return (
     <div style={wrapperStyle}>
       <img
-        src={weaponItem.image}
+        src={getPreloadedUrl(weaponItem.image)}
         alt={weaponItem.name}
         style={imageStyle}
         className="object-contain"

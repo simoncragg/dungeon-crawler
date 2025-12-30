@@ -10,6 +10,8 @@ import ShutterBlink from "./ShutterBlink";
 import RoomHotspots from "./RoomHotspots";
 import GameHUD from "./GameHUD";
 
+import { getPreloadedUrl } from "../utils/assetLoader";
+
 export default function Game() {
   const {
     gameState,
@@ -42,8 +44,7 @@ export default function Game() {
     isShutterActive,
     sceneTitleProps,
     recentDropId,
-    isDropAnimating,
-    videosToRender
+    isDropAnimating
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
@@ -93,7 +94,7 @@ export default function Game() {
       <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
         <div className="absolute inset-0 z-0">
           <img
-            src={currentRoom.image}
+            src={getPreloadedUrl(currentRoom.image)}
             alt=""
             className="w-full h-full object-cover opacity-50 blur-xl scale-110"
           />
@@ -108,7 +109,7 @@ export default function Game() {
             {currentRoom.videoLoop ? (
               <video
                 ref={videoRef}
-                src={currentRoom.videoLoop?.path}
+                src={getPreloadedUrl(currentRoom.videoLoop.path)}
                 autoPlay
                 loop
                 playsInline
@@ -116,30 +117,26 @@ export default function Game() {
               />
             ) : (
               <img
-                src={currentRoom.image}
+                src={getPreloadedUrl(currentRoom.image)}
                 alt={currentRoom.name}
                 className="w-full h-full object-cover"
               />
             )}
 
-            {/* Transition Videos Layer */}
-            <div className="absolute inset-0 z-10 pointer-events-none">
-              {videosToRender.map((v: { path: string; dir: string; isActive: boolean }) => (
-                <video
-                  key={`${v.dir}-${v.path}`}
-                  ref={v.isActive ? transitionVideoRef : null}
-                  src={v.path}
-                  autoPlay={v.isActive}
-                  muted={!v.isActive}
-                  preload="auto"
-                  playsInline
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${v.isActive ? "opacity-100" : "opacity-0"
-                    }`}
-                  onEnded={v.isActive ? handleTransitionEnd : undefined}
-                  onTimeUpdate={v.isActive ? handleVideoTimeUpdate : undefined}
-                />
-              ))}
-            </div>
+            {/* Active Transition Video */}
+            {activeTransitionVideo && (
+              <video
+                ref={transitionVideoRef}
+                src={getPreloadedUrl(activeTransitionVideo)}
+                autoPlay
+                muted={false}
+                preload="auto"
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                onEnded={handleTransitionEnd}
+                onTimeUpdate={handleVideoTimeUpdate}
+              />
+            )}
           </div>
 
           {/* Hotspots */}
@@ -173,7 +170,7 @@ export default function Game() {
                     }`}
                 >
                   <img
-                    src={gameState.combat?.enemyImage || `/images/enemies/${currentRoom.enemy.id}-idle.png`}
+                    src={getPreloadedUrl(gameState.combat?.enemyImage || `/images/enemies/${currentRoom.enemy.id}-idle.png`)}
                     alt={currentRoom.enemy.name}
                     className="h-[80vh] object-contain transition-all duration-100"
                   />

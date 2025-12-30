@@ -1,5 +1,6 @@
 import React from "react";
 import { ITEMS } from "../data/gameData";
+import { getPreloadedUrl } from "../utils/assetLoader";
 
 interface EquippedSlotProps {
   type: string;
@@ -30,7 +31,7 @@ const EquippedSlot = ({ type, itemId, icon: PlaceholderIcon, onInspect }: Equipp
     >
       {item?.image ? (
         <img
-          src={item.image}
+          src={getPreloadedUrl(item.image)}
           alt={item.name}
           className="w-full h-full object-contain p-1 opacity-80 group-hover:opacity-100 transition-all"
           style={{

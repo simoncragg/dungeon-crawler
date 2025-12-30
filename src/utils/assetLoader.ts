@@ -78,8 +78,13 @@ export const getInitialAssets = (): string[] => {
   return Array.from(assets);
 };
 
-// Track loaded assets to prevent duplicate requests
+// Track loaded assets and their Object URLs
+const assetMap = new Map<string, string>();
 const loadedAssets = new Set<string>();
+
+export const getPreloadedUrl = (src: string): string => {
+  return assetMap.get(src) || src;
+};
 
 const loadAudioAsset = async (src: string): Promise<void> => {
   try {
@@ -95,16 +100,23 @@ const loadAudioAsset = async (src: string): Promise<void> => {
 const loadVideoAsset = async (src: string): Promise<void> => {
   try {
     const response = await fetch(src);
-    await response.blob();
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    assetMap.set(src, url);
   } catch (e) {
     console.warn(`Failed to preload video: ${src}`, e);
   }
 };
 
 const loadImageAsset = async (src: string): Promise<void> => {
-  const img = new Image();
-  img.src = src;
   try {
+    const response = await fetch(src);
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    assetMap.set(src, url);
+
+    const img = new Image();
+    img.src = url;
     await img.decode();
   } catch (e) {
     console.warn(`Failed to decode image: ${src}`, e);

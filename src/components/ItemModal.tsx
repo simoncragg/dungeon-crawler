@@ -1,6 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
 import { ITEMS } from "../data/gameData";
+import { getPreloadedUrl } from "../utils/assetLoader";
 
 interface ItemModalProps {
   itemId: string;
@@ -55,7 +56,7 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
           <div className="w-full h-64 bg-black/40 flex items-center justify-center overflow-hidden relative group border-y border-stone-800">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-stone-800/20 via-black/40 to-black/60" />
             <img
-              src={item.image}
+              src={getPreloadedUrl(item.image)}
               alt={item.name}
               onLoad={(e) => {
                 const img = e.currentTarget;
