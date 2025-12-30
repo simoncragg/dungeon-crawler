@@ -1,9 +1,12 @@
 import { useState, useCallback, useRef } from "react";
 import type { Room, SoundAsset } from "../types";
 
+import { getVideosToRender, shouldHideSceneTitle } from "../utils/transitionUtils";
+
 interface UseTransitionProps {
     currentRoom: Room;
     rooms: Record<string, Room>;
+    visitedRooms: string[];
     feedback: { message: string | null };
     isWalking: boolean;
     onMidpoint?: () => void;
@@ -12,6 +15,7 @@ interface UseTransitionProps {
 export const useTransition = ({
     currentRoom,
     rooms,
+    visitedRooms,
     feedback,
     isWalking,
     onMidpoint
@@ -69,9 +73,22 @@ export const useTransition = ({
     const sceneTitleProps = {
         key: activeTitle.id,
         title: activeTitle.name,
-        forceHide: !!feedback.message ||
-            (activeTransitionVideo !== null ? (activeTitle.id !== pendingMove?.nextRoomId) : (isWalking && activeTitle.id === currentRoom.id))
+        forceHide: shouldHideSceneTitle(
+            feedback.message,
+            activeTransitionVideo,
+            activeTitle.id,
+            pendingMove?.nextRoomId,
+            isWalking,
+            currentRoom.id
+        )
     };
+
+    const videosToRender = getVideosToRender(
+        currentRoom.transitionVideos,
+        currentRoom.exits,
+        visitedRooms,
+        activeTransitionVideo
+    );
 
     return {
         activeTransitionVideo,
@@ -79,6 +96,7 @@ export const useTransition = ({
         pendingMove,
         isShutterActive,
         sceneTitleProps,
+        videosToRender,
         startTransition,
         handleVideoTimeUpdate,
         resetTransition,

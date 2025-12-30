@@ -34,6 +34,7 @@ export const useMovement = ({
     pendingMove,
     isShutterActive,
     sceneTitleProps,
+    videosToRender,
     startTransition,
     handleVideoTimeUpdate,
     resetTransition,
@@ -41,6 +42,7 @@ export const useMovement = ({
   } = useTransition({
     currentRoom,
     rooms: gameState.rooms,
+    visitedRooms: gameState.visitedRooms,
     feedback: gameState.feedback || { message: null },
     isWalking,
     onMidpoint: () => {
@@ -166,6 +168,7 @@ export const useMovement = ({
     handleMove,
     handleTransitionEnd,
     handleVideoTimeUpdate,
-    pendingMove
+    pendingMove,
+    videosToRender
   };
 };

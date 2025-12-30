@@ -42,7 +42,8 @@ export default function Game() {
     isShutterActive,
     sceneTitleProps,
     recentDropId,
-    isDropAnimating
+    isDropAnimating,
+    videosToRender
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
@@ -61,8 +62,12 @@ export default function Game() {
   }, [feedback?.id, isShakeEffect]);
 
   useEffect(() => {
-    if (transitionVideoRef.current) {
+    if (activeTransitionVideo && transitionVideoRef.current) {
       transitionVideoRef.current.volume = activeTransitionVolume;
+      transitionVideoRef.current.currentTime = 0;
+      transitionVideoRef.current.play().catch(err => {
+        console.warn("Transition video play failed:", err);
+      });
     }
   }, [activeTransitionVolume, activeTransitionVideo]);
 
@@ -117,25 +122,30 @@ export default function Game() {
               />
             )}
 
-            {activeTransitionVideo && (
-              <div className="absolute inset-0 z-10">
+            {/* Transition Videos Layer */}
+            <div className="absolute inset-0 z-10 pointer-events-none">
+              {videosToRender.map((v: { path: string; dir: string; isActive: boolean }) => (
                 <video
-                  ref={transitionVideoRef}
-                  src={activeTransitionVideo}
-                  autoPlay
+                  key={`${v.dir}-${v.path}`}
+                  ref={v.isActive ? transitionVideoRef : null}
+                  src={v.path}
+                  autoPlay={v.isActive}
+                  muted={!v.isActive}
+                  preload="auto"
                   playsInline
-                  className="w-full h-full object-cover"
-                  onEnded={handleTransitionEnd}
-                  onTimeUpdate={handleVideoTimeUpdate}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${v.isActive ? "opacity-100" : "opacity-0"
+                    }`}
+                  onEnded={v.isActive ? handleTransitionEnd : undefined}
+                  onTimeUpdate={v.isActive ? handleVideoTimeUpdate : undefined}
                 />
-              </div>
-            )}
+              ))}
+            </div>
           </div>
 
-          {/* Hotspots - MUST stay in Video Layer to align with world imagery */}
+          {/* Hotspots */}
           <RoomHotspots
             hotspots={currentRoom.hotspots?.filter((h: Hotspot) => h.type === "door" || currentRoom.items.includes(h.itemId))}
-            onHotspotClick={(hotspot) => {
+            onHotspotClick={(hotspot: Hotspot) => {
               if (hotspot.type === "door") {
                 handleMove(hotspot.direction);
               }
