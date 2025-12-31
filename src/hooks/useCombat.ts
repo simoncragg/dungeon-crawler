@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import type { GameState, CombatAction, EquippedWeapon, PlayerCombatAction, GameAction } from "../types";
+import type { GameState, CombatAction, EquippedWeapon, PlayerCombatAction, GameAction, SoundAsset } from "../types";
 import { ITEMS } from "../data/gameData";
 import {
   isWindupAction,
@@ -12,7 +12,7 @@ import {
 interface UseCombatProps {
   gameState: GameState;
   dispatch: React.Dispatch<GameAction>;
-  playSoundFile: (file: string, volume?: number) => (() => void) | void;
+  playSoundFile: (file: string | SoundAsset, volume?: number) => (() => void) | void;
 }
 
 export const useCombat = ({ gameState, dispatch, playSoundFile }: UseCombatProps) => {

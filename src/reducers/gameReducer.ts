@@ -306,8 +306,16 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return {
         ...state,
         rooms: newRooms,
+        unlockedDirection: direction,
         questLog: addLog(state.questLog, logMessage, "success"),
         feedback: getFeedback(logMessage, "success")
+      };
+    }
+
+    case "CLEAR_UNLOCK_HIGHLIGHT": {
+      return {
+        ...state,
+        unlockedDirection: null
       };
     }
 

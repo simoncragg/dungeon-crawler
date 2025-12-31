@@ -154,6 +154,7 @@ export default function Game() {
             isTransitioning={!!activeTransitionVideo}
             recentDropId={recentDropId}
             isDropAnimating={isDropAnimating}
+            unlockedDirection={gameState.unlockedDirection}
           />
 
           {/* Enemy Sprite - Part of the world */}

@@ -310,6 +310,28 @@ button:disabled {
   }
 }
 
+@keyframes highlight-flash {
+
+  0%,
+  100% {
+    opacity: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  15%,
+  85% {
+    opacity: 1;
+    -webkit-backdrop-filter: hue-rotate(120deg) brightness(1.2);
+    backdrop-filter: hue-rotate(120deg) brightness(1.2);
+  }
+}
+
+.animate-highlight-reveal {
+  animation: highlight-flash 2s ease-in-out forwards;
+  pointer-events: none;
+}
+
 @keyframes float-up {
   0% {
     transform: translateY(20%) scale(0.5);

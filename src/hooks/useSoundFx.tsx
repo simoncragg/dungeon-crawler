@@ -184,11 +184,14 @@ const playNarration = (url: string, volume: number = 1.0, onEnded?: () => void) 
   };
 };
 
-const playSoundFile = (audioFilename: string, volume: number = 0.5) => {
+const playSoundFile = (audioAsset: string | SoundAsset, volume: number = 0.5) => {
   let source: AudioBufferSourceNode | null = null;
   let isCancelled = false;
 
-  playAudioFromUrl(`/audio/${audioFilename}`, volume).then((result) => {
+  const path = typeof audioAsset === "string" ? `/audio/${audioAsset}` : audioAsset.path;
+  const finalVolume = typeof audioAsset === "string" ? volume : (audioAsset.volume ?? 0.5);
+
+  playAudioFromUrl(path, finalVolume).then((result) => {
     if (isCancelled) {
       if (result) {
         try {

@@ -30,5 +30,6 @@ export const INITIAL_STATE: GameState = {
   isEnemyRevealed: false,
   recentDropId: null,
   isDropAnimating: false,
-  isFirstVisit: true
+  isFirstVisit: true,
+  unlockedDirection: null
 };

@@ -11,6 +11,7 @@ interface RoomHotspotsProps {
   isTransitioning?: boolean;
   recentDropId?: string | null;
   isDropAnimating?: boolean;
+  unlockedDirection?: string | null;
 }
 
 const getHotspotLabel = (hotspot: Hotspot): string | undefined => {
@@ -22,7 +23,7 @@ const getHotspotLabel = (hotspot: Hotspot): string | undefined => {
   }
 };
 
-export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug, itemsRevealed, isTransitioning, recentDropId, isDropAnimating }: RoomHotspotsProps) {
+export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug, itemsRevealed, isTransitioning, recentDropId, isDropAnimating, unlockedDirection }: RoomHotspotsProps) {
   if (!hotspots || hotspots.length === 0) return null;
 
   const fadeClass = isTransitioning ? "duration-500" : "duration-300";
@@ -44,6 +45,8 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
         } else if (isRecentDropId) {
           itemAnimClass = "animate-idle";
         }
+
+        const isUnlockedHighlight = hotspot.type === "door" && hotspot.direction === unlockedDirection;
 
         // Glow Logic
         const activeGlow = itemHotspot?.glow || item?.glow;
@@ -97,6 +100,10 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
                   <img src={getPreloadedUrl(item.image)} alt={item.name} className="w-full h-full object-contain pointer-events-none drop-shadow-lg" />
                 </div>
               </div>
+            )}
+
+            {isUnlockedHighlight && (
+              <div className="absolute inset-0 animate-highlight-reveal rounded-sm" />
             )}
 
             {debug && (

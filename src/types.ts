@@ -45,6 +45,7 @@ export type GameState = {
   recentDropId: string | null;
   isDropAnimating: boolean;
   isFirstVisit: boolean;
+  unlockedDirection: Direction | null;
 };
 
 export type WeaponOverlayConfig = {
@@ -91,6 +92,7 @@ export type Item = {
     clash?: string;
     windup?: string;
     unequip?: string;
+    use?: SoundAsset;
   };
 };
 
@@ -132,7 +134,7 @@ export type Room = {
   description: string;
   exits: Partial<Record<Direction, string>>;
   items: string[];
-  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string }>>;
+  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string; unlockMessage?: string }>>;
   coordinates: { x: number; y: number };
   shortName?: string;
   image: string;
@@ -241,3 +243,4 @@ export type GameAction =
   | { type: "SET_HAS_INSPECTED"; inspected: boolean }
   | { type: "SET_DROP_ANIMATING"; itemId: string }
   | { type: "CLEAR_DROP_ANIMATION" }
+  | { type: "CLEAR_UNLOCK_HIGHLIGHT" }

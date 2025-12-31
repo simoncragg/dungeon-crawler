@@ -1,12 +1,12 @@
 import React from "react";
-import type { GameState, LogEntry, GameAction, Direction } from "../types";
+import type { GameState, LogEntry, GameAction, Direction, SoundAsset } from "../types";
 import { ITEMS } from "../data/gameData";
 
 interface UseInventoryProps {
   gameState: GameState;
   dispatch: React.Dispatch<GameAction>;
   addToLog: (text: string, type?: LogEntry["type"]) => void;
-  playSoundFile: (file: string) => void;
+  playSoundFile: (file: string | SoundAsset, volume?: number) => void;
   playItemSound: () => void;
 }
 
@@ -123,11 +123,17 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
         );
 
         if (matchingDirection) {
+          const lockedExit = room.lockedExits![matchingDirection];
+          const unlockMessage = lockedExit?.unlockMessage || `Unlocked the way to the ${matchingDirection} with ${item.name}.`;
+
+          if (item.sounds?.use) {
+            playSoundFile(item.sounds.use);
+          }
           dispatch({
             type: "UNLOCK_DOOR",
             direction: matchingDirection,
             keyId: item.id,
-            logMessage: `Unlocked the way to the ${matchingDirection} with ${item.name}.`
+            logMessage: unlockMessage
           });
           return;
         }

@@ -57,6 +57,7 @@ export const ITEMS: Record<string, Item> = {
     image: "/images/items/rusty-key.png",
     slotStyle: { scale: 1.0, rotation: "45deg" },
     modalStyle: { scale: 1.0, rotation: "45deg" },
+    sounds: { use: { path: "/audio/use-rusty-key.mp3", volume: 0.6 } },
   },
   "potion": {
     id: "potion",
@@ -123,8 +124,8 @@ export const WORLD: Record<string, Room> = {
     coordinates: { x: 0, y: 1 },
     shortName: "HALL",
     lockedExits: {
-      north: { keyId: "glowing-gem", lockedMessage: "A magical barrier blocks the way. Needs a gem.", unlockImage: "/images/scenes/dark-hallway-2.png" },
-      east: { keyId: "rusty-key", lockedMessage: "The heavy oak door is locked." }
+      north: { keyId: "glowing-gem", lockedMessage: "A magical barrier blocks the way. Needs a gem.", unlockImage: "/images/scenes/dark-hallway-2.png", unlockMessage: "The magical barrier has been lifted!" },
+      east: { keyId: "rusty-key", lockedMessage: "The heavy oak door is locked.", unlockMessage: "You've unlocked the Archives door." }
     },
     image: "/images/scenes/dark-hallway.png",
     videoLoop: {

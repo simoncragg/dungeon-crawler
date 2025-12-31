@@ -53,9 +53,7 @@ export const useGame = () => {
     }, 800);
   }, [gameState.rooms, gameState.isFirstVisit, addToLog, playSoundFile]);
 
-  /*
-   * Movement & Transitions
-  */
+  /* useMovement */
   const movement = useMovement({
     gameState,
     currentRoom,
@@ -66,9 +64,7 @@ export const useGame = () => {
     processRoomEntry
   });
 
-  /*
-   * useInventory
-  */
+  /* useInventory */
   const { takeItem, dropItem, equipItem, unequipItem, useItem, hasItem } = useInventory({
     gameState,
     dispatch,
@@ -77,9 +73,7 @@ export const useGame = () => {
     playItemSound
   });
 
-  /*
-   * useCombat
-   */
+  /* useCombat */
   const { startCombat, handleCombatAction } = useCombat({
     gameState,
     dispatch,
@@ -90,8 +84,7 @@ export const useGame = () => {
     if (!gameState.feedback) return;
 
     const messageLength = gameState.feedback.message?.length || 0;
-    // Base 3s + 60ms per character for reading time
-    const duration = Math.max(3000, messageLength * 60);
+    const duration = Math.max(3500, messageLength * 80);
 
     const timer = setTimeout(() => {
       dispatch({ type: "CLEAR_FEEDBACK" });
@@ -99,6 +92,16 @@ export const useGame = () => {
 
     return () => clearTimeout(timer);
   }, [gameState.feedback]);
+
+  useEffect(() => {
+    if (!gameState.unlockedDirection) return;
+
+    const timer = setTimeout(() => {
+      dispatch({ type: "CLEAR_UNLOCK_HIGHLIGHT" });
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [gameState.unlockedDirection]);
 
   const stopNarrationRef = useRef<(() => void) | null>(null);
 

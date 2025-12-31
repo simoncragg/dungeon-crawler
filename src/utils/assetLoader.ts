@@ -58,15 +58,19 @@ export const getRoomAssets = (roomId: string): string[] => {
 const getGlobalAssets = (assets: Set<string>) => {
   assets.add("/audio/boom.mp3");
   assets.add("/audio/narration/intro.mp3");
+
   assets.add("/audio/inspect.mp3");
   assets.add("/audio/equip.mp3");
   assets.add("/audio/unequip.mp3");
+
   assets.add("/audio/danger.mp3");
-  assets.add("/audio/enemy-defeat.mp3");
   assets.add("/audio/battle-music.mp3");
-  assets.add("/audio/sword-defeat.mp3");
   assets.add("/audio/crit-damage.mp3");
+  assets.add("/audio/enemy-defeat.mp3");
+  assets.add("/audio/enemy-item-drop.mp3");
   assets.add("/audio/swing.mp3");
+  assets.add("/audio/sword-defeat.mp3");
+  assets.add("/audio/use-key.mp3");
 };
 
 export const getInitialAssets = (): string[] => {
