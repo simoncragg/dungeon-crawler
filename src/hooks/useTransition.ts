@@ -21,6 +21,8 @@ export const useTransition = ({
     const [activeTransitionVideo, setActiveTransitionVideo] = useState<string | null>(null);
     const [activeTransitionVolume, setActiveTransitionVolume] = useState<number>(0.4);
     const [pendingMove, setPendingMove] = useState<{ nextRoomId: string } | null>(null);
+    const [onCompleteAction, setOnCompleteAction] = useState<{ fn: () => void } | null>(null);
+    const [onMidpointAction, setOnMidpointAction] = useState<{ fn: () => void } | null>(null);
     const [transitionTitle, setTransitionTitle] = useState<{ id: string; name: string } | null>(null);
     const [isShutterActive, setIsShutterActive] = useState(false);
     const midpointReachedRef = useRef(false);
@@ -32,7 +34,7 @@ export const useTransition = ({
         setTimeout(() => setIsShutterActive(false), 400);
     }, []);
 
-    const startTransition = useCallback((video: string | SoundAsset, nextRoomId: string) => {
+    const startTransition = useCallback((video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpointCall?: () => void) => {
         if (typeof video === 'string') {
             setActiveTransitionVideo(video);
             setActiveTransitionVolume(0.4);
@@ -40,33 +42,61 @@ export const useTransition = ({
             setActiveTransitionVideo(video.path);
             setActiveTransitionVolume(video.volume ?? 0.4);
         }
-        setPendingMove({ nextRoomId });
+
+        if (nextRoomId) {
+            setPendingMove({ nextRoomId });
+        } else {
+            setPendingMove(null);
+        }
+
+        if (onComplete) {
+            setOnCompleteAction({ fn: onComplete });
+        } else {
+            setOnCompleteAction(null);
+        }
+
+        if (onMidpointCall) {
+            setOnMidpointAction({ fn: onMidpointCall });
+        } else {
+            setOnMidpointAction(null);
+        }
+
         setTransitionTitle({ id: currentRoom.id, name: currentRoom.name });
         midpointReachedRef.current = false;
     }, [currentRoom.id, currentRoom.name]);
 
     const handleVideoTimeUpdate = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
-        if (activeTransitionVideo && pendingMove) {
+        if (activeTransitionVideo) {
             const video = e.currentTarget;
             if (video.currentTime > video.duration / 2 && !midpointReachedRef.current) {
                 midpointReachedRef.current = true;
-                const nextRoom = rooms[pendingMove.nextRoomId];
-                if (nextRoom) {
-                    setTransitionTitle({ id: nextRoom.id, name: nextRoom.name });
+
+                if (pendingMove) {
+                    const nextRoom = rooms[pendingMove.nextRoomId];
+                    if (nextRoom) {
+                        setTransitionTitle({ id: nextRoom.id, name: nextRoom.name });
+                    }
                 }
+
+                if (onMidpointAction) onMidpointAction.fn();
                 if (onMidpoint) onMidpoint();
             }
         }
-    }, [activeTransitionVideo, pendingMove, rooms, onMidpoint]);
+    }, [activeTransitionVideo, pendingMove, rooms, onMidpoint, onMidpointAction]);
 
     const resetTransition = useCallback(() => {
+        if (onCompleteAction) {
+            onCompleteAction.fn();
+        }
         setActiveTransitionVideo(null);
         setActiveTransitionVolume(0.4);
         setPendingMove(null);
+        setOnCompleteAction(null);
+        setOnMidpointAction(null);
         setTransitionTitle(null);
         midpointReachedRef.current = false;
         triggerShutter();
-    }, [triggerShutter]);
+    }, [triggerShutter, onCompleteAction]);
 
     const sceneTitleProps = {
         id: activeTitle.id,

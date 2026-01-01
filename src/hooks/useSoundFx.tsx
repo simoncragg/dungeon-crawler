@@ -99,14 +99,8 @@ const playAmbientLoop = async (audioLoop: SoundAsset | null, fadeDuration: numbe
   const result = await playAudioFromUrl(audioLoop.path, startVolume, true);
 
   if (result) {
-    const isObsolete = currentAmbient !== previousAmbient;
-
-    if (isObsolete) {
-      try {
-        result.source.stop();
-      } catch {
-        // Ignore error if specific source stop fails
-      }
+    if (currentAmbient !== previousAmbient) {
+      try { result.source.stop(); } catch { }
       return;
     }
 

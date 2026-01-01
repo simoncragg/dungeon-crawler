@@ -81,6 +81,9 @@ export const ITEMS: Record<string, Item> = {
     slotStyle: { scale: 0.9 },
     modalStyle: { scale: 0.6 },
     glow: { color: "#10b981", blur: "48px", pulse: true, intensity: 3 },
+    useVideos: {
+      "hallway": { path: "/video/scenes/use-gem-in-dark-hallway.mp4", volume: 0.8 }
+    }
   },
 };
 
@@ -124,7 +127,7 @@ export const WORLD: Record<string, Room> = {
     coordinates: { x: 0, y: 1 },
     shortName: "HALL",
     lockedExits: {
-      north: { keyId: "glowing-gem", lockedMessage: "A magical barrier blocks the way. Needs a gem.", unlockImage: "/images/scenes/dark-hallway-2.png", unlockMessage: "The magical barrier has been lifted!" },
+      north: { keyId: "glowing-gem", lockedMessage: "A magical barrier blocks the way. Needs a gem.", unlockImage: "/images/scenes/dark-hallway-2.png", unlockMessage: "The magical barrier has been lifted!", unlockAudioLoop: { path: "/audio/dripping-water.mp3" } },
       east: { keyId: "rusty-key", lockedMessage: "The heavy oak door is locked.", unlockMessage: "You've unlocked the Archives door." }
     },
     image: "/images/scenes/dark-hallway.png",

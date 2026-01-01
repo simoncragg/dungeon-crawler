@@ -94,6 +94,7 @@ export type Item = {
     unequip?: string;
     use?: SoundAsset;
   };
+  useVideos?: Record<string, string | SoundAsset>;
 };
 
 export type EquippedItem = Item & {
@@ -134,7 +135,7 @@ export type Room = {
   description: string;
   exits: Partial<Record<Direction, string>>;
   items: string[];
-  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string; unlockMessage?: string }>>;
+  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string; unlockMessage?: string; unlockVideoLoop?: SoundAsset; unlockAudioLoop?: SoundAsset }>>;
   coordinates: { x: number; y: number };
   shortName?: string;
   image: string;
@@ -224,7 +225,7 @@ export type GameAction =
   | { type: "DROP_ITEM"; itemId: string; logMessage: string }
   | { type: "EQUIP_ITEM"; itemId: string; logMessage: string }
   | { type: "USE_CONSUMABLE"; itemId: string; effect: (state: GameState) => Partial<GameState>; logMessage: string }
-  | { type: "UNLOCK_DOOR"; direction: Direction; keyId: string; logMessage: string }
+  | { type: "UNLOCK_DOOR"; direction: Direction; keyId: string; logMessage: string; suppressHighlight?: boolean }
   | { type: "COMBAT_ROUND"; damageDealt: number; damageTaken: number; enemyName: string; logMessage: string; playerDied: boolean }
   | { type: "ENEMY_DEFEAT"; enemyName: string; dropId?: string; logMessages: string[]; feedbackMessage?: string; damageDealt: number }
   | { type: "ADD_LOG"; message: string; logType?: LogEntry["type"] }
@@ -244,3 +245,4 @@ export type GameAction =
   | { type: "SET_DROP_ANIMATING"; itemId: string }
   | { type: "CLEAR_DROP_ANIMATION" }
   | { type: "CLEAR_UNLOCK_HIGHLIGHT" }
+  | { type: "SET_ROOM_AUDIO"; roomId: string; audioLoop: SoundAsset | null }

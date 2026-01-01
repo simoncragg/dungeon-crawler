@@ -1,5 +1,6 @@
 import { useReducer, useState, useEffect, useRef, useCallback } from "react";
 import type { LogEntry } from "../types";
+import { MOVEMENT_SETTINGS } from "../data/constants";
 
 import { ITEMS } from "../data/gameData";
 import { INITIAL_STATE } from "../data/initialState";
@@ -59,7 +60,6 @@ export const useGame = () => {
     currentRoom,
     dispatch,
     addToLog,
-    playAmbientLoop,
     playShuffleSound,
     processRoomEntry
   });
@@ -70,7 +70,9 @@ export const useGame = () => {
     dispatch,
     addToLog,
     playSoundFile,
-    playItemSound
+    playItemSound,
+    startTransition: movement.startTransition,
+    triggerShutter: movement.triggerShutter
   });
 
   /* useCombat */
@@ -103,35 +105,31 @@ export const useGame = () => {
     return () => clearTimeout(timer);
   }, [gameState.unlockedDirection]);
 
-  const stopNarrationRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    const targetRoom = gameState.rooms[movement.sceneTitleProps.id];
+    playAmbientLoop(targetRoom?.audioLoop || null, MOVEMENT_SETTINGS.TRANSITION_CROSSFADE_DURATION);
+  }, [
+    movement.sceneTitleProps.id,
+    gameState.rooms,
+    playAmbientLoop
+  ]);
 
   useEffect(() => {
-    if (movement.activeTransitionVideo) return;
-
-    playAmbientLoop(currentRoom.audioLoop || null);
-
-    if (stopNarrationRef.current) {
-      stopNarrationRef.current();
-      stopNarrationRef.current = null;
-    }
-
     if (currentRoom.narration && gameState.isFirstVisit) {
       let audioStop: (() => void) | null = null;
       const timeoutId = setTimeout(() => {
         audioStop = playNarration(currentRoom.narration!.path, currentRoom.narration!.volume);
       }, 2000);
 
-      stopNarrationRef.current = () => {
+      return () => {
         clearTimeout(timeoutId);
         if (audioStop) audioStop();
       };
     }
   }, [
+    gameState.currentRoomId,
     gameState.isFirstVisit,
     currentRoom.narration,
-    currentRoom.audioLoop,
-    movement.activeTransitionVideo,
-    playAmbientLoop,
     playNarration
   ]);
 
@@ -166,7 +164,7 @@ export const useGame = () => {
     dispatch({ type: "SET_HAS_INSPECTED", inspected: true });
     let desc = "You scan the area.";
     if (room.items.length > 0) {
-      const itemNames = room.items.map(id => ITEMS[id].name).join(", ");
+      const itemNames = room.items.map((id: string) => ITEMS[id].name).join(", ");
       desc += ` You see: ${itemNames}.`;
     } else {
       desc += " You don't see anything useful here.";

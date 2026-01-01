@@ -1,5 +1,5 @@
-import React from "react";
-import type { GameState, LogEntry, GameAction, Direction, SoundAsset } from "../types";
+import React, { useCallback } from "react";
+import type { GameState, LogEntry, GameAction, Direction, SoundAsset, Item } from "../types";
 import { ITEMS } from "../data/gameData";
 
 interface UseInventoryProps {
@@ -8,14 +8,29 @@ interface UseInventoryProps {
   addToLog: (text: string, type?: LogEntry["type"]) => void;
   playSoundFile: (file: string | SoundAsset, volume?: number) => void;
   playItemSound: () => void;
+  startTransition: (video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => void;
+  triggerShutter: () => void;
 }
 
-export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, playItemSound }: UseInventoryProps) => {
+export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, playItemSound, startTransition, triggerShutter }: UseInventoryProps) => {
   const hasItem = (itemId: string) => {
     if (gameState.equippedItems.weapon === itemId) return true;
     if (gameState.equippedItems.armor === itemId) return true;
     return gameState.inventory.items.includes(itemId);
   };
+
+  const performUnlock = useCallback((item: Item, direction: Direction, logMessage: string, suppressHighlight: boolean) => {
+    if (item.sounds?.use) {
+      playSoundFile(item.sounds.use);
+    }
+    dispatch({
+      type: "UNLOCK_DOOR",
+      direction,
+      keyId: item.id,
+      logMessage,
+      suppressHighlight
+    });
+  }, [dispatch, playSoundFile]);
 
   const equipItem = (itemId: string) => {
     const itemIndex = gameState.inventory.items.findIndex(id => id === itemId);
@@ -106,6 +121,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     }
 
     const item = ITEMS[itemId];
+    const useVideo = item.useVideos?.[gameState.currentRoomId];
 
     if (item.type === "consumable" && item.effect) {
       dispatch({
@@ -116,6 +132,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
       });
       return;
     }
+
     if (item.type === "key") {
       if (room.lockedExits) {
         const matchingDirection = (Object.keys(room.lockedExits) as Direction[]).find(
@@ -126,15 +143,12 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
           const lockedExit = room.lockedExits![matchingDirection];
           const unlockMessage = lockedExit?.unlockMessage || `Unlocked the way to the ${matchingDirection} with ${item.name}.`;
 
-          if (item.sounds?.use) {
-            playSoundFile(item.sounds.use);
+          if (useVideo) {
+            triggerShutter();
+            startTransition(useVideo, undefined, undefined, () => performUnlock(item, matchingDirection, unlockMessage, true));
+          } else {
+            performUnlock(item, matchingDirection, unlockMessage, false);
           }
-          dispatch({
-            type: "UNLOCK_DOOR",
-            direction: matchingDirection,
-            keyId: item.id,
-            logMessage: unlockMessage
-          });
           return;
         }
       }

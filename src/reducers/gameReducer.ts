@@ -292,21 +292,33 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         delete newLockedExits[direction];
 
         let newImage = currentRoom.image;
+        let newVideoLoop = currentRoom.videoLoop;
+
         if (lockedExit?.unlockImage) {
           newImage = lockedExit.unlockImage;
+          // If we have an unlock image but NO unlock video loop, clear the existing video loop
+          if (!lockedExit.unlockVideoLoop) {
+            newVideoLoop = undefined;
+          }
+        }
+
+        if (lockedExit?.unlockVideoLoop) {
+          newVideoLoop = lockedExit.unlockVideoLoop;
         }
 
         newRooms[state.currentRoomId] = {
           ...currentRoom,
           lockedExits: newLockedExits,
-          image: newImage
+          image: newImage,
+          videoLoop: newVideoLoop,
+          audioLoop: lockedExit?.unlockAudioLoop || currentRoom.audioLoop
         };
       }
 
       return {
         ...state,
         rooms: newRooms,
-        unlockedDirection: direction,
+        unlockedDirection: action.suppressHighlight ? null : direction,
         questLog: addLog(state.questLog, logMessage, "success"),
         feedback: getFeedback(logMessage, "success")
       };
@@ -529,6 +541,18 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
     case "CLEAR_DROP_ANIMATION": {
       return { ...state, isDropAnimating: false };
+    }
+    case "SET_ROOM_AUDIO": {
+      const { roomId, audioLoop } = action;
+      const newRooms = { ...state.rooms };
+      newRooms[roomId] = {
+        ...newRooms[roomId],
+        audioLoop: audioLoop || undefined
+      };
+      return {
+        ...state,
+        rooms: newRooms
+      };
     }
 
     default:

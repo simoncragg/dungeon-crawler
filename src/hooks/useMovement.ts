@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import type { Direction, Room, GameState, LogEntry, GameAction, SoundAsset } from "../types";
+import type { Direction, Room, GameState, LogEntry, GameAction } from "../types";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 import { useTransition } from "./useTransition";
 
@@ -8,7 +8,6 @@ interface UseMovementProps {
   currentRoom: Room;
   dispatch: React.Dispatch<GameAction>;
   addToLog: (text: string, type?: LogEntry["type"]) => void;
-  playAmbientLoop: (audioLoop: SoundAsset | null, crossFadeDuration?: number) => void;
   playShuffleSound: () => void;
   processRoomEntry: (nextRoomId: string) => void;
 }
@@ -18,7 +17,6 @@ export const useMovement = ({
   currentRoom,
   dispatch,
   addToLog,
-  playAmbientLoop,
   playShuffleSound,
   processRoomEntry
 }: UseMovementProps) => {
@@ -46,12 +44,6 @@ export const useMovement = ({
     onMidpoint: () => {
       if (pendingMove) {
         dispatch({ type: "UPDATE_MAP_POSITION", roomId: pendingMove.nextRoomId });
-
-        // Start audio crossover at the visual midpoint
-        const nextRoom = gameState.rooms[pendingMove.nextRoomId];
-        if (nextRoom) {
-          playAmbientLoop(nextRoom.audioLoop || null, MOVEMENT_SETTINGS.TRANSITION_CROSSFADE_DURATION);
-        }
       }
     }
   });
@@ -166,6 +158,8 @@ export const useMovement = ({
     handleMove,
     handleTransitionEnd,
     handleVideoTimeUpdate,
+    startTransition,
+    triggerShutter,
     pendingMove
   };
 };
