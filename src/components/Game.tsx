@@ -1,15 +1,16 @@
 import { useRef, useEffect, useState } from "react";
-import { useGame } from "../hooks/useGame";
-import { useMediaQuery } from "../hooks/useMediaQuery";
+
 import type { Hotspot } from "../types";
 
+import GameHUD from "./GameHUD";
 import ItemModal from "./ItemModal";
 import QuestLog from "./QuestLog";
-import WeaponOverlay from "./WeaponOverlay";
-import ShutterBlink from "./ShutterBlink";
 import RoomHotspots from "./RoomHotspots";
-import GameHUD from "./GameHUD";
+import ShutterBlink from "./ShutterBlink";
+import WeaponOverlay from "./WeaponOverlay";
 
+import { useGame } from "../hooks/useGame";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 import { getPreloadedUrl } from "../utils/assetLoader";
 
 export default function Game() {
