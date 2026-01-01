@@ -12,6 +12,7 @@ import FeedbackOverlay from "./FeedbackOverlay";
 import CombatOverlay from "./CombatOverlay";
 
 interface SceneTitleProps {
+    id: string;
     title: string;
     forceHide?: boolean;
 }
@@ -160,10 +161,10 @@ export default function GameHUD({
                     />
                 )}
 
-                {/* Scene Title - Now inside HUD Layer */}
+                {/* Scene Title */}
                 <div className="absolute bottom-0 w-full flex flex-col justify-end pointer-events-none pb-32 px-4">
                     <div className="flex flex-col items-center justify-end">
-                        <SceneTitle {...sceneTitleProps} />
+                        <SceneTitle key={sceneTitleProps.id} {...sceneTitleProps} />
                     </div>
                 </div>
 

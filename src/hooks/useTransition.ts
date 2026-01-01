@@ -69,7 +69,7 @@ export const useTransition = ({
     }, [triggerShutter]);
 
     const sceneTitleProps = {
-        key: activeTitle.id,
+        id: activeTitle.id,
         title: activeTitle.name,
         forceHide: shouldHideSceneTitle(
             feedback.message,
