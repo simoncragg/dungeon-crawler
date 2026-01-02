@@ -1,6 +1,6 @@
-import React from "react";
 import { ITEMS } from "../data/gameData";
 import { getPreloadedUrl } from "../utils/assetLoader";
+import { handleItemDragStart } from "../utils/dragUtils";
 
 interface EquippedSlotProps {
   type: string;
@@ -26,14 +26,21 @@ const EquippedSlot = ({ type, itemId, icon: PlaceholderIcon, onInspect }: Equipp
   return (
     <button
       onClick={() => onInspect(itemId)}
-      className="w-12 h-full rounded-lg border-2 flex flex-col items-center justify-center relative transition-all shadow-sm bg-stone-800 border-stone-600 text-emerald-400 hover:bg-stone-700 hover:border-emerald-500/50 hover:scale-105 group overflow-hidden"
+      draggable={true}
+      onDragStart={(e) => {
+        handleItemDragStart(e, itemId, {
+          hideSelectors: [".absolute.top-0\\.5"]
+        });
+      }}
+      className="w-12 h-full rounded-lg border-2 flex flex-col items-center justify-center relative transition-all shadow-sm bg-stone-800 border-stone-600 text-emerald-400 hover:bg-stone-700 hover:border-emerald-500/50 hover:scale-105 group overflow-hidden cursor-grab active:cursor-grabbing"
       title={item?.name}
     >
       {item?.image ? (
         <img
           src={getPreloadedUrl(item.image)}
           alt={item.name}
-          className="w-full h-full object-contain p-1 opacity-80 group-hover:opacity-100 transition-all"
+          draggable={false}
+          className="w-full h-full object-contain p-1 opacity-80 group-hover:opacity-100 transition-all pointer-events-none"
           style={{
             transform: item.slotStyle ? `
               ${item.slotStyle.scale ? `scale(${item.slotStyle.scale})` : ''}
@@ -42,9 +49,9 @@ const EquippedSlot = ({ type, itemId, icon: PlaceholderIcon, onInspect }: Equipp
           }}
         />
       ) : (
-        ItemIcon && <ItemIcon size={20} />
+        ItemIcon && <div draggable={false} className="pointer-events-none"><ItemIcon size={20} /></div>
       )}
-      <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow shadow-emerald-500/50 z-10"></div>
+      <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow shadow-emerald-500/50 z-10 pointer-events-none"></div>
     </button>
   );
 };

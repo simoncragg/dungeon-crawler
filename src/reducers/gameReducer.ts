@@ -22,7 +22,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
   const getFeedback = (message: string, type: LogEntry["type"] = "system"): Feedback | null => {
     if (type === "room-title" || type === "room-description" || type === "narration") return null;
-    if (type === "system" && message.length > 50) return null;
     return { message, type, id: Date.now() + Math.random() };
   };
 

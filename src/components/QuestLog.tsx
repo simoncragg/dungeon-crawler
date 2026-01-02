@@ -17,7 +17,6 @@ export default function QuestLog({ questLog, onClose }: QuestLogProps) {
 
             if (roomTitles.length > 0) {
                 const lastTitle = roomTitles[roomTitles.length - 1] as HTMLElement;
-                // Calculate position relative to the scroll container's top
                 const targetScroll = lastTitle.offsetTop - container.offsetTop;
 
                 container.scrollTo({

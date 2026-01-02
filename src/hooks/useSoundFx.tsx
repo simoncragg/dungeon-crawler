@@ -100,7 +100,7 @@ const playAmbientLoop = async (audioLoop: SoundAsset | null, fadeDuration: numbe
 
   if (result) {
     if (currentAmbient !== previousAmbient) {
-      try { result.source.stop(); } catch { }
+      try { result.source.stop(); } catch { /* ignore */ }
       return;
     }
 

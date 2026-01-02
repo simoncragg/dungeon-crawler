@@ -34,7 +34,7 @@ export default function Game() {
     unequipItem,
     startCombat,
     handleCombatAction,
-    useItem,
+    handleUseItem,
     feedback,
     setQuestLogOpen,
     videoRef,
@@ -45,7 +45,8 @@ export default function Game() {
     isShutterActive,
     sceneTitleProps,
     recentDropId,
-    isDropAnimating
+    isDropAnimating,
+    handleDropOnHotspot
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
@@ -90,7 +91,14 @@ export default function Game() {
   const isWideScreen = useMediaQuery('(min-aspect-ratio: 16/9)');
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden relative">
+    <div
+      className="flex flex-col h-full bg-slate-950 text-slate-100 overflow-hidden relative"
+      onDragOver={(e) => {
+        e.preventDefault();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      }}
+      onDragEnter={(e) => e.preventDefault()}
+    >
 
       <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
         <div className="absolute inset-0 z-0">
@@ -156,9 +164,10 @@ export default function Game() {
             recentDropId={recentDropId}
             isDropAnimating={isDropAnimating}
             unlockedDirection={gameState.unlockedDirection}
+            onDropOnHotspot={handleDropOnHotspot}
           />
 
-          {/* Enemy Sprite - Part of the world */}
+          {/* Enemy Sprite */}
           {
             currentRoom.enemy && (isEnemyRevealed || inCombat) && (
               <div className="absolute inset-0 z-20 flex items-end justify-center pointer-events-none">
@@ -232,11 +241,11 @@ export default function Game() {
             itemId={viewingItemId}
             isEquipped={gameState.equippedItems.weapon === viewingItemId || gameState.equippedItems.armor === viewingItemId}
             onClose={() => setViewingItemId(null)}
-            onUse={useItem}
+            onUse={handleUseItem}
             onEquip={equipItem}
             onUnequip={unequipItem}
             onDrop={dropItem}
-            canUnequip={gameState.inventory.items.some(i => i === null)}
+            canUnequip={gameState.inventory.items.some((i: string | null) => i === null)}
             isDroppable={!isWalking}
             isUsable={!isWalking}
           />

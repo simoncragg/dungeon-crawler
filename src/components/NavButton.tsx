@@ -16,7 +16,7 @@ const NavButton = ({ direction, currentRoom, isWalking, onMove }: NavButtonProps
       disabled={!isAvailable}
       className={`flex items-center justify-center w-full h-full rounded-md text-xl font-medieval font-bold uppercase shadow-sm transition-all active:scale-95 ${isAvailable
         ? "bg-stone-700 hover:bg-stone-600 text-stone-200 border border-stone-600"
-        : "bg-stone-900/50 text-stone-700 border border-stone-800 cursor-not-allowed"
+        : "bg-stone-900/50 text-stone-700 border border-stone-800 cursor-default"
         }`}
     >
       {direction === "north" ? "N" : direction === "south" ? "S" : direction === "east" ? "E" : "W"}

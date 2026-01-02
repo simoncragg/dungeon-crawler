@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import type { GameState, LogEntry, GameAction, Direction, SoundAsset, Item } from "../types";
+import type { GameState, LogEntry, GameAction, Direction, SoundAsset, Item, Hotspot } from "../types";
 import { ITEMS } from "../data/gameData";
 
 interface UseInventoryProps {
@@ -13,6 +13,7 @@ interface UseInventoryProps {
 }
 
 export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, playItemSound, startTransition, triggerShutter }: UseInventoryProps) => {
+
   const hasItem = (itemId: string) => {
     if (gameState.equippedItems.weapon === itemId) return true;
     if (gameState.equippedItems.armor === itemId) return true;
@@ -111,7 +112,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     }
   };
 
-  const useItem = (itemId: string) => {
+  const handleUseItem = (itemId: string, targetDirection?: Direction) => {
     const room = gameState.rooms[gameState.currentRoomId];
 
     const itemIndex = gameState.inventory.items.findIndex(id => id === itemId);
@@ -135,21 +136,27 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
 
     if (item.type === "key") {
       if (room.lockedExits) {
-        const matchingDirection = (Object.keys(room.lockedExits) as Direction[]).find(
+        const matchingDirection = targetDirection || (Object.keys(room.lockedExits) as Direction[]).find(
           dir => room.lockedExits![dir]?.keyId === item.id
         );
 
         if (matchingDirection) {
-          const lockedExit = room.lockedExits![matchingDirection];
-          const unlockMessage = lockedExit?.unlockMessage || `Unlocked the way to the ${matchingDirection} with ${item.name}.`;
+          const lockedExit = room.lockedExits[matchingDirection];
 
-          if (useVideo) {
-            triggerShutter();
-            startTransition(useVideo, undefined, undefined, () => performUnlock(item, matchingDirection, unlockMessage, true));
-          } else {
-            performUnlock(item, matchingDirection, unlockMessage, false);
+          if (lockedExit?.keyId === item.id) {
+            const unlockMessage = lockedExit.unlockMessage || `Unlocked the way to the ${matchingDirection} with ${item.name}.`;
+
+            if (useVideo) {
+              triggerShutter();
+              startTransition(useVideo, undefined, undefined, () => performUnlock(item, matchingDirection, unlockMessage, true));
+            } else {
+              performUnlock(item, matchingDirection, unlockMessage, false);
+            }
+            return;
+          } else if (targetDirection) {
+            addToLog(`The ${item.name} doesn't seem to fit the ${targetDirection} exit.`, "system");
+            return;
           }
-          return;
         }
       }
       addToLog(`The ${item.name} doesn't seem to fit any doors here.`, "system");
@@ -161,12 +168,22 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     }
   };
 
+
+  const handleDropOnHotspot = (e: React.DragEvent, hotspot: Hotspot) => {
+    const itemId = e.dataTransfer.getData("application/x-dungeon-item-id");
+
+    if (itemId && hotspot.type === "door") {
+      handleUseItem(itemId, hotspot.direction as Direction);
+    }
+  };
+
   return {
     takeItem,
     dropItem,
     equipItem,
     unequipItem,
-    useItem,
-    hasItem
+    handleUseItem,
+    hasItem,
+    handleDropOnHotspot
   };
 };

@@ -12,6 +12,7 @@ interface RoomHotspotsProps {
   recentDropId?: string | null;
   isDropAnimating?: boolean;
   unlockedDirection?: string | null;
+  onDropOnHotspot?: (e: React.DragEvent, hotspot: Hotspot) => void;
 }
 
 const getHotspotLabel = (hotspot: Hotspot): string | undefined => {
@@ -23,7 +24,18 @@ const getHotspotLabel = (hotspot: Hotspot): string | undefined => {
   }
 };
 
-export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug, itemsRevealed, isTransitioning, recentDropId, isDropAnimating, unlockedDirection }: RoomHotspotsProps) {
+export default function RoomHotspots({
+  hotspots,
+  onHotspotClick,
+  disabled,
+  debug,
+  itemsRevealed,
+  isTransitioning,
+  recentDropId,
+  isDropAnimating,
+  unlockedDirection,
+  onDropOnHotspot
+}: RoomHotspotsProps) {
   if (!hotspots || hotspots.length === 0) return null;
 
   const fadeClass = isTransitioning ? "duration-500" : "duration-300";
@@ -38,7 +50,7 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
         const itemHotspot = isItem ? (hotspot as ItemHotspot) : null;
         const isRecentDropId = isItem && hotspot.itemId === recentDropId;
 
-        // Determine animation class
+
         let itemAnimClass = "";
         if (isRecentDropId && isDropAnimating) {
           itemAnimClass = "animate-float-up z-50";
@@ -48,7 +60,7 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
 
         const isUnlockedHighlight = hotspot.type === "door" && hotspot.direction === unlockedDirection;
 
-        // Glow Logic
+
         const activeGlow = itemHotspot?.glow || item?.glow;
         const glowStyles = activeGlow
           ? ({
@@ -63,7 +75,7 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
           <button
             key={isItem ? hotspot.itemId : hotspot.direction}
             onClick={() => onHotspotClick(hotspot)}
-            className={`absolute group transition-opacity ${animationClass} ${itemAnimClass} ${debug ? "border-2 border-dashed border-emerald-500/50 bg-emerald-500/10" : "border-none"} ${isItem && !itemsRevealed && !debug && !isRecentDropId ? "pointer-events-none" : ""}`}
+            className={`absolute group transition-all ${animationClass} ${itemAnimClass} ${debug ? "border-2 border-dashed border-emerald-500/50 bg-emerald-500/10" : "border-none"} ${isItem && !itemsRevealed && !debug && !isRecentDropId ? "pointer-events-none" : ""}`}
             style={{
               top: hotspot.top,
               left: hotspot.left,
@@ -73,6 +85,18 @@ export default function RoomHotspots({ hotspots, onHotspotClick, disabled, debug
             aria-label={displayLabel}
             title={debug ? displayLabel : undefined}
             disabled={disabled && !debug && !isRecentDropId}
+            onDragOver={(e) => {
+              if (hotspot.type === "door") {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+              }
+            }}
+            onDrop={(e) => {
+              if (hotspot.type === "door") {
+                e.preventDefault();
+                onDropOnHotspot?.(e, hotspot);
+              }
+            }}
           >
             {item?.image && (
               <div

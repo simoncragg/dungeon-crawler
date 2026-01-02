@@ -65,7 +65,15 @@ export const useGame = () => {
   });
 
   /* useInventory */
-  const { takeItem, dropItem, equipItem, unequipItem, useItem, hasItem } = useInventory({
+  const {
+    takeItem,
+    dropItem,
+    equipItem,
+    unequipItem,
+    handleUseItem,
+    hasItem,
+    handleDropOnHotspot
+  } = useInventory({
     gameState,
     dispatch,
     addToLog,
@@ -140,7 +148,6 @@ export const useGame = () => {
       if (ITEMS[gameState.latestDrop.itemId]) {
         lastProcessedDropTime.current = gameState.latestDrop.timestamp;
 
-        // Sound still needs localized side effect, but state is already handled by reducer!
         playSoundFile("enemy-item-drop.mp3");
 
         const timer = setTimeout(() => {
@@ -195,11 +202,12 @@ export const useGame = () => {
     unequipItem,
     startCombat,
     handleCombatAction,
-    useItem,
+    handleUseItem,
     recentDropId: gameState.recentDropId,
     isDropAnimating: gameState.isDropAnimating,
     feedback: gameState.feedback || { message: null, type: null, id: 0 },
     setQuestLogOpen: (open: boolean) => dispatch({ type: "SET_QUEST_LOG_OPEN", open }),
-    videoRef
+    videoRef,
+    handleDropOnHotspot
   };
 };

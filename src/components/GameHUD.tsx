@@ -63,7 +63,7 @@ export default function GameHUD({
   onAttack,
   onCombatAction,
   setQuestLogOpen,
-  setViewingItemId,
+  setViewingItemId
 }: GameHUDProps) {
 
   return (

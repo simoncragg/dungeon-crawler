@@ -123,7 +123,7 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
               }}
               disabled={isUsable === false}
               className={`flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider font-medieval transition-colors shadow-lg ${isUsable === false
-                ? "bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700"
+                ? "bg-stone-800 text-stone-500 cursor-default border border-stone-700"
                 : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20"
                 }`}
               title={isUsable === false ? "Cannot use while moving" : ""}
@@ -141,7 +141,7 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
                 }}
                 disabled={!canUnequip}
                 className={`flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider font-medieval transition-colors shadow-lg ${!canUnequip
-                  ? "bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700"
+                  ? "bg-stone-800 text-stone-500 cursor-default border border-stone-700"
                   : "bg-amber-600 hover:bg-amber-500 text-white shadow-amber-900/20"
                   }`}
                 title={!canUnequip ? "Inventory Full" : ""}
@@ -168,7 +168,7 @@ const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUs
             }}
             disabled={isDroppable === false}
             className={`flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider font-medieval border transition-colors flex items-center justify-center gap-2 ${isDroppable === false
-              ? "bg-stone-800 text-stone-500 cursor-not-allowed border-stone-700"
+              ? "bg-stone-800 text-stone-500 cursor-default border-stone-700"
               : "bg-stone-800 hover:bg-red-900/50 border-stone-700 hover:border-red-800 text-stone-300 hover:text-red-200"
               }`}
             title={isDroppable === false ? "Cannot drop while moving" : ""}
