@@ -72,7 +72,10 @@ export const useGame = () => {
     unequipItem,
     handleUseItem,
     hasItem,
-    handleDropOnHotspot
+    handleDropOnHotspot,
+    reorderInventory,
+    equipFromInventory,
+    unequipToInventory
   } = useInventory({
     gameState,
     dispatch,
@@ -208,6 +211,9 @@ export const useGame = () => {
     feedback: gameState.feedback || { message: null, type: null, id: 0 },
     setQuestLogOpen: (open: boolean) => dispatch({ type: "SET_QUEST_LOG_OPEN", open }),
     videoRef,
-    handleDropOnHotspot
+    handleDropOnHotspot,
+    reorderInventory,
+    equipFromInventory,
+    unequipToInventory
   };
 };

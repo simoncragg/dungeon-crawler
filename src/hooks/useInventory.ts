@@ -177,6 +177,28 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     }
   };
 
+  const reorderInventory = (fromIndex: number, toIndex: number) => {
+    dispatch({ type: "REORDER_INVENTORY", fromIndex, toIndex });
+  };
+
+  const equipFromInventory = (inventoryIndex: number, slotType: "weapon" | "armor") => {
+    const itemId = gameState.inventory.items[inventoryIndex];
+    if (itemId) {
+      const item = ITEMS[itemId];
+      playSoundFile(item.sounds?.take ?? "equip.mp3");
+    }
+    dispatch({ type: "EQUIP_ITEM", inventoryIndex, slotType });
+  };
+
+  const unequipToInventory = (slotType: "weapon" | "armor", inventoryIndex: number) => {
+    const itemId = gameState.equippedItems[slotType];
+    if (itemId) {
+      const item = ITEMS[itemId];
+      playSoundFile(item.sounds?.unequip ?? "unequip.mp3");
+    }
+    dispatch({ type: "UNEQUIP_ITEM", slotType, inventoryIndex });
+  };
+
   return {
     takeItem,
     dropItem,
@@ -184,6 +206,9 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     unequipItem,
     handleUseItem,
     hasItem,
-    handleDropOnHotspot
+    handleDropOnHotspot,
+    reorderInventory,
+    equipFromInventory,
+    unequipToInventory
   };
 };

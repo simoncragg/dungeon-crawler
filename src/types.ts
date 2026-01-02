@@ -223,7 +223,7 @@ export type GameAction =
   | { type: "MOVE"; nextRoomId: string }
   | { type: "TAKE_ITEM"; itemId: string; autoEquip: boolean; logMessage: string }
   | { type: "DROP_ITEM"; itemId: string; logMessage: string }
-  | { type: "EQUIP_ITEM"; itemId: string; logMessage: string }
+  | { type: "EQUIP_ITEM"; itemId?: string; inventoryIndex?: number; slotType?: "weapon" | "armor"; logMessage?: string }
   | { type: "USE_CONSUMABLE"; itemId: string; effect: (state: GameState) => Partial<GameState>; logMessage: string }
   | { type: "UNLOCK_DOOR"; direction: Direction; keyId: string; logMessage: string; suppressHighlight?: boolean }
   | { type: "COMBAT_ROUND"; damageDealt: number; damageTaken: number; enemyName: string; logMessage: string; playerDied: boolean }
@@ -236,7 +236,7 @@ export type GameAction =
   | { type: "COMBAT_ROUND_END" }
   | { type: "SET_COMBAT_PROCESSING"; processing: boolean; playerAction?: PlayerCombatAction }
   | { type: "SET_ENEMY_ACTION"; action: CombatAction }
-  | { type: "UNEQUIP_ITEM"; itemId: string; logMessage: string }
+  | { type: "UNEQUIP_ITEM"; itemId?: string; slotType?: "weapon" | "armor"; inventoryIndex?: number; logMessage?: string }
   | { type: "SET_COMBAT_RESULT"; result: CombatResult }
   | { type: "SET_COMBAT_RIPOSTE"; canRiposte: boolean }
   | { type: "UPDATE_MAP_POSITION"; roomId: string }
@@ -246,3 +246,4 @@ export type GameAction =
   | { type: "CLEAR_DROP_ANIMATION" }
   | { type: "CLEAR_UNLOCK_HIGHLIGHT" }
   | { type: "SET_ROOM_AUDIO"; roomId: string; audioLoop: SoundAsset | null }
+  | { type: "REORDER_INVENTORY"; fromIndex: number; toIndex: number }

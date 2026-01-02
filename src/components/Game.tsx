@@ -46,7 +46,10 @@ export default function Game() {
     sceneTitleProps,
     recentDropId,
     isDropAnimating,
-    handleDropOnHotspot
+    handleDropOnHotspot,
+    reorderInventory,
+    equipFromInventory,
+    unequipToInventory
   } = useGame();
 
   const inCombat = gameState.combat?.inCombat;
@@ -232,6 +235,9 @@ export default function Game() {
         onCombatAction={handleCombatAction}
         setQuestLogOpen={setQuestLogOpen}
         setViewingItemId={setViewingItemId}
+        reorderInventory={reorderInventory}
+        equipFromInventory={equipFromInventory}
+        unequipToInventory={unequipToInventory}
       />
 
       {/* --- MODALS (Global Overlay) --- */}

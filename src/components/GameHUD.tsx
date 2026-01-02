@@ -40,6 +40,9 @@ interface GameHUDProps {
   onCombatAction: (action: PlayerCombatAction) => void;
   setQuestLogOpen: (open: boolean) => void;
   setViewingItemId: (id: string | null) => void;
+  reorderInventory: (fromIndex: number, toIndex: number) => void;
+  equipFromInventory: (inventoryIndex: number, slotType: "weapon" | "armor") => void;
+  unequipToInventory: (slotType: "weapon" | "armor", inventoryIndex: number) => void;
 }
 
 export default function GameHUD({
@@ -63,7 +66,10 @@ export default function GameHUD({
   onAttack,
   onCombatAction,
   setQuestLogOpen,
-  setViewingItemId
+  setViewingItemId,
+  reorderInventory,
+  equipFromInventory,
+  unequipToInventory
 }: GameHUDProps) {
 
   return (
@@ -129,10 +135,13 @@ export default function GameHUD({
             <EquippedItems
               equippedItems={gameState.equippedItems}
               onInspect={setViewingItemId}
+              onEquipFromInventory={equipFromInventory}
             />
             <Inventory
               items={gameState.inventory.items}
               onInspect={setViewingItemId}
+              onMoveItem={reorderInventory}
+              onUnequipToInventory={unequipToInventory}
             />
           </div>
         </div>

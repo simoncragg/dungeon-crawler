@@ -186,27 +186,33 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     }
 
     case "EQUIP_ITEM": {
-      const { itemId, logMessage } = action;
-      const item = ITEMS[itemId];
-      const newInventory = {
-        ...state.inventory,
-        items: [...state.inventory.items]
-      };
+      const { itemId, inventoryIndex, slotType: forcedSlotType, logMessage } = action;
+      const newInventory = { ...state.inventory, items: [...state.inventory.items] };
       const newEquippedItems = { ...state.equippedItems };
 
-      const itemIndex = newInventory.items.indexOf(itemId);
-
-      if (item.type === "weapon") {
-        const current = newEquippedItems.weapon;
-        newEquippedItems.weapon = itemId;
-        newInventory.items[itemIndex] = current; // Swap or null if nothing equipped
-      } else if (item.type === "armor") {
-        const current = newEquippedItems.armor;
-        newEquippedItems.armor = itemId;
-        newInventory.items[itemIndex] = current;
+      // Resolve which item we are talking about
+      let targetIndex = inventoryIndex;
+      if (targetIndex === undefined && itemId) {
+        targetIndex = newInventory.items.indexOf(itemId);
       }
 
+      if (targetIndex === undefined || targetIndex === -1) return state;
+      const activeItemId = newInventory.items[targetIndex];
+      if (!activeItemId) return state;
+
+      const item = ITEMS[activeItemId];
+      const slotType = forcedSlotType || (item.type as "weapon" | "armor");
+      if (slotType !== "weapon" && slotType !== "armor") return state;
+
+      // Strict type check: Ensure item matches the target slot
+      if (item.type !== slotType) return state;
+
+      const current = newEquippedItems[slotType];
+      newEquippedItems[slotType] = activeItemId;
+      newInventory.items[targetIndex] = current;
+
       const { attack, defense } = getStats(newEquippedItems);
+      const msg = logMessage || `Equipped ${item.name}.`;
 
       return {
         ...state,
@@ -214,21 +220,34 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         equippedItems: newEquippedItems,
         attack,
         defense,
-        questLog: addLog(state.questLog, logMessage, "success"),
-        feedback: getFeedback(logMessage, "success")
+        questLog: addLog(state.questLog, msg, "success"),
+        feedback: getFeedback(msg, "success")
       };
     }
 
     case "UNEQUIP_ITEM": {
-      const { itemId, logMessage } = action;
-      const newInventory = {
-        ...state.inventory,
-        items: [...state.inventory.items]
-      };
+      const { itemId, slotType: forcedSlotType, inventoryIndex, logMessage } = action;
+      const newInventory = { ...state.inventory, items: [...state.inventory.items] };
       const newEquippedItems = { ...state.equippedItems };
 
-      const slotIdx = newInventory.items.findIndex(s => s === null);
-      if (slotIdx === -1) {
+      // Resolve which slot we are unequipping
+      let slotType = forcedSlotType;
+      if (!slotType && itemId) {
+        if (newEquippedItems.weapon === itemId) slotType = "weapon";
+        else if (newEquippedItems.armor === itemId) slotType = "armor";
+      }
+
+      if (!slotType) return state;
+      const itemToUnequipId = newEquippedItems[slotType];
+      if (!itemToUnequipId) return state;
+
+      // Resolve destination
+      let targetIndex = inventoryIndex;
+      if (targetIndex === undefined) {
+        targetIndex = newInventory.items.findIndex(s => s === null);
+      }
+
+      if (targetIndex === undefined || targetIndex === -1) {
         return {
           ...state,
           questLog: addLog(state.questLog, "Inventory full! Cannot unequip.", "danger"),
@@ -236,15 +255,21 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         };
       }
 
-      if (newEquippedItems.weapon === itemId) {
-        newEquippedItems.weapon = null;
-        newInventory.items[slotIdx] = itemId;
-      } else if (newEquippedItems.armor === itemId) {
-        newEquippedItems.armor = null;
-        newInventory.items[slotIdx] = itemId;
+      const inventorySlotId = newInventory.items[targetIndex];
+      const inventoryItem = inventorySlotId ? ITEMS[inventorySlotId] : null;
+
+      if (inventoryItem && inventoryItem.type === slotType) {
+        newEquippedItems[slotType] = inventorySlotId;
+        newInventory.items[targetIndex] = itemToUnequipId;
+      } else if (!inventorySlotId) {
+        newEquippedItems[slotType] = null;
+        newInventory.items[targetIndex] = itemToUnequipId;
+      } else {
+        return state;
       }
 
       const { attack, defense } = getStats(newEquippedItems);
+      const msg = logMessage || `Unequipped ${ITEMS[itemToUnequipId].name}.`;
 
       return {
         ...state,
@@ -252,8 +277,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         equippedItems: newEquippedItems,
         attack,
         defense,
-        questLog: addLog(state.questLog, logMessage, "info"),
-        feedback: getFeedback(logMessage, "info")
+        questLog: addLog(state.questLog, msg, "info"),
+        feedback: getFeedback(msg, "info")
       };
     }
 
@@ -551,6 +576,23 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return {
         ...state,
         rooms: newRooms
+      };
+    }
+
+    case "REORDER_INVENTORY": {
+      const { fromIndex, toIndex } = action;
+      const newItems = [...state.inventory.items];
+
+      const itemToMove = newItems[fromIndex];
+      newItems[fromIndex] = newItems[toIndex];
+      newItems[toIndex] = itemToMove;
+
+      return {
+        ...state,
+        inventory: {
+          ...state.inventory,
+          items: newItems
+        }
       };
     }
 
