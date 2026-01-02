@@ -5,7 +5,7 @@
 html,
 body,
 #root {
-  @apply h-full overflow-hidden m-0 p-0;
+  @apply h-full overflow-hidden m-0 p-0 select-none;
 }
 
 button:not(:disabled) {
