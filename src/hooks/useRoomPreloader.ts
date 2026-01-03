@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { preloadRoomAssets, preloadAssets } from '../utils/assetLoader';
+import { preloadRoomAssets } from '../utils/assetLoader';
 import { WORLD, DIRECTIONS } from '../data/gameData';
 import type { Direction } from '../types';
 
@@ -12,6 +12,8 @@ export const useRoomPreloader = (currentRoomId: string, inventoryItems: (string 
   useEffect(() => {
     const currentRoom = WORLD[currentRoomId];
     if (!currentRoom) return;
+
+    preloadRoomAssets(currentRoomId, inventoryItems).catch(console.warn);
 
     DIRECTIONS.forEach((dir: Direction) => {
       const exitId = currentRoom.exits[dir];
@@ -28,20 +30,15 @@ export const useRoomPreloader = (currentRoomId: string, inventoryItems: (string 
       }
 
       if (shouldPreload) {
-        const transitionVideo = currentRoom.transitionVideos?.[dir];
-        if (transitionVideo) {
-          const path = typeof transitionVideo === 'string' ? transitionVideo : transitionVideo.path;
-          preloadAssets([path]).catch(console.warn);
-        }
-
         if (!hasPreloadedRoom(exitId)) {
           markRoomAsPreloaded(exitId);
-          const preLoadFn = () => preloadRoomAssets(exitId).catch(console.warn);
-          if ("requestIdleCallback" in window) {
-            requestIdleCallback(preLoadFn);
-          } else {
-            setTimeout(preLoadFn, 100);
-          }
+        }
+
+        const preLoadFn = () => preloadRoomAssets(exitId, inventoryItems).catch(console.warn);
+        if ("requestIdleCallback" in window) {
+          requestIdleCallback(preLoadFn);
+        } else {
+          setTimeout(preLoadFn, 100);
         }
       }
     });

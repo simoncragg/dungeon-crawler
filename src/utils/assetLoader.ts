@@ -1,12 +1,21 @@
 import { ITEMS, WORLD } from "../data/gameData";
 import { getEnemyImage } from "../reducers/gameReducer";
 import { decodeAudioData, setBuffer } from "./audioSystem";
-import type { Room } from "../types";
+import type { Room, SoundAsset, NarrationAsset, Direction } from "../types";
 
-const getExitAssets = (room: Room, assets: Set<string>) => {
+const getAssetPath = (asset: string | SoundAsset | NarrationAsset): string => {
+  if (typeof asset === 'string') return asset;
+  return asset.path;
+};
+
+const getExitAssets = (room: Room, assets: Set<string>, inventoryItems: (string | null)[] = []) => {
   if (room.lockedExits) {
     Object.values(room.lockedExits).forEach(locked => {
-      if (locked.unlockImage) assets.add(locked.unlockImage);
+      if (inventoryItems.includes(locked.keyId)) {
+        if (locked.unlockImage) assets.add(locked.unlockImage);
+        if (locked.unlockVideoLoop) assets.add(getAssetPath(locked.unlockVideoLoop));
+        if (locked.unlockAudioLoop) assets.add(getAssetPath(locked.unlockAudioLoop));
+      }
     });
   }
 };
@@ -20,37 +29,80 @@ const getEnemyAssets = (room: Room, assets: Set<string>) => {
     assets.add(getEnemyImage(id, "ATTACK"));
     assets.add(getEnemyImage(id, "TELEGRAPH"));
     assets.add(getEnemyImage(id, "STAGGER"));
+    assets.add(getEnemyImage(id, "DEFEAT"));
   }
 };
 
-const getItemAssets = (room: Room, assets: Set<string>) => {
+const getItemAssets = (room: Room, assets: Set<string>, roomId: string, inventoryItems?: (string | null)[]) => {
   if (room.items) {
     room.items.forEach((itemId: string) => {
       const item = ITEMS[itemId];
       if (item.image) assets.add(item.image);
+
+      if (item.useVideos?.[roomId]) {
+        assets.add(getAssetPath(item.useVideos[roomId]));
+      }
+
       if (item.sounds) {
         Object.values(item.sounds).forEach(sound => {
-          assets.add(`/audio/${sound}`);
+          if (typeof sound === 'string') {
+            assets.add(`/audio/${sound}`);
+          } else {
+            assets.add(getAssetPath(sound));
+          }
+        });
+      }
+    });
+  }
+
+  if (inventoryItems) {
+    inventoryItems.forEach(itemId => {
+      if (!itemId) return;
+      const item = ITEMS[itemId];
+
+      if (item.useVideos?.[roomId]) {
+        assets.add(getAssetPath(item.useVideos[roomId]));
+      }
+
+      if (item.sounds) {
+        Object.values(item.sounds).forEach(sound => {
+          if (typeof sound === 'string') {
+            assets.add(`/audio/${sound}`);
+          } else {
+            assets.add(getAssetPath(sound));
+          }
         });
       }
     });
   }
 };
 
-export const getRoomAssets = (roomId: string): string[] => {
+export const getRoomAssets = (roomId: string, inventoryItems?: (string | null)[]): string[] => {
   const assets: Set<string> = new Set();
   const room = WORLD[roomId];
 
   if (!room) return [];
 
   if (room.image) assets.add(room.image);
-  if (room.audioLoop?.path) assets.add(room.audioLoop.path);
-  if (room.videoLoop?.path) assets.add(room.videoLoop.path);
-  if (room.narration?.path) assets.add(room.narration.path);
+  if (room.audioLoop) assets.add(getAssetPath(room.audioLoop));
+  if (room.videoLoop) assets.add(getAssetPath(room.videoLoop));
+  if (room.narration) assets.add(getAssetPath(room.narration));
 
-  getExitAssets(room, assets);
+  if (room.transitionVideos) {
+    Object.entries(room.transitionVideos).forEach(([dir, video]) => {
+      const lockInfo = room.lockedExits?.[dir as Direction];
+      const items = inventoryItems || [];
+      const hasKey = lockInfo ? items.includes(lockInfo.keyId) : true;
+
+      if (hasKey) {
+        assets.add(getAssetPath(video));
+      }
+    });
+  }
+
+  getExitAssets(room, assets, inventoryItems);
   getEnemyAssets(room, assets);
-  getItemAssets(room, assets);
+  getItemAssets(room, assets, roomId, inventoryItems);
 
   return Array.from(assets);
 };
@@ -69,20 +121,18 @@ const getGlobalAssets = (assets: Set<string>) => {
   assets.add("/audio/enemy-defeat.mp3");
   assets.add("/audio/enemy-item-drop.mp3");
   assets.add("/audio/swing.mp3");
-  assets.add("/audio/sword-defeat.mp3");
-  assets.add("/audio/use-key.mp3");
+  assets.add("/audio/sword-take.wav");
 };
 
 export const getInitialAssets = (): string[] => {
   const assets: Set<string> = new Set();
 
   getGlobalAssets(assets);
-  getRoomAssets("start").forEach(asset => assets.add(asset));
+  getRoomAssets("start", []).forEach(asset => assets.add(asset));
 
   return Array.from(assets);
 };
 
-// Track loaded assets and their Object URLs
 const assetMap = new Map<string, string>();
 const loadedAssets = new Set<string>();
 
@@ -159,8 +209,8 @@ export const preloadAssets = async (assets: string[], onProgress?: (progress: nu
   await Promise.all(loadPromises);
 };
 
-export const preloadRoomAssets = async (roomId: string) => {
-  const assets = getRoomAssets(roomId);
+export const preloadRoomAssets = async (roomId: string, inventoryItems?: (string | null)[]) => {
+  const assets = getRoomAssets(roomId, inventoryItems);
   await preloadAssets(assets);
 };
 
