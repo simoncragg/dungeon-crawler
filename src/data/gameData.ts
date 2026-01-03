@@ -127,7 +127,13 @@ export const WORLD: Record<string, Room> = {
     coordinates: { x: 0, y: 1 },
     shortName: "HALL",
     lockedExits: {
-      north: { keyId: "glowing-gem", lockedMessage: "A magical barrier blocks the way. Needs a gem.", unlockImage: "/images/scenes/dark-hallway-2.png", unlockMessage: "The magical barrier has been lifted!", unlockAudioLoop: { path: "/audio/dripping-water.mp3" } },
+      north: {
+        keyId: "glowing-gem",
+        lockedMessage: "A magical barrier blocks the way. Needs a gem.",
+        unlockVideoLoop: { path: "/video/scenes/dark-hallway-2.mp4", volume: 0.0 },
+        unlockMessage: "The magical barrier has been lifted!",
+        unlockAudioLoop: { path: "/audio/dripping-water.mp3" }
+      },
       east: { keyId: "rusty-key", lockedMessage: "The heavy oak door is locked.", unlockMessage: "You've unlocked the Archives door." }
     },
     image: "/images/scenes/dark-hallway.png",
