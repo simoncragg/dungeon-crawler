@@ -152,6 +152,7 @@ export const WORLD: Record<string, Room> = {
       { type: "item", itemId: "buckler-shield", top: "70%", left: "19%", width: "16%", height: "16%", rotation: "15deg", brightness: 0.5, label: "Buckler Shield" }
     ],
     transitionVideos: {
+      north: { path: "/video/scenes/transition-from-dark-hallway-to-forest.mp4", volume: 1.0 },
       east: "/video/scenes/transition-from-dark-hallway-to-archives.mp4",
       west: "/video/scenes/transition-from-dark-hallway-to-armory.mp4"
     },
