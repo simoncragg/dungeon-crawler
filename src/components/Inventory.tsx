@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import { Backpack } from "lucide-react";
 import { ITEMS } from "../data/gameData";
 import { getPreloadedUrl } from "../utils/assetLoader";
 import { handleItemDragStart } from "../utils/dragUtils";
@@ -143,22 +142,16 @@ export default function Inventory({
 }: InventoryProps) {
   return (
     <div className="flex w-58 h-full items-center justify-center bg-stone-900 rounded-lg border-2 border-stone-700 px-1.5 overflow-x-auto gap-1.5 md:gap-2 shadow-xl select-none">
-      {items.every(i => i === null) ? (
-        <div className="w-full text-center text-xs text-stone-600 italic flex items-center justify-center gap-2">
-          <Backpack size={16} className="opacity-50" /> Empty
-        </div>
-      ) : (
-        items.map((itemId, index) => (
-          <InventorySlot
-            key={index}
-            itemId={itemId}
-            index={index}
-            onInspect={onInspect}
-            onMoveItem={onMoveItem}
-            onUnequipToInventory={onUnequipToInventory}
-          />
-        ))
-      )}
+      {items.map((itemId, index) => (
+        <InventorySlot
+          key={index}
+          itemId={itemId}
+          index={index}
+          onInspect={onInspect}
+          onMoveItem={onMoveItem}
+          onUnequipToInventory={onUnequipToInventory}
+        />
+      ))}
     </div>
   );
 }
