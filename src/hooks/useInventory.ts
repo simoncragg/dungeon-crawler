@@ -20,16 +20,14 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
     return gameState.inventory.items.includes(itemId);
   };
 
-  const performUnlock = useCallback((item: Item, direction: Direction, logMessage: string, suppressHighlight: boolean) => {
+  const performUnlock = useCallback((item: Item, direction: Direction) => {
     if (item.sounds?.use) {
       playSoundFile(item.sounds.use);
     }
     dispatch({
       type: "UNLOCK_DOOR",
       direction,
-      keyId: item.id,
-      logMessage,
-      suppressHighlight
+      keyId: item.id
     });
   }, [dispatch, playSoundFile]);
 
@@ -146,11 +144,19 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
           if (lockedExit?.keyId === item.id) {
             const unlockMessage = lockedExit.unlockMessage || `Unlocked the way to the ${matchingDirection} with ${item.name}.`;
 
+            dispatch({ type: "CONSUME_ITEM", itemId: item.id });
+
             if (useVideo) {
               triggerShutter();
-              startTransition(useVideo, undefined, undefined, () => performUnlock(item, matchingDirection, unlockMessage, true));
+              startTransition(
+                useVideo,
+                undefined,
+                () => setTimeout(() => addToLog(unlockMessage, "success"), 400),
+                () => performUnlock(item, matchingDirection)
+              );
             } else {
-              performUnlock(item, matchingDirection, unlockMessage, false);
+              performUnlock(item, matchingDirection);
+              setTimeout(() => addToLog(unlockMessage, "success"), 2500);
             }
             return;
           } else if (targetDirection) {

@@ -306,7 +306,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     }
 
     case "UNLOCK_DOOR": {
-      const { direction, logMessage } = action;
+      const { direction } = action;
       const newRooms = { ...state.rooms };
       const currentRoom = newRooms[state.currentRoomId];
 
@@ -342,9 +342,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return {
         ...state,
         rooms: newRooms,
-        unlockedDirection: action.suppressHighlight ? null : direction,
-        questLog: addLog(state.questLog, logMessage, "success"),
-        feedback: getFeedback(logMessage, "success")
+        unlockedDirection: direction
       };
     }
 
@@ -593,6 +591,18 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           ...state.inventory,
           items: newItems
         }
+      };
+    }
+
+    case "CONSUME_ITEM": {
+      const { itemId } = action;
+      const newInventory = {
+        ...state.inventory,
+        items: state.inventory.items.map(id => id === itemId ? null : id)
+      };
+      return {
+        ...state,
+        inventory: newInventory
       };
     }
 

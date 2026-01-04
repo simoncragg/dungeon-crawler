@@ -225,7 +225,7 @@ export type GameAction =
   | { type: "DROP_ITEM"; itemId: string; logMessage: string }
   | { type: "EQUIP_ITEM"; itemId?: string; inventoryIndex?: number; slotType?: "weapon" | "armor"; logMessage?: string }
   | { type: "USE_CONSUMABLE"; itemId: string; effect: (state: GameState) => Partial<GameState>; logMessage: string }
-  | { type: "UNLOCK_DOOR"; direction: Direction; keyId: string; logMessage: string; suppressHighlight?: boolean }
+  | { type: "UNLOCK_DOOR"; direction: Direction; keyId: string }
   | { type: "COMBAT_ROUND"; damageDealt: number; damageTaken: number; enemyName: string; logMessage: string; playerDied: boolean }
   | { type: "ENEMY_DEFEAT"; enemyName: string; dropId?: string; logMessages: string[]; feedbackMessage?: string; damageDealt: number }
   | { type: "ADD_LOG"; message: string; logType?: LogEntry["type"] }
@@ -247,3 +247,4 @@ export type GameAction =
   | { type: "CLEAR_UNLOCK_HIGHLIGHT" }
   | { type: "SET_ROOM_AUDIO"; roomId: string; audioLoop: SoundAsset | null }
   | { type: "REORDER_INVENTORY"; fromIndex: number; toIndex: number }
+  | { type: "CONSUME_ITEM"; itemId: string }
