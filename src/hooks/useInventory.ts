@@ -7,14 +7,12 @@ interface UseInventoryProps {
   gameState: GameState;
   dispatch: React.Dispatch<GameAction>;
   addToLog: (text: string, type?: LogEntry["type"]) => void;
-  playSoundFile: (file: string | SoundAsset, volume?: number) => void;
-  playItemSound: () => void;
   startTransition: (video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => void;
   triggerShutter: () => void;
 }
 
-export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, playItemSound, startTransition, triggerShutter }: UseInventoryProps) => {
-  const { playDropSound } = useSoundFx();
+export const useInventory = ({ gameState, dispatch, addToLog, startTransition, triggerShutter }: UseInventoryProps) => {
+  const { playDropSound, playSoundFile, playItemSound } = useSoundFx();
 
   const hasItem = (itemId: string) => {
     if (gameState.equippedItems.weapon === itemId) return true;

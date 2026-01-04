@@ -2,13 +2,13 @@ import { useState, useRef, useCallback } from "react";
 import type { Direction, Room, GameState, LogEntry, GameAction } from "../types";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 import { useTransition } from "./useTransition";
+import useSoundFx from "./useSoundFx";
 
 interface UseMovementProps {
   gameState: GameState;
   currentRoom: Room;
   dispatch: React.Dispatch<GameAction>;
   addToLog: (text: string, type?: LogEntry["type"]) => void;
-  playShuffleSound: () => void;
   processRoomEntry: (nextRoomId: string) => void;
 }
 
@@ -17,9 +17,9 @@ export const useMovement = ({
   currentRoom,
   dispatch,
   addToLog,
-  playShuffleSound,
   processRoomEntry
 }: UseMovementProps) => {
+  const { playShuffleSound } = useSoundFx();
   const [isWalking, setIsWalking] = useState(false);
   const [walkingDirection, setWalkingDirection] = useState<Direction | null>(null);
   const [walkStepScale, setWalkStepScale] = useState(1);

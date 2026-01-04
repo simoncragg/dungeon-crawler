@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
-import type { GameState, CombatAction, EquippedWeapon, PlayerCombatAction, GameAction, SoundAsset } from "../types";
+import type { GameState, CombatAction, EquippedWeapon, PlayerCombatAction, GameAction } from "../types";
 import { ITEMS } from "../data/gameData";
+import useSoundFx from "./useSoundFx";
 import {
   isWindupAction,
   getEnemyAction,
@@ -12,10 +13,10 @@ import {
 interface UseCombatProps {
   gameState: GameState;
   dispatch: React.Dispatch<GameAction>;
-  playSoundFile: (file: string | SoundAsset, volume?: number) => (() => void) | void;
 }
 
-export const useCombat = ({ gameState, dispatch, playSoundFile }: UseCombatProps) => {
+export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
+  const { playSoundFile } = useSoundFx();
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const telegraphTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stopBattleMusicRef = useRef<(() => void) | null>(null);

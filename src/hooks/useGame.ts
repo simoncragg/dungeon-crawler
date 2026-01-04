@@ -23,8 +23,6 @@ export const useGame = () => {
 
   const {
     playAmbientLoop,
-    playShuffleSound,
-    playItemSound,
     playDropSound,
     playSoundFile,
     playNarration
@@ -61,7 +59,6 @@ export const useGame = () => {
     currentRoom,
     dispatch,
     addToLog,
-    playShuffleSound,
     processRoomEntry
   });
 
@@ -81,8 +78,6 @@ export const useGame = () => {
     gameState,
     dispatch,
     addToLog,
-    playSoundFile,
-    playItemSound,
     startTransition: movement.startTransition,
     triggerShutter: movement.triggerShutter
   });
@@ -90,8 +85,7 @@ export const useGame = () => {
   /* useCombat */
   const { startCombat, handleCombatAction } = useCombat({
     gameState,
-    dispatch,
-    playSoundFile
+    dispatch
   });
 
   useEffect(() => {
