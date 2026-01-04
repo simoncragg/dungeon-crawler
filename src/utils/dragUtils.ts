@@ -4,7 +4,6 @@ import { ITEMS } from "../data/gameData";
 interface DragGhostOptions {
   width?: string;
   height?: string;
-  hideSelectors?: string[];
   offsetX?: number;
   offsetY?: number;
   source?: {
@@ -43,14 +42,7 @@ const ensureChildVisibility = (element: HTMLElement) => {
   }
 };
 
-const hideGhostElements = (element: HTMLElement, selectors: string[]) => {
-  selectors.forEach(selector => {
-    const el = element.querySelector(selector);
-    if (el) {
-      (el as HTMLElement).style.display = 'none';
-    }
-  });
-};
+
 
 export const handleItemDragStart = (
   e: React.DragEvent,
@@ -60,7 +52,6 @@ export const handleItemDragStart = (
   const {
     width = "56px",
     height = "56px",
-    hideSelectors = [],
     offsetX = 28,
     offsetY = 28,
     source,
@@ -85,7 +76,6 @@ export const handleItemDragStart = (
 
   initializeGhostContainer(dragImage, width, height);
   ensureChildVisibility(dragImage);
-  hideGhostElements(dragImage, hideSelectors);
 
   document.body.appendChild(dragImage);
   e.dataTransfer.setDragImage(dragImage, offsetX, offsetY);

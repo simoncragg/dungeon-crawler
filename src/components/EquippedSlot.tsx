@@ -84,7 +84,6 @@ const EquippedSlot = ({
           draggable={true}
           onDragStart={(e) => {
             handleItemDragStart(e, itemId, {
-              hideSelectors: [".absolute.top-0\\.5"],
               source: { type: slotType }
             });
           }}
@@ -107,7 +106,6 @@ const EquippedSlot = ({
           ) : (
             ItemIcon && <div draggable={false} className="pointer-events-none"><ItemIcon size={20} /></div>
           )}
-          <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow shadow-emerald-500/50 z-10 pointer-events-none"></div>
         </button>
       )}
     </div>
