@@ -218,7 +218,7 @@ export const WORLD: Record<string, Room> = {
     items: [],
     coordinates: { x: 0, y: 2 },
     shortName: "FOREST",
-    image: "/images/scenes/forest-1392w.png",
+    image: "/images/scenes/forest-1376w.png",
     audioLoop: { path: "/audio/blackbird-in-forest.mp3", volume: 0.8 },
     videoLoop: { path: "/video/scenes/forest.mp4", volume: 0.0 },
     heldItemBrightness: 0.3,
