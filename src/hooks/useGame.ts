@@ -25,6 +25,7 @@ export const useGame = () => {
     playAmbientLoop,
     playShuffleSound,
     playItemSound,
+    playDropSound,
     playSoundFile,
     playNarration
   } = useSoundFx();
@@ -159,7 +160,7 @@ export const useGame = () => {
         return () => clearTimeout(timer);
       }
     }
-  }, [gameState.latestDrop, playSoundFile]);
+  }, [gameState.latestDrop, playSoundFile, playDropSound]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 

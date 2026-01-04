@@ -181,7 +181,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         attack,
         defense,
         questLog: addLog(state.questLog, logMessage, "info"),
-        feedback: getFeedback(logMessage, "info")
+        feedback: getFeedback(logMessage, "info"),
+        recentDropId: itemId,
+        isDropAnimating: false
       };
     }
 

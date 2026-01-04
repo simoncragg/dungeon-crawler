@@ -11,6 +11,7 @@ interface RoomHotspotsProps {
   isTransitioning?: boolean;
   recentDropId?: string | null;
   isDropAnimating?: boolean;
+  isEnemyDrop?: boolean;
   unlockedDirection?: string | null;
   onDropOnHotspot?: (e: React.DragEvent, hotspot: Hotspot) => void;
 }
@@ -33,6 +34,7 @@ export default function RoomHotspots({
   isTransitioning,
   recentDropId,
   isDropAnimating,
+  isEnemyDrop,
   unlockedDirection,
   onDropOnHotspot
 }: RoomHotspotsProps) {
@@ -54,7 +56,7 @@ export default function RoomHotspots({
         let itemAnimClass = "";
         if (isRecentDropId && isDropAnimating) {
           itemAnimClass = "animate-float-up z-50";
-        } else if (isRecentDropId) {
+        } else if (isRecentDropId && isEnemyDrop) {
           itemAnimClass = "animate-idle";
         }
 

@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import type { GameState, LogEntry, GameAction, Direction, SoundAsset, Item, Hotspot } from "../types";
 import { ITEMS } from "../data/gameData";
+import useSoundFx from "./useSoundFx";
 
 interface UseInventoryProps {
   gameState: GameState;
@@ -13,6 +14,7 @@ interface UseInventoryProps {
 }
 
 export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, playItemSound, startTransition, triggerShutter }: UseInventoryProps) => {
+  const { playDropSound } = useSoundFx();
 
   const hasItem = (itemId: string) => {
     if (gameState.equippedItems.weapon === itemId) return true;
@@ -98,6 +100,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, playSoundFile, pla
   };
 
   const dropItem = (itemId: string) => {
+    playDropSound();
     if (gameState.equippedItems.weapon === itemId) {
       dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
     } else if (gameState.equippedItems.armor === itemId) {

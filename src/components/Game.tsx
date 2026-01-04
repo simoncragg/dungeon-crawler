@@ -166,6 +166,7 @@ export default function Game() {
             isTransitioning={!!activeTransitionVideo}
             recentDropId={recentDropId}
             isDropAnimating={isDropAnimating}
+            isEnemyDrop={recentDropId === gameState.latestDrop?.itemId}
             unlockedDirection={gameState.unlockedDirection}
             onDropOnHotspot={handleDropOnHotspot}
           />

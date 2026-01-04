@@ -68,6 +68,32 @@ const playItemSound = () => {
   noise.start(t);
 };
 
+const playDropSound = () => {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  if (ctx.state === "suspended") ctx.resume();
+
+  const t = ctx.currentTime;
+  const buffer = createNoiseBuffer(ctx, 0.4, "drop");
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(800, t);
+  filter.frequency.exponentialRampToValueAtTime(100, t + 0.15);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.01, t);
+  gain.gain.linearRampToValueAtTime(0.5, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  noise.start(t);
+};
+
 interface AmbientTrack {
   source: AudioBufferSourceNode;
   gain: GainNode;
@@ -255,6 +281,7 @@ const useSoundFx = () => {
     playAmbientLoop,
     playShuffleSound,
     playItemSound,
+    playDropSound,
     playSoundFile,
     playNarration,
   };
