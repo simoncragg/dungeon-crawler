@@ -96,7 +96,7 @@ export const WORLD: Record<string, Room> = {
     items: ["crumpled-note", "rusty-sword"],
     coordinates: { x: 0, y: 0 },
     shortName: "CELL",
-    image: "/images/scenes/damp-cell.png",
+    image: "/images/scenes/damp-cell-2752w.png",
     videoLoop: {
       path: "/video/scenes/damp-cell.mp4",
       volume: 0.2
@@ -136,7 +136,7 @@ export const WORLD: Record<string, Room> = {
       },
       east: { keyId: "rusty-key", lockedMessage: "The heavy oak door is locked.", unlockMessage: "You've unlocked the Archives door." }
     },
-    image: "/images/scenes/dark-hallway.png",
+    image: "/images/scenes/dark-hallway-2752w.png",
     videoLoop: {
       path: "/video/scenes/dark-hallway.mp4",
       volume: 0.5
@@ -183,7 +183,7 @@ export const WORLD: Record<string, Room> = {
     },
     coordinates: { x: -1, y: 1 },
     shortName: "ARMORY",
-    image: "/images/scenes/armory.png",
+    image: "/images/scenes/armory-2752w.png",
     heldItemBrightness: 0.5,
     facing: "west",
     hotspots: [
@@ -199,7 +199,7 @@ export const WORLD: Record<string, Room> = {
     items: ["glowing-gem", "potion"],
     coordinates: { x: 1, y: 1 },
     shortName: "ARCHIVES",
-    image: "/images/scenes/archives.png",
+    image: "/images/scenes/archives-2752w.png",
     heldItemBrightness: 0.4,
     facing: "east",
     hotspots: [
@@ -218,7 +218,7 @@ export const WORLD: Record<string, Room> = {
     items: [],
     coordinates: { x: 0, y: 2 },
     shortName: "FOREST",
-    image: "/images/scenes/forest.png",
+    image: "/images/scenes/forest-2752w.png",
     audioLoop: { path: "/audio/blackbird-in-forest.mp3", volume: 0.8 },
     videoLoop: { path: "/video/scenes/forest.mp4", volume: 0.0 },
     heldItemBrightness: 0.3,
