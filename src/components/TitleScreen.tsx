@@ -75,7 +75,7 @@ export default function TitleScreen({ onStart, progress, loaded }: TitleScreenPr
       {/* Background Layer */}
       <div className={`absolute inset-0 z-0 bg-slate-950/90 transition-opacity duration-1000 ${isExiting ? "opacity-0" : "opacity-100"}`}>
         <img
-          src="/images/scenes/dark-hallway-768w.png"
+          src="/images/scenes/dark-hallway-1376w.png"
           alt=""
           className="w-full h-full object-cover opacity-50 blur-sm animate-ken-burns"
         />
