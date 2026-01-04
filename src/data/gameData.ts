@@ -217,7 +217,7 @@ export const WORLD: Record<string, Room> = {
     exits: {},
     items: [],
     coordinates: { x: 0, y: 2 },
-    shortName: "EXIT",
+    shortName: "FOREST",
     image: "/images/scenes/forest.png",
     audioLoop: { path: "/audio/blackbird-in-forest.mp3", volume: 0.8 },
     videoLoop: { path: "/video/scenes/forest.mp4", volume: 0.0 },
