@@ -74,7 +74,7 @@ export const ITEMS: Record<string, Item> = {
   "glowing-gem": {
     id: "glowing-gem",
     name: "Glowing Gem",
-    description: "A stone pulsing with blue light. It feels warm to the touch.",
+    description: "A flawless, masterfully cut emerald. But this is no ordinary gem. It pulses with light and feels warm to the touch.",
     type: "key",
     icon: Gem,
     image: "/images/items/glowing-gem.png",
