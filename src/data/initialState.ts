@@ -3,6 +3,7 @@ import type { GameState } from "../types";
 
 export const INITIAL_STATE: GameState = {
   currentRoomId: "start",
+  perceivedRoomId: "start",
   inventory: {
     items: [null, null, null, null]
   },

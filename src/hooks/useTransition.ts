@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import type { Room, SoundAsset } from "../types";
-
 import { shouldHideSceneTitle } from "../utils/transitionUtils";
+import { useGameStore } from "../store/useGameStore";
 
 interface UseTransitionProps {
     currentRoom: Room;
@@ -18,16 +18,15 @@ export const useTransition = ({
     isWalking,
     onMidpoint
 }: UseTransitionProps) => {
+    const { actions } = useGameStore();
     const [activeTransitionVideo, setActiveTransitionVideo] = useState<string | null>(null);
     const [activeTransitionVolume, setActiveTransitionVolume] = useState<number>(0.4);
     const [pendingMove, setPendingMove] = useState<{ nextRoomId: string } | null>(null);
     const [onCompleteAction, setOnCompleteAction] = useState<{ fn: () => void } | null>(null);
     const [onMidpointAction, setOnMidpointAction] = useState<{ fn: () => void } | null>(null);
-    const [transitionTitle, setTransitionTitle] = useState<{ id: string; name: string } | null>(null);
     const [isShutterActive, setIsShutterActive] = useState(false);
     const midpointReachedRef = useRef(false);
 
-    const activeTitle = transitionTitle && activeTransitionVideo ? transitionTitle : { id: currentRoom.id, name: currentRoom.name };
 
     const triggerShutter = useCallback(() => {
         setIsShutterActive(true);
@@ -61,9 +60,8 @@ export const useTransition = ({
             setOnMidpointAction(null);
         }
 
-        setTransitionTitle({ id: currentRoom.id, name: currentRoom.name });
         midpointReachedRef.current = false;
-    }, [currentRoom.id, currentRoom.name]);
+    }, []);
 
     const handleVideoTimeUpdate = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
         if (activeTransitionVideo) {
@@ -72,17 +70,14 @@ export const useTransition = ({
                 midpointReachedRef.current = true;
 
                 if (pendingMove) {
-                    const nextRoom = rooms[pendingMove.nextRoomId];
-                    if (nextRoom) {
-                        setTransitionTitle({ id: nextRoom.id, name: nextRoom.name });
-                    }
+                    actions.setPerceivedRoomId(pendingMove.nextRoomId);
                 }
 
                 if (onMidpointAction) onMidpointAction.fn();
                 if (onMidpoint) onMidpoint();
             }
         }
-    }, [activeTransitionVideo, pendingMove, rooms, onMidpoint, onMidpointAction]);
+    }, [activeTransitionVideo, pendingMove, onMidpoint, onMidpointAction, actions]);
 
     const resetTransition = useCallback(() => {
         if (onCompleteAction) {
@@ -90,21 +85,22 @@ export const useTransition = ({
         }
         setActiveTransitionVideo(null);
         setActiveTransitionVolume(0.4);
-        setPendingMove(null);
         setOnCompleteAction(null);
         setOnMidpointAction(null);
-        setTransitionTitle(null);
         midpointReachedRef.current = false;
         triggerShutter();
     }, [triggerShutter, onCompleteAction]);
 
+    const perceivedRoomId = useGameStore(state => state.gameState.perceivedRoomId);
+    const visibleRoom = rooms[perceivedRoomId] || currentRoom;
+
     const sceneTitleProps = {
-        id: activeTitle.id,
-        title: activeTitle.name,
+        id: visibleRoom.id,
+        title: visibleRoom.name,
         forceHide: shouldHideSceneTitle(
             feedback.message,
             activeTransitionVideo,
-            activeTitle.id,
+            visibleRoom.id,
             pendingMove?.nextRoomId,
             isWalking,
             currentRoom.id

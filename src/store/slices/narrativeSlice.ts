@@ -7,6 +7,7 @@ export type NarrativeSlice = Pick<GameStore["actions"],
     | "addLog"
     | "clearFeedback"
     | "setQuestLog"
+    | "setPerceivedRoomId"
 >;
 
 export const createNarrativeSlice: StateCreator<GameStore, [], [], NarrativeSlice> = (set) => ({
@@ -28,5 +29,9 @@ export const createNarrativeSlice: StateCreator<GameStore, [], [], NarrativeSlic
 
     setQuestLog: (log) => set((state) => ({
         gameState: { ...state.gameState, questLog: log }
+    })),
+
+    setPerceivedRoomId: (roomId) => set((state) => ({
+        gameState: { ...state.gameState, perceivedRoomId: roomId }
     })),
 });

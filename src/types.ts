@@ -21,6 +21,7 @@ export type NarrationAsset = SoundAsset & {
 
 export type GameState = {
   currentRoomId: string;
+  perceivedRoomId: string;
   inventory: Inventory;
   equippedItems: {
     weapon: string | null;
@@ -35,7 +36,6 @@ export type GameState = {
   feedback: Feedback | null;
   isQuestLogOpen: boolean;
   combat: CombatState | null;
-  // Stats
   attack: number;
   defense: number;
   mapOverrideRoomId?: string;

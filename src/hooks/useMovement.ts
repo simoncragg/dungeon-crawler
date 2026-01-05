@@ -134,6 +134,7 @@ export const useMovement = ({
 
       performStandardMoveSteps(direction, stepCount, 300, stepInterval, () => {
         actions.move(nextRoomId!);
+        actions.setPerceivedRoomId(nextRoomId!);
         processRoomEntry(nextRoomId!);
       });
     }
@@ -142,6 +143,7 @@ export const useMovement = ({
   const handleTransitionEnd = useCallback(() => {
     if (pendingMove) {
       actions.move(pendingMove.nextRoomId);
+      actions.setPerceivedRoomId(pendingMove.nextRoomId);
       processRoomEntry(pendingMove.nextRoomId);
     }
     resetTransition();
