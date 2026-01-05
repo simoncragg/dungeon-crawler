@@ -1,20 +1,9 @@
-import React from "react";
+import { useGameStore } from "../store/useGameStore";
 import { Heart, Shield, Sword } from "lucide-react";
 import StatChip from "./StatChip";
 
-interface PlayerStatsProps {
-  health: number;
-  maxHealth: number;
-  attackPower: number;
-  defensePower: number;
-}
-
-const PlayerStats: React.FC<PlayerStatsProps> = ({
-  health,
-  maxHealth,
-  attackPower,
-  defensePower,
-}) => {
+const PlayerStats: React.FC = () => {
+  const { health, maxHealth, attack, defense } = useGameStore(state => state.gameState);
   return (
     <div className="flex items-center gap-2">
       <div className="w-32 bg-slate-900/50 h-10 rounded border border-slate-700 flex items-center px-3 gap-2 relative overflow-hidden">
@@ -29,8 +18,8 @@ const PlayerStats: React.FC<PlayerStatsProps> = ({
         </div>
       </div>
 
-      <StatChip icon={Sword} value={attackPower} label="ATK" color="text-orange-400" />
-      <StatChip icon={Shield} value={defensePower} label="DEF" color="text-blue-400" />
+      <StatChip icon={Sword} value={attack} label="ATK" color="text-orange-400" />
+      <StatChip icon={Shield} value={defense} label="DEF" color="text-blue-400" />
     </div>
   );
 };

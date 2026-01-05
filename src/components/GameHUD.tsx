@@ -52,7 +52,7 @@ export default function GameHUD({
   const currentRoom = gameState.rooms[gameState.currentRoomId];
   const inCombat = gameState.combat?.inCombat || false;
   const showStats = !gameState.isQuestLogOpen;
-  const { isEnemyRevealed, hasInspected, attack: attackPower, defense: defensePower, feedback } = gameState;
+  const { feedback } = gameState;
 
   return (
     <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center">
@@ -68,12 +68,7 @@ export default function GameHUD({
 
         {/* Player Stats */}
         <div className={`absolute top-4 left-4 z-30 transition-opacity duration-1000 ${showStats && !inCombat ? "opacity-100" : "opacity-0"}`}>
-          <PlayerStats
-            health={gameState.health}
-            maxHealth={gameState.maxHealth}
-            attackPower={attackPower}
-            defensePower={defensePower}
-          />
+          <PlayerStats />
         </div>
 
         {/* Quest Log Button */}
@@ -103,8 +98,6 @@ export default function GameHUD({
           <div className="absolute top-8 right-8 w-64 pointer-events-auto">
             <ActionPanel
               currentRoom={currentRoom}
-              isEnemyRevealed={isEnemyRevealed}
-              hasInspected={hasInspected}
               isWalking={isWalking}
               onInspectRoom={onInspectRoom}
               onTakeItem={onTakeItem}
@@ -115,12 +108,10 @@ export default function GameHUD({
           {/* Inventory / Equipped */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 items-end h-16 pointer-events-auto">
             <EquippedItems
-              equippedItems={gameState.equippedItems}
               onInspect={setViewingItemId}
               onEquipFromInventory={(idx, slot) => actions.equipItem(undefined, idx, slot)}
             />
             <Inventory
-              items={gameState.inventory.items}
               onInspect={setViewingItemId}
               onMoveItem={actions.reorderInventory}
               onUnequipToInventory={(slot, idx) => actions.unequipItem(undefined, slot, idx)}
@@ -139,14 +130,7 @@ export default function GameHUD({
         {/* Combat Interface */}
         {gameState.combat && gameState.combat.inCombat && currentRoom.enemy && (
           <CombatOverlay
-            combat={gameState.combat}
             enemy={currentRoom.enemy}
-            player={{
-              hp: gameState.health,
-              maxHp: gameState.maxHealth,
-              attack: attackPower,
-              defense: defensePower
-            }}
             onAction={onCombatAction}
           />
         )}

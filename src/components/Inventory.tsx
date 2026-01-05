@@ -127,19 +127,20 @@ const InventorySlot: React.FC<InventorySlotProps> = ({
   );
 };
 
+import { useGameStore } from "../store/useGameStore";
+
 interface InventoryProps {
-  items: (string | null)[];
   onInspect: (itemId: string) => void;
   onMoveItem: (fromIndex: number, toIndex: number) => void;
   onUnequipToInventory: (slotType: "weapon" | "armor", inventoryIndex: number) => void;
 }
 
 export default function Inventory({
-  items,
   onInspect,
   onMoveItem,
   onUnequipToInventory
 }: InventoryProps) {
+  const items = useGameStore(state => state.gameState.inventory.items);
   return (
     <div className="flex w-58 h-full items-center justify-center bg-stone-900 rounded-lg border-2 border-stone-700 px-1.5 overflow-x-auto gap-1.5 md:gap-2 shadow-xl select-none">
       {items.map((itemId, index) => (

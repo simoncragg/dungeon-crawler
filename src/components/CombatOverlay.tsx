@@ -1,11 +1,9 @@
-import React from "react";
+import { useGameStore } from "../store/useGameStore";
 import { Shield, Sword, Crosshair, Zap } from "lucide-react";
-
-import type { CombatState, PlayerCombatAction } from "../types";
+import type { PlayerCombatAction } from "../types";
 import FighterStats from "./FighterStats";
 
 interface CombatScreenProps {
-  combat: CombatState;
   enemy: {
     name: string;
     maxHp: number;
@@ -14,31 +12,27 @@ interface CombatScreenProps {
     defense: number;
     image?: string;
   };
-  player: {
-    hp: number;
-    maxHp: number;
-    attack: number;
-    defense: number;
-  };
   onAction: (action: PlayerCombatAction) => void;
 }
 
 const CombatScreen: React.FC<CombatScreenProps> = ({
-  combat,
   enemy,
-  player,
   onAction,
 }) => {
+  const { gameState } = useGameStore();
+  const { combat, health, maxHealth, attack, defense } = gameState;
+
+  if (!combat) return null;
 
   return (
     <div className="absolute inset-0 z-50 pointer-events-none">
 
       <FighterStats
         name="Player"
-        hp={player.hp}
-        maxHp={player.maxHp}
-        attack={player.attack}
-        defense={player.defense}
+        hp={health}
+        maxHp={maxHealth}
+        attack={attack}
+        defense={defense}
         className="absolute bottom-12 left-8"
       />
 

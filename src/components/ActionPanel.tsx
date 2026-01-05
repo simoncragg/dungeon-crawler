@@ -7,10 +7,10 @@ import { ITEMS } from "../data/gameData";
 import useSoundFx from "../hooks/useSoundFx";
 
 
+import { useGameStore } from "../store/useGameStore";
+
 interface ActionPanelProps {
   currentRoom: Room;
-  isEnemyRevealed: boolean;
-  hasInspected: boolean;
   isWalking: boolean;
   onInspectRoom: () => void;
   onTakeItem: (itemId: string) => void;
@@ -19,13 +19,12 @@ interface ActionPanelProps {
 
 const ActionPanel: React.FC<ActionPanelProps> = ({
   currentRoom,
-  isEnemyRevealed,
-  hasInspected,
   isWalking,
   onInspectRoom,
   onTakeItem,
   onAttack,
 }) => {
+  const { isEnemyRevealed, hasInspected } = useGameStore(state => state.gameState);
   const { playSoundFile } = useSoundFx();
 
   const handleInspect = () => {
