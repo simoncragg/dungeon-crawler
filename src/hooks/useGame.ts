@@ -48,8 +48,8 @@ export const useGame = () => {
       if (nextRoom.enemy) {
         const enemyName = nextRoom.enemy.name;
         addToLog(`A ${enemyName} blocks your path!`, "danger");
-        actions.dispatch({ type: "SET_ENEMY_REVEALED", revealed: true });
-        actions.dispatch({ type: "SET_QUEST_LOG_OPEN", open: false });
+        actions.setEnemyRevealed(true);
+        actions.setQuestLogOpen(false);
         playSoundFile("danger.mp3");
       }
     }, 800);
@@ -100,7 +100,7 @@ export const useGame = () => {
     if (!gameState.unlockedDirection) return;
 
     const timer = setTimeout(() => {
-      actions.dispatch({ type: "CLEAR_UNLOCK_HIGHLIGHT" });
+      actions.clearUnlockHighlight();
     }, 2500);
 
     return () => clearTimeout(timer);
@@ -144,7 +144,7 @@ export const useGame = () => {
         playSoundFile("enemy-item-drop.mp3");
 
         const timer = setTimeout(() => {
-          actions.dispatch({ type: "CLEAR_DROP_ANIMATION" });
+          actions.clearDropAnimation();
         }, 2000);
         return () => clearTimeout(timer);
       }
@@ -161,7 +161,7 @@ export const useGame = () => {
 
   const inspectRoom = () => {
     const room = gameState.rooms[gameState.currentRoomId];
-    actions.dispatch({ type: "SET_HAS_INSPECTED", inspected: true });
+    actions.setHasInspected(true);
     let desc = "You scan the area.";
     if (room.items.length > 0) {
       const itemNames = room.items.map((id: string) => ITEMS[id].name).join(", ");

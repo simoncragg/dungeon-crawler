@@ -31,11 +31,7 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
     if (item.sounds?.use) {
       playSoundFile(item.sounds.use);
     }
-    actions.dispatch({
-      type: "UNLOCK_DOOR",
-      direction,
-      keyId: item.id
-    });
+    actions.unlockDoor(direction);
   }, [actions, playSoundFile]);
 
   const equipItem = (itemId: string) => {

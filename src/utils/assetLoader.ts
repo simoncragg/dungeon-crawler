@@ -1,5 +1,5 @@
 import { ITEMS, WORLD } from "../data/gameData";
-import { getEnemyImage } from "../reducers/gameReducer";
+import { getEnemyImage } from "./gameUtils";
 import { decodeAudioData, setBuffer } from "./audioSystem";
 import type { Room, SoundAsset, NarrationAsset, Direction } from "../types";
 
