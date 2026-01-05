@@ -156,8 +156,11 @@ export const useGame = () => {
   }, [currentRoom.videoLoop?.path, currentRoom.videoLoop?.volume]);
 
   const inspectRoom = () => {
+    movement.triggerShutter(() => {
+      actions.setHasInspected(true);
+    });
+
     const room = gameState.rooms[gameState.currentRoomId];
-    actions.setHasInspected(true);
     let desc = "You scan the area.";
     if (room.items.length > 0) {
       const itemNames = room.items.map((id: string) => ITEMS[id].name).join(", ");

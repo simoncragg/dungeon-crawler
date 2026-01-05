@@ -102,10 +102,13 @@ export default function RoomHotspots({
           >
             {item?.image && (
               <div
-                className={`w-full h-full transition-all duration-200 ${itemsRevealed || isRecentDropId ? "opacity-100 scale-100 blur-none" : "opacity-0 scale-95 blur-sm"}`}
+                className={`w-full h-full ${itemsRevealed || isRecentDropId ? "opacity-100 scale-100 blur-none" : "opacity-0 scale-95 blur-sm"} 
+                ${isDropAnimating && isRecentDropId ? "transition-all duration-200" : "transition-none"}`}
                 style={
                   {
-                    pointerEvents: itemsRevealed || isRecentDropId ? "auto" : "none",
+                    pointerEvents: (itemsRevealed || isRecentDropId) && !isTransitioning ? "auto" : "none",
+                    opacity: isTransitioning ? 0 : undefined,
+                    transition: isTransitioning ? "none" : undefined,
                     transform: `
                     ${itemHotspot?.rotation ? `rotate(${itemHotspot.rotation})` : ""}
                     ${hotspot.scale ? `scale(${hotspot.scale})` : ""}

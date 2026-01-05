@@ -95,7 +95,7 @@ export default function GameHUD({
           </div>
 
           {/* Action Panel */}
-          <div className="absolute top-8 right-8 w-64 pointer-events-auto">
+          <div className="absolute top-8 right-4 w-64 pointer-events-auto">
             <ActionPanel
               currentRoom={currentRoom}
               isWalking={isWalking}

@@ -28,8 +28,11 @@ export const useTransition = ({
     const midpointReachedRef = useRef(false);
 
 
-    const triggerShutter = useCallback(() => {
+    const triggerShutter = useCallback((onMidpoint?: () => void) => {
         setIsShutterActive(true);
+        if (onMidpoint) {
+            setTimeout(onMidpoint, 200);
+        }
         setTimeout(() => setIsShutterActive(false), 400);
     }, []);
 
