@@ -1,18 +1,25 @@
 import React, { useCallback } from "react";
-import type { GameState, LogEntry, GameAction, Direction, SoundAsset, Item, Hotspot } from "../types";
+import type { LogEntry, Direction, SoundAsset, Item, Hotspot } from "../types";
 import { ITEMS } from "../data/gameData";
 import useSoundFx from "./useSoundFx";
+import { useGameStore } from "../store/useGameStore";
 
 interface UseInventoryProps {
-  gameState: GameState;
-  dispatch: React.Dispatch<GameAction>;
-  addToLog: (text: string, type?: LogEntry["type"]) => void;
   startTransition: (video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => void;
   triggerShutter: () => void;
 }
 
-export const useInventory = ({ gameState, dispatch, addToLog, startTransition, triggerShutter }: UseInventoryProps) => {
+export const useInventory = ({ startTransition, triggerShutter }: UseInventoryProps) => {
+  const {
+    gameState,
+    actions
+  } = useGameStore();
+
   const { playDropSound, playSoundFile, playItemSound } = useSoundFx();
+
+  const addToLog = useCallback((text: string, type: LogEntry["type"] = "system") => {
+    actions.addLog(text, type);
+  }, [actions]);
 
   const hasItem = (itemId: string) => {
     if (gameState.equippedItems.weapon === itemId) return true;
@@ -24,12 +31,12 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
     if (item.sounds?.use) {
       playSoundFile(item.sounds.use);
     }
-    dispatch({
+    actions.dispatch({
       type: "UNLOCK_DOOR",
       direction,
       keyId: item.id
     });
-  }, [dispatch, playSoundFile]);
+  }, [actions, playSoundFile]);
 
   const equipItem = (itemId: string) => {
     const itemIndex = gameState.inventory.items.findIndex(id => id === itemId);
@@ -41,7 +48,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
 
     const item = ITEMS[itemId];
     playSoundFile(item.sounds?.take ?? "equip.mp3");
-    dispatch({ type: "EQUIP_ITEM", itemId, logMessage: `You equip the ${item.name}.` });
+    actions.equipItem(itemId, itemIndex, item.type as "weapon" | "armor", `You equip the ${item.name}.`);
   };
 
   const unequipItem = (itemId: string) => {
@@ -52,7 +59,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
     }
     const item = ITEMS[itemId];
     playSoundFile(item.sounds?.unequip ?? "unequip.mp3");
-    dispatch({ type: "UNEQUIP_ITEM", itemId, logMessage: `Unequipped ${item.name}.` });
+    actions.unequipItem(itemId, undefined, emptySlotIndex, `Unequipped ${item.name}.`);
   };
 
   const takeItem = (itemId: string) => {
@@ -94,21 +101,12 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
       logMessage = `Taken: ${item.name}`;
     }
 
-    dispatch({ type: "TAKE_ITEM", itemId: item.id, autoEquip, logMessage });
+    actions.takeItem(item.id, autoEquip, logMessage);
   };
 
   const dropItem = (itemId: string) => {
     playDropSound();
-    if (gameState.equippedItems.weapon === itemId) {
-      dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
-    } else if (gameState.equippedItems.armor === itemId) {
-      dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
-    } else {
-      const itemIndex = gameState.inventory.items.findIndex(id => id === itemId);
-      if (itemIndex !== -1) {
-        dispatch({ type: "DROP_ITEM", itemId, logMessage: `Dropped: ${ITEMS[itemId].name}` });
-      }
-    }
+    actions.dropItem(itemId, `Dropped: ${ITEMS[itemId].name}`);
   };
 
   const handleUseItem = (itemId: string, targetDirection?: Direction) => {
@@ -124,12 +122,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
     const useVideo = item.useVideos?.[gameState.currentRoomId];
 
     if (item.type === "consumable" && item.effect) {
-      dispatch({
-        type: "USE_CONSUMABLE",
-        itemId,
-        effect: item.effect,
-        logMessage: `You used ${item.name}.`
-      });
+      actions.useConsumable(itemId, item.effect, `You used ${item.name}.`);
       return;
     }
 
@@ -145,7 +138,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
           if (lockedExit?.keyId === item.id) {
             const unlockMessage = lockedExit.unlockMessage || `Unlocked the way to the ${matchingDirection} with ${item.name}.`;
 
-            dispatch({ type: "CONSUME_ITEM", itemId: item.id });
+            actions.consumeItem(item.id);
 
             if (useVideo) {
               triggerShutter();
@@ -185,7 +178,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
   };
 
   const reorderInventory = (fromIndex: number, toIndex: number) => {
-    dispatch({ type: "REORDER_INVENTORY", fromIndex, toIndex });
+    actions.reorderInventory(fromIndex, toIndex);
   };
 
   const equipFromInventory = (inventoryIndex: number, slotType: "weapon" | "armor") => {
@@ -194,7 +187,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
       const item = ITEMS[itemId];
       playSoundFile(item.sounds?.take ?? "equip.mp3");
     }
-    dispatch({ type: "EQUIP_ITEM", inventoryIndex, slotType });
+    actions.equipItem(undefined, inventoryIndex, slotType);
   };
 
   const unequipToInventory = (slotType: "weapon" | "armor", inventoryIndex: number) => {
@@ -203,7 +196,7 @@ export const useInventory = ({ gameState, dispatch, addToLog, startTransition, t
       const item = ITEMS[itemId];
       playSoundFile(item.sounds?.unequip ?? "unequip.mp3");
     }
-    dispatch({ type: "UNEQUIP_ITEM", slotType, inventoryIndex });
+    actions.unequipItem(undefined, slotType, inventoryIndex);
   };
 
   return {

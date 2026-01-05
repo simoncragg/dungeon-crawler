@@ -1,24 +1,25 @@
 import { useState, useRef, useCallback } from "react";
-import type { Direction, Room, GameState, LogEntry, GameAction } from "../types";
+import type { Direction, LogEntry } from "../types";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 import { useTransition } from "./useTransition";
 import useSoundFx from "./useSoundFx";
+import { useGameStore } from "../store/useGameStore";
 
 interface UseMovementProps {
-  gameState: GameState;
-  currentRoom: Room;
-  dispatch: React.Dispatch<GameAction>;
-  addToLog: (text: string, type?: LogEntry["type"]) => void;
   processRoomEntry: (nextRoomId: string) => void;
 }
 
 export const useMovement = ({
-  gameState,
-  currentRoom,
-  dispatch,
-  addToLog,
   processRoomEntry
 }: UseMovementProps) => {
+  const {
+    gameState,
+    actions
+  } = useGameStore();
+
+  const currentRoom = gameState.rooms[gameState.currentRoomId];
+  const addToLog = (text: string, type?: LogEntry["type"]) => actions.addLog(text, type);
+
   const { playShuffleSound } = useSoundFx();
   const [isWalking, setIsWalking] = useState(false);
   const [walkingDirection, setWalkingDirection] = useState<Direction | null>(null);
@@ -43,7 +44,7 @@ export const useMovement = ({
     isWalking,
     onMidpoint: () => {
       if (pendingMove) {
-        dispatch({ type: "UPDATE_MAP_POSITION", roomId: pendingMove.nextRoomId });
+        actions.updateMapPosition(pendingMove.nextRoomId);
       }
     }
   });
@@ -132,20 +133,20 @@ export const useMovement = ({
       const stepInterval = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_INTERVAL : MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL;
 
       performStandardMoveSteps(direction, stepCount, 300, stepInterval, () => {
-        dispatch({ type: "MOVE", nextRoomId: nextRoomId! });
+        actions.move(nextRoomId!);
         processRoomEntry(nextRoomId!);
       });
     }
-  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, dispatch, processRoomEntry, triggerShutter]);
+  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, actions, processRoomEntry, triggerShutter]);
 
   const handleTransitionEnd = useCallback(() => {
     if (pendingMove) {
-      dispatch({ type: "MOVE", nextRoomId: pendingMove.nextRoomId });
+      actions.move(pendingMove.nextRoomId);
       processRoomEntry(pendingMove.nextRoomId);
     }
     resetTransition();
     stopWalking();
-  }, [pendingMove, processRoomEntry, resetTransition, stopWalking, dispatch]);
+  }, [pendingMove, processRoomEntry, resetTransition, stopWalking, actions]);
 
   return {
     isWalking,

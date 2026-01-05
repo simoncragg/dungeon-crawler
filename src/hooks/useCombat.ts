@@ -1,7 +1,8 @@
 import React, { useRef } from "react";
-import type { GameState, CombatAction, EquippedWeapon, PlayerCombatAction, GameAction } from "../types";
+import type { CombatAction, EquippedWeapon, PlayerCombatAction } from "../types";
 import { ITEMS } from "../data/gameData";
 import useSoundFx from "./useSoundFx";
+import { useGameStore } from "../store/useGameStore";
 import {
   isWindupAction,
   getEnemyAction,
@@ -10,12 +11,12 @@ import {
   resolveCombatTurn
 } from "../utils/combatUtils";
 
-interface UseCombatProps {
-  gameState: GameState;
-  dispatch: React.Dispatch<GameAction>;
-}
+export const useCombat = () => {
+  const {
+    gameState,
+    actions
+  } = useGameStore();
 
-export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
   const { playSoundFile } = useSoundFx();
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const telegraphTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -42,8 +43,8 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
 
   const startCombat = React.useCallback(() => {
     playBattleMusic();
-    dispatch({ type: "START_COMBAT" });
-  }, [playBattleMusic, dispatch]);
+    actions.startCombat();
+  }, [playBattleMusic, actions]);
 
   const isReadyForCombatInput = React.useCallback(() => {
     return !!gameState.combat && !gameState.combat.isProcessing;
@@ -53,12 +54,12 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
     const delay = getLungeDelay(playerAction, successfulParry);
     if (delay > 0) {
       setTimeout(() => {
-        dispatch({ type: "SET_ENEMY_ACTION", action });
+        actions.setEnemyAction(action);
       }, delay);
     } else {
-      dispatch({ type: "SET_ENEMY_ACTION", action });
+      actions.setEnemyAction(action);
     }
-  }, [dispatch]);
+  }, [actions]);
 
   const handleCombatAction = React.useCallback((playerAction: PlayerCombatAction) => {
     if (!isReadyForCombatInput()) return;
@@ -72,7 +73,7 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
       playSoundFile(playerWeapon?.sounds?.windup ?? "sword-combat-windup.mp3");
     }
 
-    dispatch({ type: "SET_COMBAT_PROCESSING", processing: true, playerAction });
+    actions.setCombatProcessing(true, playerAction);
 
     const room = gameState.rooms[gameState.currentRoomId];
     if (!room.enemy) return;
@@ -108,16 +109,16 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
     }
 
     setTimeout(() => {
-      dispatch({ type: "SET_ENEMY_ACTION", action: outcome.finalEnemyAction });
+      actions.setEnemyAction(outcome.finalEnemyAction);
 
-      dispatch({ type: "ADD_LOG", message: outcome.logMsg, logType: outcome.logType });
+      actions.addLog(outcome.logMsg, outcome.logType);
       if (outcome.combatResult) {
-        dispatch({ type: "SET_COMBAT_RESULT", result: outcome.combatResult });
+        actions.setCombatResult(outcome.combatResult);
       }
 
       if (outcome.riposteAvailable) {
-        dispatch({ type: "SET_COMBAT_RIPOSTE", canRiposte: true });
-        dispatch({ type: "SET_COMBAT_PROCESSING", processing: false });
+        actions.setCombatRiposte(true);
+        actions.setCombatProcessing(false);
         return;
       }
 
@@ -125,8 +126,7 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
       const currentEnemyHp = enemy.hp - enemyDamageTaken;
 
       if (enemyDamageTaken > 0 || playerDamageTaken > 0) {
-        dispatch({
-          type: "COMBAT_ROUND",
+        actions.combatRound({
           damageDealt: enemyDamageTaken,
           damageTaken: playerDamageTaken,
           enemyName: enemy.name,
@@ -137,7 +137,7 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
         if (currentEnemyHp <= 0) {
           stopBattleMusic();
           setTimeout(() => playSoundFile("enemy-defeat.mp3"), 500);
-          dispatch({ type: "SET_ENEMY_ACTION", action: "DEFEAT" });
+          actions.setEnemyAction("DEFEAT");
           setTimeout(() => {
             const dropItem = enemy.drop ? ITEMS[enemy.drop] : null;
             const dropMsg = dropItem ? `The ${enemy.name.toLowerCase()} dropped a ${dropItem.name.toLowerCase()}.` : "";
@@ -146,10 +146,9 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
               logMessages.push(dropMsg);
             }
 
-            dispatch({
-              type: "ENEMY_DEFEAT",
+            actions.enemyDefeat({
               enemyName: enemy.name,
-              dropId: enemy.drop,
+              dropId: enemy.drop || undefined,
               logMessages,
               feedbackMessage: dropMsg || undefined,
               damageDealt: enemyDamageTaken
@@ -159,10 +158,10 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
       }
 
       setTimeout(() => {
-        dispatch({ type: "COMBAT_ROUND_END" });
+        actions.combatRoundEnd();
       }, 2000);
     }, resultDelay);
-  }, [gameState, dispatch, playSoundFile, isReadyForCombatInput, stopBattleMusic, clearCombatTimers, triggerEnemyResponse]);
+  }, [gameState, playSoundFile, isReadyForCombatInput, stopBattleMusic, clearCombatTimers, triggerEnemyResponse, actions]);
 
   // Manage idle and telegraph timers via effects
   React.useEffect(() => {
@@ -188,7 +187,7 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
       if (!idleTimerRef.current) {
         const delay = Math.random() * 2000 + 1000; // 1-3 seconds
         idleTimerRef.current = setTimeout(() => {
-          dispatch({ type: "SET_ENEMY_ACTION", action: "TELEGRAPH" });
+          actions.setEnemyAction("TELEGRAPH");
         }, delay);
       }
     } else {
@@ -196,7 +195,7 @@ export const useCombat = ({ gameState, dispatch }: UseCombatProps) => {
     }
 
     return () => clearCombatTimers();
-  }, [gameState.combat, dispatch, handleCombatAction, clearCombatTimers, playSoundFile]);
+  }, [gameState.combat, handleCombatAction, clearCombatTimers, playSoundFile, actions]);
 
   return {
     startCombat,

@@ -1,12 +1,10 @@
-import { useReducer, useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { LogEntry } from "../types";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 
 import { ITEMS } from "../data/gameData";
-import { INITIAL_STATE } from "../data/initialState";
-
+import { useGameStore } from "../store/useGameStore";
 import useSoundFx from "./useSoundFx";
-import { gameReducer } from "../reducers/gameReducer";
 import { useRoomPreloader } from "./useRoomPreloader";
 import { useMovement } from "./useMovement";
 import { useCombat } from "./useCombat";
@@ -14,7 +12,11 @@ import { useInventory } from "./useInventory";
 
 export const useGame = () => {
 
-  const [gameState, dispatch] = useReducer(gameReducer, INITIAL_STATE);
+  const {
+    gameState,
+    actions
+  } = useGameStore();
+
   const currentRoom = gameState.rooms[gameState.currentRoomId];
 
   const [viewingItemId, setViewingItemId] = useState<string | null>(null);
@@ -29,8 +31,8 @@ export const useGame = () => {
   } = useSoundFx();
 
   const addToLog = useCallback((text: string, type: LogEntry["type"] = "system") => {
-    dispatch({ type: "ADD_LOG", message: text, logType: type });
-  }, []);
+    actions.addLog(text, type);
+  }, [actions]);
 
   const processRoomEntry = useCallback((nextRoomId: string) => {
     const nextRoom = gameState.rooms[nextRoomId];
@@ -46,19 +48,15 @@ export const useGame = () => {
       if (nextRoom.enemy) {
         const enemyName = nextRoom.enemy.name;
         addToLog(`A ${enemyName} blocks your path!`, "danger");
-        dispatch({ type: "SET_ENEMY_REVEALED", revealed: true });
-        dispatch({ type: "SET_QUEST_LOG_OPEN", open: false });
+        actions.dispatch({ type: "SET_ENEMY_REVEALED", revealed: true });
+        actions.dispatch({ type: "SET_QUEST_LOG_OPEN", open: false });
         playSoundFile("danger.mp3");
       }
     }, 800);
-  }, [gameState.rooms, gameState.isFirstVisit, addToLog, playSoundFile]);
+  }, [gameState.rooms, gameState.isFirstVisit, addToLog, playSoundFile, actions]);
 
   /* useMovement */
   const movement = useMovement({
-    gameState,
-    currentRoom,
-    dispatch,
-    addToLog,
     processRoomEntry
   });
 
@@ -75,18 +73,15 @@ export const useGame = () => {
     equipFromInventory,
     unequipToInventory
   } = useInventory({
-    gameState,
-    dispatch,
-    addToLog,
     startTransition: movement.startTransition,
     triggerShutter: movement.triggerShutter
   });
 
   /* useCombat */
-  const { startCombat, handleCombatAction } = useCombat({
-    gameState,
-    dispatch
-  });
+  const {
+    startCombat,
+    handleCombatAction
+  } = useCombat();
 
   useEffect(() => {
     if (!gameState.feedback) return;
@@ -95,21 +90,21 @@ export const useGame = () => {
     const duration = Math.max(3500, messageLength * 80);
 
     const timer = setTimeout(() => {
-      dispatch({ type: "CLEAR_FEEDBACK" });
+      actions.clearFeedback();
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [gameState.feedback]);
+  }, [gameState.feedback, actions]);
 
   useEffect(() => {
     if (!gameState.unlockedDirection) return;
 
     const timer = setTimeout(() => {
-      dispatch({ type: "CLEAR_UNLOCK_HIGHLIGHT" });
+      actions.dispatch({ type: "CLEAR_UNLOCK_HIGHLIGHT" });
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, [gameState.unlockedDirection]);
+  }, [gameState.unlockedDirection, actions]);
 
   useEffect(() => {
     const targetRoom = gameState.rooms[movement.sceneTitleProps.id];
@@ -149,12 +144,12 @@ export const useGame = () => {
         playSoundFile("enemy-item-drop.mp3");
 
         const timer = setTimeout(() => {
-          dispatch({ type: "CLEAR_DROP_ANIMATION" });
+          actions.dispatch({ type: "CLEAR_DROP_ANIMATION" });
         }, 2000);
         return () => clearTimeout(timer);
       }
     }
-  }, [gameState.latestDrop, playSoundFile, playDropSound]);
+  }, [gameState.latestDrop, playSoundFile, playDropSound, actions]);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -166,7 +161,7 @@ export const useGame = () => {
 
   const inspectRoom = () => {
     const room = gameState.rooms[gameState.currentRoomId];
-    dispatch({ type: "SET_HAS_INSPECTED", inspected: true });
+    actions.dispatch({ type: "SET_HAS_INSPECTED", inspected: true });
     let desc = "You scan the area.";
     if (room.items.length > 0) {
       const itemNames = room.items.map((id: string) => ITEMS[id].name).join(", ");
@@ -204,7 +199,7 @@ export const useGame = () => {
     recentDropId: gameState.recentDropId,
     isDropAnimating: gameState.isDropAnimating,
     feedback: gameState.feedback || { message: null, type: null, id: 0 },
-    setQuestLogOpen: (open: boolean) => dispatch({ type: "SET_QUEST_LOG_OPEN", open }),
+    setQuestLogOpen: actions.setQuestLogOpen,
     videoRef,
     handleDropOnHotspot,
     reorderInventory,
