@@ -118,16 +118,33 @@ export const createInventorySlice: StateCreator<GameStore, [], [], InventorySlic
             items: state.gameState.inventory.items.map(id => id === itemId ? null : id)
         };
 
+        const newEquippedItems = { ...state.gameState.equippedItems };
+        let equippedChanged = false;
+
+        if (newEquippedItems.weapon === itemId) {
+            newEquippedItems.weapon = null;
+            equippedChanged = true;
+        }
+        if (newEquippedItems.armor === itemId) {
+            newEquippedItems.armor = null;
+            equippedChanged = true;
+        }
+
         newRooms[state.gameState.currentRoomId] = {
             ...currentRoom,
             items: [...currentRoom.items, itemId]
         };
 
+        const { attack, defense } = equippedChanged ? getStats(newEquippedItems) : { attack: state.gameState.attack, defense: state.gameState.defense };
+
         return {
             gameState: {
                 ...state.gameState,
                 inventory: newInventory,
+                equippedItems: newEquippedItems,
                 rooms: newRooms,
+                attack,
+                defense,
                 questLog: addLog(state.gameState.questLog, logMessage, "info"),
                 feedback: getFeedback(logMessage, "info")
             }
