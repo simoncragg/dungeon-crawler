@@ -1,4 +1,5 @@
-import type { GameState, Room, Feedback, Direction, PlayerCombatAction } from "../types";
+import type { Direction, PlayerCombatAction } from "../types";
+import { useGameStore } from "../store/useGameStore";
 import { BookOpen } from "lucide-react";
 import SceneTitle from "./SceneTitle";
 
@@ -18,45 +19,24 @@ interface SceneTitleProps {
 }
 
 interface GameHUDProps {
-  gameState: GameState;
-  currentRoom: Room;
   isWideScreen: boolean;
   isWalking: boolean;
-  inCombat: boolean;
-  showStats: boolean;
-  isEnemyRevealed: boolean;
-  hasInspected: boolean;
-  attackPower: number;
-  defensePower: number;
-  feedback: Feedback;
   walkingDirection: Direction | null;
   walkStepScale: number;
   sceneTitleProps: SceneTitleProps;
 
+  // Handlers that involve side-effects/orchestration
   onMove: (direction: Direction) => void;
   onInspectRoom: () => void;
   onTakeItem: (itemId: string) => void;
   onAttack: () => void;
   onCombatAction: (action: PlayerCombatAction) => void;
-  setQuestLogOpen: (open: boolean) => void;
   setViewingItemId: (id: string | null) => void;
-  reorderInventory: (fromIndex: number, toIndex: number) => void;
-  equipFromInventory: (inventoryIndex: number, slotType: "weapon" | "armor") => void;
-  unequipToInventory: (slotType: "weapon" | "armor", inventoryIndex: number) => void;
 }
 
 export default function GameHUD({
-  gameState,
-  currentRoom,
   isWideScreen,
   isWalking,
-  inCombat,
-  showStats,
-  isEnemyRevealed,
-  hasInspected,
-  attackPower,
-  defensePower,
-  feedback,
   walkingDirection,
   walkStepScale,
   sceneTitleProps,
@@ -65,12 +45,14 @@ export default function GameHUD({
   onTakeItem,
   onAttack,
   onCombatAction,
-  setQuestLogOpen,
   setViewingItemId,
-  reorderInventory,
-  equipFromInventory,
-  unequipToInventory
 }: GameHUDProps) {
+  const { gameState, actions } = useGameStore();
+
+  const currentRoom = gameState.rooms[gameState.currentRoomId];
+  const inCombat = gameState.combat?.inCombat || false;
+  const showStats = !gameState.isQuestLogOpen;
+  const { isEnemyRevealed, hasInspected, attack: attackPower, defense: defensePower, feedback } = gameState;
 
   return (
     <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center">
@@ -96,7 +78,7 @@ export default function GameHUD({
 
         {/* Quest Log Button */}
         <button
-          onClick={() => setQuestLogOpen(true)}
+          onClick={() => actions.setQuestLogOpen(true)}
           className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 p-2 bg-black/50 hover:bg-black/70 text-emerald-400 hover:text-emerald-300 rounded-full border border-emerald-900/50 transition-all hover:scale-110 shadow-lg backdrop-blur-sm ${!gameState.isQuestLogOpen && !inCombat ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-90"}`}
           aria-label="Quest Log"
         >
@@ -135,13 +117,13 @@ export default function GameHUD({
             <EquippedItems
               equippedItems={gameState.equippedItems}
               onInspect={setViewingItemId}
-              onEquipFromInventory={equipFromInventory}
+              onEquipFromInventory={(idx, slot) => actions.equipItem(undefined, idx, slot)}
             />
             <Inventory
               items={gameState.inventory.items}
               onInspect={setViewingItemId}
-              onMoveItem={reorderInventory}
-              onUnequipToInventory={unequipToInventory}
+              onMoveItem={actions.reorderInventory}
+              onUnequipToInventory={(slot, idx) => actions.unequipItem(undefined, slot, idx)}
             />
           </div>
         </div>

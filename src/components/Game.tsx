@@ -10,22 +10,19 @@ import ShutterBlink from "./ShutterBlink";
 import WeaponOverlay from "./WeaponOverlay";
 
 import { useGame } from "../hooks/useGame";
+import { useGameStore } from "../store/useGameStore";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { getPreloadedUrl } from "../utils/assetLoader";
 
 export default function Game() {
+  const { gameState, actions } = useGameStore();
   const {
-    gameState,
-    hasInspected,
     viewingItemId,
     setViewingItemId,
+    currentRoom,
     isWalking,
     walkingDirection,
     walkStepScale,
-    isEnemyRevealed,
-    attackPower,
-    defensePower,
-    currentRoom,
     handleMove,
     inspectRoom,
     takeItem,
@@ -35,8 +32,6 @@ export default function Game() {
     startCombat,
     handleCombatAction,
     handleUseItem,
-    feedback,
-    setQuestLogOpen,
     videoRef,
     activeTransitionVideo,
     activeTransitionVolume,
@@ -44,16 +39,11 @@ export default function Game() {
     handleVideoTimeUpdate,
     isShutterActive,
     sceneTitleProps,
-    recentDropId,
-    isDropAnimating,
     handleDropOnHotspot,
-    reorderInventory,
-    equipFromInventory,
-    unequipToInventory
   } = useGame();
 
+  const { isEnemyRevealed, hasInspected, feedback, isDropAnimating, recentDropId } = gameState;
   const inCombat = gameState.combat?.inCombat;
-  const showStats = !gameState.isQuestLogOpen;
   const isShakeEffect = ["damage", "warning", "clash"].includes(feedback?.type || "");
 
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -215,17 +205,8 @@ export default function Game() {
 
       {/* --- HUD LAYER (UI & Controls) --- */}
       <GameHUD
-        gameState={gameState}
-        currentRoom={currentRoom}
         isWideScreen={isWideScreen}
         isWalking={isWalking}
-        inCombat={inCombat || false}
-        showStats={showStats}
-        isEnemyRevealed={isEnemyRevealed}
-        hasInspected={hasInspected}
-        attackPower={attackPower}
-        defensePower={defensePower}
-        feedback={feedback}
         walkingDirection={walkingDirection || null}
         walkStepScale={walkStepScale}
         sceneTitleProps={sceneTitleProps}
@@ -234,11 +215,7 @@ export default function Game() {
         onTakeItem={takeItem}
         onAttack={startCombat}
         onCombatAction={handleCombatAction}
-        setQuestLogOpen={setQuestLogOpen}
         setViewingItemId={setViewingItemId}
-        reorderInventory={reorderInventory}
-        equipFromInventory={equipFromInventory}
-        unequipToInventory={unequipToInventory}
       />
 
       {/* --- MODALS (Global Overlay) --- */}
@@ -262,7 +239,7 @@ export default function Game() {
       {gameState.isQuestLogOpen && (
         <QuestLog
           questLog={gameState.questLog}
-          onClose={() => setQuestLogOpen(false)}
+          onClose={() => actions.setQuestLogOpen(false)}
         />
       )}
 

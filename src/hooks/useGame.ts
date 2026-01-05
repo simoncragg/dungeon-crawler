@@ -67,11 +67,7 @@ export const useGame = () => {
     equipItem,
     unequipItem,
     handleUseItem,
-    hasItem,
     handleDropOnHotspot,
-    reorderInventory,
-    equipFromInventory,
-    unequipToInventory
   } = useInventory({
     startTransition: movement.startTransition,
     triggerShutter: movement.triggerShutter
@@ -177,16 +173,9 @@ export const useGame = () => {
   };
 
   return {
-    gameState,
-    questLog: gameState.questLog,
-    hasInspected: gameState.hasInspected,
     viewingItemId,
     setViewingItemId,
-    isEnemyRevealed: gameState.isEnemyRevealed,
-    attackPower: gameState.attack,
-    defensePower: gameState.defense,
     currentRoom,
-    hasItem,
     ...movement,
     inspectRoom,
     takeItem,
@@ -196,14 +185,7 @@ export const useGame = () => {
     startCombat,
     handleCombatAction,
     handleUseItem,
-    recentDropId: gameState.recentDropId,
-    isDropAnimating: gameState.isDropAnimating,
-    feedback: gameState.feedback || { message: null, type: null, id: 0 },
-    setQuestLogOpen: actions.setQuestLogOpen,
     videoRef,
     handleDropOnHotspot,
-    reorderInventory,
-    equipFromInventory,
-    unequipToInventory
   };
 };
