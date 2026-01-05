@@ -18,7 +18,7 @@ export const useMovement = ({
   } = useGameStore();
 
   const currentRoom = gameState.rooms[gameState.currentRoomId];
-  const addToLog = (text: string, type?: LogEntry["type"]) => actions.addLog(text, type);
+  const addToLog = useCallback((text: string, type?: LogEntry["type"]) => actions.addLog(text, type), [actions]);
 
   const { playShuffleSound } = useSoundFx();
   const [isWalking, setIsWalking] = useState(false);
