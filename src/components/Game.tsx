@@ -99,7 +99,7 @@ export default function Game() {
         >
           {/* Background Video/Image */}
           <div className={`w-full h-full transition-all duration-1000 ${gameState.combat?.enemyAction === 'STAGGER' ? 'animate-ken-burns' : ''}`}>
-            {/* Always render the base image as a fallback/background to prevent flashes */}
+
             <img
               src={getPreloadedUrl(visibleRoom.image)}
               alt={visibleRoom.name}
@@ -181,6 +181,7 @@ export default function Game() {
         </div>
       </div>
 
+      {/* --- HUD LAYER (UI & Controls) --- */}
       <GameHUD
         onMove={handleMove}
         onTakeItem={takeItem}
@@ -190,6 +191,7 @@ export default function Game() {
         sceneTitleProps={sceneTitleProps}
       />
 
+      {/* --- MODALS (Global Overlay) --- */}
       {
         viewingItemId && (
           <ItemModal
