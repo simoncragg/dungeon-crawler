@@ -10,7 +10,7 @@ export default function SceneTitle({ title, forceHide }: SceneTitleProps) {
     const [hasBeenHidden, setHasBeenHidden] = useState(false);
 
     useEffect(() => {
-        if (forceHide || hasBeenHidden) return;
+        if (hasBeenHidden) return;
 
         const showTimer = setTimeout(() => setIsVisible(true), 100);
         const hideTimer = setTimeout(() => {
@@ -22,7 +22,7 @@ export default function SceneTitle({ title, forceHide }: SceneTitleProps) {
             clearTimeout(showTimer);
             clearTimeout(hideTimer);
         };
-    }, [forceHide, hasBeenHidden]);
+    }, [hasBeenHidden]);
 
     // Derive visibility to respond instantly to forceHide
     const show = isVisible && !forceHide;
