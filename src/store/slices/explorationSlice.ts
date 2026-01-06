@@ -72,7 +72,7 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
             gameState: {
                 ...state.gameState,
                 rooms: newRooms,
-                unlockedDirection: direction
+                unlockedDirection: lockedExit?.unlockVideo ? null : direction
             }
         };
     }),
