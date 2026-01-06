@@ -1,17 +1,16 @@
 import React from "react";
-import { Eye, Hand, Sword } from "lucide-react";
+import { Eye, EyeClosed, Sword } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import type { Room } from "../types";
 import ActionButton from "./ActionButton";
 import { ITEMS } from "../data/gameData";
-import useSoundFx from "../hooks/useSoundFx";
-
 import { useGameStore } from "../store/useGameStore";
+import ActionIcon from "./ActionIcon";
 
 interface ActionPanelProps {
   currentRoom: Room;
   isWalking: boolean;
-  onInspectRoom: () => void;
   onTakeItem: (itemId: string) => void;
   onAttack: () => void;
 }
@@ -19,20 +18,31 @@ interface ActionPanelProps {
 const ActionPanel: React.FC<ActionPanelProps> = ({
   currentRoom,
   isWalking,
-  onInspectRoom,
   onTakeItem,
   onAttack,
 }) => {
-  const { isEnemyRevealed, hasInspected } = useGameStore(state => state.gameState);
-  const { playSoundFile } = useSoundFx();
+  const { isEnemyRevealed, isDropAnimating } = useGameStore(state => state.gameState);
+  const [isGrabMenuOpen, setIsGrabMenuOpen] = React.useState(false);
+
+  // Sync menu state with drop animations
+  React.useEffect(() => {
+    if (isDropAnimating) setIsGrabMenuOpen(true);
+  }, [isDropAnimating]);
 
   const handleInspect = () => {
-    playSoundFile("inspect.mp3", 1.0);
-    onInspectRoom();
+    // No longer triggers a blink, just toggles the manual list
+    setIsGrabMenuOpen(!isGrabMenuOpen);
   };
 
+  // Identify non-native items (those without a hotspot)
+  const nonNativeItems = currentRoom.items.filter(itemId =>
+    !currentRoom.hotspots?.some(h => h.type === "item" && h.itemId === itemId)
+  );
+
+  const showEye = nonNativeItems.length > 0;
+
   return (
-    <div className="flex-1 flex flex-col gap-2 overflow-y-auto min-w-0 w-full h-32 md:h-full content-start pt-1">
+    <div className="flex-1 flex flex-col gap-2 overflow-visible min-w-0 w-full h-32 md:h-full content-start pt-1">
       {currentRoom.enemy && isEnemyRevealed && (
         <div className="grid grid-cols-1 auto-rows-[3rem] w-full shrink-0">
           <ActionButton
@@ -45,39 +55,59 @@ const ActionPanel: React.FC<ActionPanelProps> = ({
         </div>
       )}
 
-      {(!hasInspected || currentRoom.items.length === 0) && (
-        <div className="w-full py-2 flex justify-end pr-6 shrink-0">
-          <button
-            onClick={handleInspect}
-            disabled={isWalking}
-            className="group relative flex items-center justify-center p-4 transition-all duration-500 hover:scale-110 active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
-            aria-label="Blink"
-          >
-            <div className="relative">
-              <Eye size={52} className="text-amber-500/80 group-hover:text-amber-400 group-hover:scale-110 transition-all duration-500 animate-eye-pulse drop-shadow-[0_0_10px_rgba(245,158,11,0.5)] drop-shadow-[0_0_20px_rgba(245,158,11,0.2)]" />
-              <div className="absolute inset-0 bg-amber-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          </button>
-        </div>
-      )}
+      <div className="w-full py-2 flex flex-col items-end pr-6 shrink-0 relative">
+        {showEye && (
+          <div className="relative flex flex-col items-center w-[60px]">
+            <ActionIcon
+              icon={(isGrabMenuOpen ? EyeClosed : Eye) as LucideIcon}
+              onClick={handleInspect}
+              disabled={isWalking}
+              ariaLabel="Inspect Dropped Items"
+              size={72}
+              iconSize={52}
+              iconClassName=""
+            />
 
-      <div className="grid grid-cols-1 gap-2 auto-rows-[3rem] w-full">
-        {hasInspected && currentRoom.items.length > 0 && (
-          currentRoom.items.map(itemId => {
-            const item = ITEMS[itemId];
-            return (
-              <button
-                key={itemId}
-                disabled={isWalking}
-                onClick={() => onTakeItem(itemId)}
-                className="w-full h-full flex items-center justify-between px-4 bg-stone-800 hover:bg-stone-700 border-2 border-stone-600 rounded-lg text-amber-200 transition-all active:scale-95 animate-in slide-in-from-right duration-300 disabled:opacity-50 shadow-md"
-              >
-                <span className="flex items-center gap-4 font-bold text-sm font-medieval tracking-wide">
-                  <Hand size={16} /> TAKE {item.name.toUpperCase()}
-                </span>
-              </button>
-            );
-          })
+            {isGrabMenuOpen && (
+              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-6 py-4">
+                {nonNativeItems.map((itemId, idx) => {
+                  const item = ITEMS[itemId];
+                  const slotScale = item.slotStyle?.scale ?? 1;
+                  const slotRotation = item.slotStyle?.rotation ?? "0deg";
+
+                  return (
+                    <button
+                      key={`${itemId}-${idx}`}
+                      onClick={() => {
+                        onTakeItem(itemId);
+                        if (nonNativeItems.length <= 1) setIsGrabMenuOpen(false);
+                      }}
+                      className="size-14 group relative flex items-center justify-center animate-spin-out opacity-0 will-change-transform"
+                      style={{ animationDelay: `${idx * 150}ms` }}
+                    >
+                      {/* Supernatural Aura */}
+                      <div className="absolute inset-0 bg-amber-500/10 blur-xl rounded-full opacity-40 group-hover:opacity-100 group-hover:bg-amber-400/20 group-hover:scale-150 transition-all duration-700 ease-out pointer-events-none" />
+
+                      <div
+                        className="size-full flex items-center justify-center pointer-events-none relative z-10"
+                        style={{ transform: `scale(${slotScale}) rotate(${slotRotation})` }}
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(0,0,0,0.5)] group-hover:drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] group-hover:scale-110 transition-all duration-500"
+                        />
+                      </div>
+
+                      <div className="absolute right-full mr-6 top-1/2 -translate-y-1/2 px-2 py-1 bg-black/90 text-amber-200 text-[10px] font-bold uppercase tracking-widest border border-amber-900/40 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-[60]">
+                        {item.name}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+
 import type { Room, SoundAsset } from "../types";
 import { shouldHideSceneTitle } from "../utils/transitionUtils";
 import { useGameStore } from "../store/useGameStore";
@@ -8,7 +9,6 @@ interface UseTransitionProps {
     rooms: Record<string, Room>;
     feedback: { message: string | null };
     isWalking: boolean;
-    onMidpoint?: () => void;
 }
 
 export const useTransition = ({
@@ -16,27 +16,35 @@ export const useTransition = ({
     rooms,
     feedback,
     isWalking,
-    onMidpoint
 }: UseTransitionProps) => {
     const { actions } = useGameStore();
     const [activeTransitionVideo, setActiveTransitionVideo] = useState<string | null>(null);
     const [activeTransitionVolume, setActiveTransitionVolume] = useState<number>(0.4);
     const [pendingMove, setPendingMove] = useState<{ nextRoomId: string } | null>(null);
-    const [onCompleteAction, setOnCompleteAction] = useState<{ fn: () => void } | null>(null);
     const [onMidpointAction, setOnMidpointAction] = useState<{ fn: () => void } | null>(null);
+    const [onCompleteAction, setOnCompleteAction] = useState<{ fn: () => void } | null>(null);
     const [isShutterActive, setIsShutterActive] = useState(false);
     const midpointReachedRef = useRef(false);
 
 
-    const triggerShutter = useCallback((onMidpoint?: () => void) => {
+    const triggerShutter = useCallback((onMidpoint?: () => void, nextRoomId?: string) => {
         setIsShutterActive(true);
-        if (onMidpoint) {
-            setTimeout(onMidpoint, 200);
-        }
-        setTimeout(() => setIsShutterActive(false), 400);
-    }, []);
 
-    const startTransition = useCallback((video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpointCall?: () => void) => {
+        setTimeout(() => {
+            const targetRoomId = nextRoomId || pendingMove?.nextRoomId;
+            if (targetRoomId) {
+                actions.setPerceivedRoomId(targetRoomId);
+            }
+
+            if (onMidpoint) onMidpoint();
+        }, 200);
+
+        setTimeout(() => {
+            setIsShutterActive(false);
+        }, 400);
+    }, [pendingMove, actions]);
+
+    const startTransition = useCallback((video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => {
         if (typeof video === 'string') {
             setActiveTransitionVideo(video);
             setActiveTransitionVolume(0.4);
@@ -51,16 +59,16 @@ export const useTransition = ({
             setPendingMove(null);
         }
 
+        if (onMidpoint) {
+            setOnMidpointAction({ fn: onMidpoint });
+        } else {
+            setOnMidpointAction(null);
+        }
+
         if (onComplete) {
             setOnCompleteAction({ fn: onComplete });
         } else {
             setOnCompleteAction(null);
-        }
-
-        if (onMidpointCall) {
-            setOnMidpointAction({ fn: onMidpointCall });
-        } else {
-            setOnMidpointAction(null);
         }
 
         midpointReachedRef.current = false;
@@ -77,21 +85,23 @@ export const useTransition = ({
                 }
 
                 if (onMidpointAction) onMidpointAction.fn();
-                if (onMidpoint) onMidpoint();
             }
         }
-    }, [activeTransitionVideo, pendingMove, onMidpoint, onMidpointAction, actions]);
+    }, [activeTransitionVideo, pendingMove, onMidpointAction, actions]);
 
     const resetTransition = useCallback(() => {
-        if (onCompleteAction) {
-            onCompleteAction.fn();
-        }
+        const completeFn = onCompleteAction?.fn;
+
+        triggerShutter(() => {
+            if (completeFn) completeFn();
+            setPendingMove(null);
+        });
+
         setActiveTransitionVideo(null);
         setActiveTransitionVolume(0.4);
-        setOnCompleteAction(null);
         setOnMidpointAction(null);
+        setOnCompleteAction(null);
         midpointReachedRef.current = false;
-        triggerShutter();
     }, [triggerShutter, onCompleteAction]);
 
     const perceivedRoomId = useGameStore(state => state.gameState.perceivedRoomId);
@@ -119,6 +129,7 @@ export const useTransition = ({
         startTransition,
         handleVideoTimeUpdate,
         resetTransition,
-        triggerShutter
+        triggerShutter,
+        visibleRoom
     };
 };

@@ -40,7 +40,6 @@ export type GameState = {
   defense: number;
   mapOverrideRoomId?: string;
   latestDrop: { itemId: string; timestamp: number } | null;
-  hasInspected: boolean;
   isEnemyRevealed: boolean;
   recentDropId: string | null;
   isDropAnimating: boolean;
@@ -241,7 +240,6 @@ export type GameAction =
   | { type: "SET_COMBAT_RIPOSTE"; canRiposte: boolean }
   | { type: "UPDATE_MAP_POSITION"; roomId: string }
   | { type: "SET_ENEMY_REVEALED"; revealed: boolean }
-  | { type: "SET_HAS_INSPECTED"; inspected: boolean }
   | { type: "SET_DROP_ANIMATING"; itemId: string }
   | { type: "CLEAR_DROP_ANIMATION" }
   | { type: "CLEAR_UNLOCK_HIGHLIGHT" }

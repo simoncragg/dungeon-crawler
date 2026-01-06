@@ -36,17 +36,13 @@ export const useMovement = ({
     startTransition,
     handleVideoTimeUpdate,
     resetTransition,
-    triggerShutter
+    triggerShutter,
+    visibleRoom
   } = useTransition({
     currentRoom,
     rooms: gameState.rooms,
     feedback: gameState.feedback || { message: null },
     isWalking,
-    onMidpoint: () => {
-      if (pendingMove) {
-        actions.updateMapPosition(pendingMove.nextRoomId);
-      }
-    }
   });
 
   const stopWalking = useCallback(() => {
@@ -124,8 +120,14 @@ export const useMovement = ({
     const transitionVideo = currentRoom.transitionVideos?.[direction];
 
     if (transitionVideo) {
-      triggerShutter();
-      startTransition(transitionVideo, nextRoomId!);
+      triggerShutter(() => {
+        startTransition(
+          transitionVideo,
+          nextRoomId!,
+          undefined,
+          () => actions.updateMapPosition(nextRoomId!)
+        );
+      });
       startWalking(direction, true);
     } else {
       const isFleeing = !!currentRoom.enemy;
@@ -133,9 +135,12 @@ export const useMovement = ({
       const stepInterval = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_INTERVAL : MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL;
 
       performStandardMoveSteps(direction, stepCount, 300, stepInterval, () => {
-        actions.move(nextRoomId!);
-        actions.setPerceivedRoomId(nextRoomId!);
-        processRoomEntry(nextRoomId!);
+        triggerShutter(() => {
+          actions.move(nextRoomId!);
+          actions.setPerceivedRoomId(nextRoomId!);
+          actions.updateMapPosition(nextRoomId!);
+          processRoomEntry(nextRoomId!);
+        });
       });
     }
   }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, actions, processRoomEntry, triggerShutter]);
@@ -163,6 +168,7 @@ export const useMovement = ({
     handleVideoTimeUpdate,
     startTransition,
     triggerShutter,
-    pendingMove
+    pendingMove,
+    visibleRoom
   };
 };

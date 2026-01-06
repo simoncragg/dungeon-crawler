@@ -27,7 +27,6 @@ export const INITIAL_STATE: GameState = {
   attack: 5,
   defense: 0,
   latestDrop: null,
-  hasInspected: false,
   isEnemyRevealed: false,
   recentDropId: null,
   isDropAnimating: false,

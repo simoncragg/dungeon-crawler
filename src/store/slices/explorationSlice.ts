@@ -7,7 +7,6 @@ export type ExplorationSlice = Pick<GameStore["actions"],
     | "unlockDoor"
     | "setRoomAudio"
     | "clearUnlockHighlight"
-    | "setHasInspected"
 >;
 
 export const createExplorationSlice: StateCreator<GameStore, [], [], ExplorationSlice> = (set) => ({
@@ -18,7 +17,6 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
             mapOverrideRoomId: undefined,
             visitedRooms: Array.from(new Set([...state.gameState.visitedRooms, nextRoomId])),
             feedback: null,
-            hasInspected: false,
             isEnemyRevealed: false,
             recentDropId: null,
             isDropAnimating: false,
@@ -90,9 +88,5 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
 
     clearUnlockHighlight: () => set((state) => ({
         gameState: { ...state.gameState, unlockedDirection: null }
-    })),
-
-    setHasInspected: (inspected) => set((state) => ({
-        gameState: { ...state.gameState, hasInspected: inspected }
     })),
 });

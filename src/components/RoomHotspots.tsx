@@ -7,7 +7,6 @@ interface RoomHotspotsProps {
   onHotspotClick: (hotspot: Hotspot) => void;
   disabled?: boolean;
   debug?: boolean;
-  itemsRevealed?: boolean;
   isTransitioning?: boolean;
   recentDropId?: string | null;
   isDropAnimating?: boolean;
@@ -30,7 +29,6 @@ export default function RoomHotspots({
   onHotspotClick,
   disabled,
   debug,
-  itemsRevealed,
   isTransitioning,
   recentDropId,
   isDropAnimating,
@@ -40,11 +38,8 @@ export default function RoomHotspots({
 }: RoomHotspotsProps) {
   if (!hotspots || hotspots.length === 0) return null;
 
-  const fadeClass = isTransitioning ? "duration-500" : "duration-300";
-  const animationClass = isTransitioning ? "animate-hotspot-fade" : "";
-
   return (
-    <div className={`absolute inset-0 z-10 transition-opacity ${fadeClass} ${disabled && !isTransitioning && !debug ? "pointer-events-none opacity-0" : "pointer-events-auto opacity-100"}`}>
+    <div className={`absolute inset-0 z-10 ${disabled && !isTransitioning && !debug ? "pointer-events-none opacity-0" : "pointer-events-auto opacity-100"}`}>
       {hotspots.map((hotspot) => {
         const displayLabel = getHotspotLabel(hotspot);
         const isItem = hotspot.type === "item";
@@ -77,7 +72,7 @@ export default function RoomHotspots({
           <button
             key={isItem ? hotspot.itemId : hotspot.direction}
             onClick={() => onHotspotClick(hotspot)}
-            className={`absolute group transition-all ${animationClass} ${itemAnimClass} ${debug ? "border-2 border-dashed border-emerald-500/50 bg-emerald-500/10" : "border-none"} ${isItem && !itemsRevealed && !debug && !isRecentDropId ? "pointer-events-none" : ""}`}
+            className={`absolute group ${itemAnimClass} ${debug ? "border-2 border-dashed border-emerald-500/50 bg-emerald-500/10" : "border-none"}`}
             style={{
               top: hotspot.top,
               left: hotspot.left,
@@ -102,13 +97,12 @@ export default function RoomHotspots({
           >
             {item?.image && (
               <div
-                className={`w-full h-full ${itemsRevealed || isRecentDropId ? "opacity-100 scale-100 blur-none" : "opacity-0 scale-95 blur-sm"} 
+                className={`w-full h-full opacity-100 scale-100 blur-none 
                 ${isDropAnimating && isRecentDropId ? "transition-all duration-200" : "transition-none"}`}
                 style={
                   {
-                    pointerEvents: (itemsRevealed || isRecentDropId) && !isTransitioning ? "auto" : "none",
-                    opacity: isTransitioning ? 0 : undefined,
-                    transition: isTransitioning ? "none" : undefined,
+                    pointerEvents: !isTransitioning ? "auto" : "none",
+                    opacity: isTransitioning ? 0 : 1,
                     transform: `
                     ${itemHotspot?.rotation ? `rotate(${itemHotspot.rotation})` : ""}
                     ${hotspot.scale ? `scale(${hotspot.scale})` : ""}

@@ -26,7 +26,6 @@ export interface GameStore {
         unlockDoor: (direction: Direction) => void;
         setRoomAudio: (roomId: string, audioLoop: SoundAsset | undefined) => void;
         clearUnlockHighlight: () => void;
-        setHasInspected: (inspected: boolean) => void;
 
         // Combat Actions
         startCombat: () => void;

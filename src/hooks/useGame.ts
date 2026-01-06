@@ -39,19 +39,23 @@ export const useGame = () => {
 
     setTimeout(() => {
       addToLog(nextRoom.name, "room-title");
-      addToLog(nextRoom.description, "room-description");
 
-      if (nextRoom.narration?.text && gameState.isFirstVisit) {
-        addToLog(nextRoom.narration!.text!, "narration");
-      }
+      // Secondary delay for description to let the title breathe and sync with item fade-in
+      setTimeout(() => {
+        addToLog(nextRoom.description, "room-description");
 
-      if (nextRoom.enemy) {
-        const enemyName = nextRoom.enemy.name;
-        addToLog(`A ${enemyName} blocks your path!`, "danger");
-        actions.setEnemyRevealed(true);
-        actions.setQuestLogOpen(false);
-        playSoundFile("danger.mp3");
-      }
+        if (nextRoom.narration?.text && gameState.isFirstVisit) {
+          addToLog(nextRoom.narration!.text!, "narration");
+        }
+
+        if (nextRoom.enemy) {
+          const enemyName = nextRoom.enemy.name;
+          addToLog(`A ${enemyName} blocks your path!`, "danger");
+          actions.setEnemyRevealed(true);
+          actions.setQuestLogOpen(false);
+          playSoundFile("danger.mp3");
+        }
+      }, 400);
     }, 800);
   }, [gameState.rooms, gameState.isFirstVisit, addToLog, playSoundFile, actions]);
 
@@ -155,32 +159,14 @@ export const useGame = () => {
     }
   }, [currentRoom.videoLoop?.path, currentRoom.videoLoop?.volume]);
 
-  const inspectRoom = () => {
-    movement.triggerShutter(() => {
-      actions.setHasInspected(true);
-    });
 
-    const room = gameState.rooms[gameState.currentRoomId];
-    let desc = "You scan the area.";
-    if (room.items.length > 0) {
-      const itemNames = room.items.map((id: string) => ITEMS[id].name).join(", ");
-      desc += ` You see: ${itemNames}.`;
-    } else {
-      desc += " You don't see anything useful here.";
-    }
-
-    if (room.enemy) {
-      desc += ` WARNING: A ${room.enemy.name} is here!`;
-    }
-    addToLog(desc, "info");
-  };
+  const { visibleRoom, ...movementRest } = movement;
 
   return {
     viewingItemId,
     setViewingItemId,
     currentRoom,
-    ...movement,
-    inspectRoom,
+    ...movementRest,
     takeItem,
     dropItem,
     equipItem,
@@ -190,5 +176,6 @@ export const useGame = () => {
     handleUseItem,
     videoRef,
     handleDropOnHotspot,
+    visibleRoom
   };
 };

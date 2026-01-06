@@ -27,7 +27,6 @@ interface GameHUDProps {
 
   // Handlers that involve side-effects/orchestration
   onMove: (direction: Direction) => void;
-  onInspectRoom: () => void;
   onTakeItem: (itemId: string) => void;
   onAttack: () => void;
   onCombatAction: (action: PlayerCombatAction) => void;
@@ -41,7 +40,6 @@ export default function GameHUD({
   walkStepScale,
   sceneTitleProps,
   onMove,
-  onInspectRoom,
   onTakeItem,
   onAttack,
   onCombatAction,
@@ -99,7 +97,6 @@ export default function GameHUD({
             <ActionPanel
               currentRoom={currentRoom}
               isWalking={isWalking}
-              onInspectRoom={onInspectRoom}
               onTakeItem={onTakeItem}
               onAttack={onAttack}
             />

@@ -24,7 +24,6 @@ export default function Game() {
     walkingDirection,
     walkStepScale,
     handleMove,
-    inspectRoom,
     takeItem,
     dropItem,
     equipItem,
@@ -40,9 +39,10 @@ export default function Game() {
     isShutterActive,
     sceneTitleProps,
     handleDropOnHotspot,
+    visibleRoom
   } = useGame();
 
-  const { isEnemyRevealed, hasInspected, feedback, isDropAnimating, recentDropId } = gameState;
+  const { isEnemyRevealed, feedback, isDropAnimating, recentDropId } = gameState;
   const inCombat = gameState.combat?.inCombat;
   const isShakeEffect = ["damage", "warning", "clash"].includes(feedback?.type || "");
 
@@ -96,7 +96,7 @@ export default function Game() {
       <div className="absolute inset-0 z-0 flex items-center justify-center bg-black">
         <div className="absolute inset-0 z-0">
           <img
-            src={getPreloadedUrl(currentRoom.image)}
+            src={getPreloadedUrl(visibleRoom.image)}
             alt=""
             className="w-full h-full object-cover opacity-50 blur-xl scale-110"
           />
@@ -108,20 +108,20 @@ export default function Game() {
         >
           {/* Background Video/Image */}
           <div className={`w-full h-full transition-all duration-1000 ${gameState.combat?.enemyAction === 'STAGGER' ? 'animate-ken-burns' : ''}`}>
-            {currentRoom.videoLoop ? (
+            {/* Always render the base image as a fallback/background to prevent flashes */}
+            <img
+              src={getPreloadedUrl(visibleRoom.image)}
+              alt={visibleRoom.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            {visibleRoom.videoLoop && (
               <video
                 ref={videoRef}
-                src={getPreloadedUrl(currentRoom.videoLoop.path)}
+                src={getPreloadedUrl(visibleRoom.videoLoop.path)}
                 autoPlay
                 loop
                 playsInline
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <img
-                src={getPreloadedUrl(currentRoom.image)}
-                alt={currentRoom.name}
-                className="w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
               />
             )}
 
@@ -143,17 +143,16 @@ export default function Game() {
 
           {/* Hotspots */}
           <RoomHotspots
-            hotspots={currentRoom.hotspots?.filter((h: Hotspot) => h.type === "door" || currentRoom.items.includes(h.itemId))}
+            hotspots={visibleRoom.hotspots?.filter((h: Hotspot) => h.type === "door" || visibleRoom.items.includes(h.itemId))}
             onHotspotClick={(hotspot: Hotspot) => {
               if (hotspot.type === "door") {
                 handleMove(hotspot.direction);
               }
               if (hotspot.type === "item") takeItem(hotspot.itemId);
             }}
-            disabled={isWalking || inCombat || gameState.isQuestLogOpen}
+            disabled={isWalking || isShutterActive || inCombat || gameState.isQuestLogOpen}
             debug={isDebugMode}
-            itemsRevealed={hasInspected}
-            isTransitioning={!!activeTransitionVideo}
+            isTransitioning={!!activeTransitionVideo || isShutterActive}
             recentDropId={recentDropId}
             isDropAnimating={isDropAnimating}
             isEnemyDrop={recentDropId === gameState.latestDrop?.itemId}
@@ -211,7 +210,6 @@ export default function Game() {
         walkStepScale={walkStepScale}
         sceneTitleProps={sceneTitleProps}
         onMove={handleMove}
-        onInspectRoom={inspectRoom}
         onTakeItem={takeItem}
         onAttack={startCombat}
         onCombatAction={handleCombatAction}
