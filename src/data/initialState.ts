@@ -31,5 +31,11 @@ export const INITIAL_STATE: GameState = {
   recentDropId: null,
   isDropAnimating: false,
   isFirstVisit: true,
-  unlockedDirection: null
+  unlockedDirection: null,
+  isWalking: false,
+  walkingDirection: null,
+  isShutterActive: false,
+  activeTransitionVideo: null,
+  activeTransitionVolume: 0.4,
+  isDebugMode: false
 };

@@ -1,19 +1,7 @@
+import { useGameStore } from "../store/useGameStore";
 import { ITEMS } from "../data/gameData";
 import { getPreloadedUrl } from "../utils/assetLoader";
-import type { Hotspot, ItemHotspot } from "../types";
-
-interface RoomHotspotsProps {
-  hotspots?: Hotspot[];
-  onHotspotClick: (hotspot: Hotspot) => void;
-  disabled?: boolean;
-  debug?: boolean;
-  isTransitioning?: boolean;
-  recentDropId?: string | null;
-  isDropAnimating?: boolean;
-  isEnemyDrop?: boolean;
-  unlockedDirection?: string | null;
-  onDropOnHotspot?: (e: React.DragEvent, hotspot: Hotspot) => void;
-}
+import type { Hotspot, ItemHotspot, Direction } from "../types";
 
 const getHotspotLabel = (hotspot: Hotspot): string | undefined => {
   switch (hotspot.type) {
@@ -24,18 +12,42 @@ const getHotspotLabel = (hotspot: Hotspot): string | undefined => {
   }
 };
 
+interface RoomHotspotsProps {
+  handleMove: (dir: Direction) => void;
+  takeItem: (id: string) => void;
+  handleDropOnHotspot: (e: React.DragEvent, hotspot: Hotspot) => void;
+}
+
 export default function RoomHotspots({
-  hotspots,
-  onHotspotClick,
-  disabled,
-  debug,
-  isTransitioning,
-  recentDropId,
-  isDropAnimating,
-  isEnemyDrop,
-  unlockedDirection,
-  onDropOnHotspot
+  handleMove,
+  takeItem,
+  handleDropOnHotspot
 }: RoomHotspotsProps) {
+  const { gameState } = useGameStore();
+  const {
+    rooms,
+    currentRoomId,
+    perceivedRoomId,
+    isWalking,
+    isShutterActive,
+    activeTransitionVideo,
+    isDebugMode: debug,
+    recentDropId,
+    isDropAnimating,
+    latestDrop,
+    unlockedDirection,
+    isQuestLogOpen,
+    combat
+  } = gameState;
+
+  const visibleRoom = rooms[perceivedRoomId] || rooms[currentRoomId];
+
+  const inCombat = combat?.inCombat;
+  const hotspots = visibleRoom.hotspots?.filter((h: Hotspot) => h.type === "door" || visibleRoom.items.includes(h.itemId));
+  const disabled = isWalking || isShutterActive || inCombat || isQuestLogOpen;
+  const isTransitioning = !!activeTransitionVideo || isShutterActive;
+  const isEnemyDrop = recentDropId === latestDrop?.itemId;
+
   if (!hotspots || hotspots.length === 0) return null;
 
   return (
@@ -71,7 +83,12 @@ export default function RoomHotspots({
         return (
           <button
             key={isItem ? hotspot.itemId : hotspot.direction}
-            onClick={() => onHotspotClick(hotspot)}
+            onClick={() => {
+              if (hotspot.type === "door") {
+                handleMove(hotspot.direction);
+              }
+              if (hotspot.type === "item") takeItem(hotspot.itemId);
+            }}
             className={`absolute group ${itemAnimClass} ${debug ? "border-2 border-dashed border-emerald-500/50 bg-emerald-500/10" : "border-none"}`}
             style={{
               top: hotspot.top,
@@ -91,7 +108,7 @@ export default function RoomHotspots({
             onDrop={(e) => {
               if (hotspot.type === "door") {
                 e.preventDefault();
-                onDropOnHotspot?.(e, hotspot);
+                handleDropOnHotspot?.(e, hotspot);
               }
             }}
           >

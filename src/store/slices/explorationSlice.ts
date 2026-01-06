@@ -7,6 +7,11 @@ export type ExplorationSlice = Pick<GameStore["actions"],
     | "unlockDoor"
     | "setRoomAudio"
     | "clearUnlockHighlight"
+    | "setWalking"
+    | "setWalkingDirection"
+    | "setShutter"
+    | "setTransitionVideo"
+    | "setDebugMode"
 >;
 
 export const createExplorationSlice: StateCreator<GameStore, [], [], ExplorationSlice> = (set) => ({
@@ -34,9 +39,9 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
     unlockDoor: (direction) => set((state) => {
         const newRooms = { ...state.gameState.rooms };
         const currentRoom = newRooms[state.gameState.currentRoomId];
+        const lockedExit = currentRoom.lockedExits?.[direction];
 
         if (currentRoom.lockedExits) {
-            const lockedExit = currentRoom.lockedExits[direction];
             const newLockedExits = { ...currentRoom.lockedExits };
             delete newLockedExits[direction];
 
@@ -88,5 +93,24 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
 
     clearUnlockHighlight: () => set((state) => ({
         gameState: { ...state.gameState, unlockedDirection: null }
+    })),
+    setWalking: (isWalking) => set((state) => ({
+        gameState: { ...state.gameState, isWalking }
+    })),
+    setWalkingDirection: (direction) => set((state) => ({
+        gameState: { ...state.gameState, walkingDirection: direction }
+    })),
+    setShutter: (active) => set((state) => ({
+        gameState: { ...state.gameState, isShutterActive: active }
+    })),
+    setTransitionVideo: (video, volume) => set((state) => ({
+        gameState: {
+            ...state.gameState,
+            activeTransitionVideo: video,
+            activeTransitionVolume: volume ?? 0.4
+        }
+    })),
+    setDebugMode: (enabled) => set((state) => ({
+        gameState: { ...state.gameState, isDebugMode: enabled }
     })),
 });

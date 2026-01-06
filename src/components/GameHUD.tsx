@@ -1,4 +1,3 @@
-import type { Direction, PlayerCombatAction } from "../types";
 import { useGameStore } from "../store/useGameStore";
 import { BookOpen } from "lucide-react";
 import SceneTitle from "./SceneTitle";
@@ -12,39 +11,27 @@ import PlayerStats from "./PlayerStats";
 import FeedbackOverlay from "./FeedbackOverlay";
 import CombatOverlay from "./CombatOverlay";
 
-interface SceneTitleProps {
-  id: string;
-  title: string;
-  forceHide?: boolean;
-}
+import { useMediaQuery } from "../hooks/useMediaQuery";
+import type { PlayerCombatAction, Direction } from "../types";
 
 interface GameHUDProps {
-  isWideScreen: boolean;
-  isWalking: boolean;
-  walkingDirection: Direction | null;
-  walkStepScale: number;
-  sceneTitleProps: SceneTitleProps;
-
-  // Handlers that involve side-effects/orchestration
-  onMove: (direction: Direction) => void;
-  onTakeItem: (itemId: string) => void;
+  onMove: (dir: Direction) => void;
+  onTakeItem: (id: string) => void;
   onAttack: () => void;
   onCombatAction: (action: PlayerCombatAction) => void;
   setViewingItemId: (id: string | null) => void;
+  sceneTitleProps: { id: string; title: string; forceHide: boolean };
 }
 
 export default function GameHUD({
-  isWideScreen,
-  isWalking,
-  walkingDirection,
-  walkStepScale,
-  sceneTitleProps,
   onMove,
   onTakeItem,
   onAttack,
   onCombatAction,
   setViewingItemId,
+  sceneTitleProps
 }: GameHUDProps) {
+  const isWideScreen = useMediaQuery('(min-aspect-ratio: 16/9)');
   const { gameState, actions } = useGameStore();
 
   const currentRoom = gameState.rooms[gameState.currentRoomId];
@@ -83,23 +70,12 @@ export default function GameHUD({
 
           {/* Direction Pad */}
           <div className="absolute bottom-12 left-8 w-32 h-32 pointer-events-auto">
-            <DirectionPad
-              currentRoom={currentRoom}
-              isWalking={isWalking}
-              facingDirection={walkingDirection || currentRoom.facing}
-              walkStepScale={walkStepScale}
-              onMove={onMove}
-            />
+            <DirectionPad onMove={onMove} />
           </div>
 
           {/* Action Panel */}
           <div className="absolute top-8 right-4 w-64 pointer-events-auto">
-            <ActionPanel
-              currentRoom={currentRoom}
-              isWalking={isWalking}
-              onTakeItem={onTakeItem}
-              onAttack={onAttack}
-            />
+            <ActionPanel onTakeItem={onTakeItem} onAttack={onAttack} />
           </div>
 
           {/* Inventory / Equipped */}

@@ -45,6 +45,12 @@ export type GameState = {
   isDropAnimating: boolean;
   isFirstVisit: boolean;
   unlockedDirection: Direction | null;
+  isWalking: boolean;
+  walkingDirection: Direction | null;
+  isShutterActive: boolean;
+  activeTransitionVideo: string | null;
+  activeTransitionVolume: number;
+  isDebugMode: boolean;
 };
 
 export type WeaponOverlayConfig = {
@@ -246,3 +252,7 @@ export type GameAction =
   | { type: "SET_ROOM_AUDIO"; roomId: string; audioLoop: SoundAsset | null }
   | { type: "REORDER_INVENTORY"; fromIndex: number; toIndex: number }
   | { type: "CONSUME_ITEM"; itemId: string }
+  | { type: "SET_WALKING"; isWalking: boolean }
+  | { type: "SET_SHUTTER"; active: boolean }
+  | { type: "SET_TRANSITION_VIDEO"; video: string | null; volume?: number }
+  | { type: "SET_DEBUG_MODE"; enabled: boolean }

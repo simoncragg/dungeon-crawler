@@ -1,6 +1,4 @@
-import { useRef, useEffect, useState } from "react";
-
-import type { Hotspot } from "../types";
+import { useRef, useEffect } from "react";
 
 import GameHUD from "./GameHUD";
 import ItemModal from "./ItemModal";
@@ -11,7 +9,6 @@ import WeaponOverlay from "./WeaponOverlay";
 
 import { useGame } from "../hooks/useGame";
 import { useGameStore } from "../store/useGameStore";
-import { useMediaQuery } from "../hooks/useMediaQuery";
 import { getPreloadedUrl } from "../utils/assetLoader";
 
 export default function Game() {
@@ -21,28 +18,26 @@ export default function Game() {
     setViewingItemId,
     currentRoom,
     isWalking,
-    walkingDirection,
-    walkStepScale,
     handleMove,
     takeItem,
     dropItem,
     equipItem,
     unequipItem,
+    handleUseItem,
     startCombat,
     handleCombatAction,
-    handleUseItem,
     videoRef,
     activeTransitionVideo,
     activeTransitionVolume,
     handleTransitionEnd,
     handleVideoTimeUpdate,
     isShutterActive,
-    sceneTitleProps,
     handleDropOnHotspot,
-    visibleRoom
+    visibleRoom,
+    sceneTitleProps
   } = useGame();
 
-  const { isEnemyRevealed, feedback, isDropAnimating, recentDropId } = gameState;
+  const { isEnemyRevealed, feedback } = gameState;
   const inCombat = gameState.combat?.inCombat;
   const isShakeEffect = ["damage", "warning", "clash"].includes(feedback?.type || "");
 
@@ -68,20 +63,16 @@ export default function Game() {
   }, [activeTransitionVolume, activeTransitionVideo]);
 
 
-  const [isDebugMode, setIsDebugMode] = useState(false);
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === 'd') {
-        setIsDebugMode((prev: boolean) => !prev);
+        actions.setDebugMode(!gameState.isDebugMode);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  const isWideScreen = useMediaQuery('(min-aspect-ratio: 16/9)');
+  }, [gameState.isDebugMode, actions]);
 
   return (
     <div
@@ -143,21 +134,9 @@ export default function Game() {
 
           {/* Hotspots */}
           <RoomHotspots
-            hotspots={visibleRoom.hotspots?.filter((h: Hotspot) => h.type === "door" || visibleRoom.items.includes(h.itemId))}
-            onHotspotClick={(hotspot: Hotspot) => {
-              if (hotspot.type === "door") {
-                handleMove(hotspot.direction);
-              }
-              if (hotspot.type === "item") takeItem(hotspot.itemId);
-            }}
-            disabled={isWalking || isShutterActive || inCombat || gameState.isQuestLogOpen}
-            debug={isDebugMode}
-            isTransitioning={!!activeTransitionVideo || isShutterActive}
-            recentDropId={recentDropId}
-            isDropAnimating={isDropAnimating}
-            isEnemyDrop={recentDropId === gameState.latestDrop?.itemId}
-            unlockedDirection={gameState.unlockedDirection}
-            onDropOnHotspot={handleDropOnHotspot}
+            handleMove={handleMove}
+            takeItem={takeItem}
+            handleDropOnHotspot={handleDropOnHotspot}
           />
 
           {/* Enemy Sprite */}
@@ -202,21 +181,15 @@ export default function Game() {
         </div>
       </div>
 
-      {/* --- HUD LAYER (UI & Controls) --- */}
       <GameHUD
-        isWideScreen={isWideScreen}
-        isWalking={isWalking}
-        walkingDirection={walkingDirection || null}
-        walkStepScale={walkStepScale}
-        sceneTitleProps={sceneTitleProps}
         onMove={handleMove}
         onTakeItem={takeItem}
         onAttack={startCombat}
         onCombatAction={handleCombatAction}
         setViewingItemId={setViewingItemId}
+        sceneTitleProps={sceneTitleProps}
       />
 
-      {/* --- MODALS (Global Overlay) --- */}
       {
         viewingItemId && (
           <ItemModal

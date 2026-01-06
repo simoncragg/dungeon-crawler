@@ -2,41 +2,34 @@ import React from "react";
 import { Eye, EyeClosed, Sword } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import type { Room } from "../types";
-import ActionButton from "./ActionButton";
 import { ITEMS } from "../data/gameData";
 import { useGameStore } from "../store/useGameStore";
+import type { Hotspot } from "../types";
+import ActionButton from "./ActionButton";
 import ActionIcon from "./ActionIcon";
 
 interface ActionPanelProps {
-  currentRoom: Room;
-  isWalking: boolean;
   onTakeItem: (itemId: string) => void;
   onAttack: () => void;
 }
 
-const ActionPanel: React.FC<ActionPanelProps> = ({
-  currentRoom,
-  isWalking,
-  onTakeItem,
-  onAttack,
-}) => {
-  const { isEnemyRevealed, isDropAnimating } = useGameStore(state => state.gameState);
+const ActionPanel: React.FC<ActionPanelProps> = ({ onTakeItem, onAttack }) => {
+  const { gameState } = useGameStore();
+  const { rooms, currentRoomId, perceivedRoomId, isWalking, isEnemyRevealed, isDropAnimating } = gameState;
+  const currentRoom = rooms[perceivedRoomId] || rooms[currentRoomId];
+
   const [isGrabMenuOpen, setIsGrabMenuOpen] = React.useState(false);
 
-  // Sync menu state with drop animations
   React.useEffect(() => {
     if (isDropAnimating) setIsGrabMenuOpen(true);
   }, [isDropAnimating]);
 
   const handleInspect = () => {
-    // No longer triggers a blink, just toggles the manual list
     setIsGrabMenuOpen(!isGrabMenuOpen);
   };
 
-  // Identify non-native items (those without a hotspot)
-  const nonNativeItems = currentRoom.items.filter(itemId =>
-    !currentRoom.hotspots?.some(h => h.type === "item" && h.itemId === itemId)
+  const nonNativeItems = currentRoom.items.filter((itemId: string) =>
+    !currentRoom.hotspots?.some((h: Hotspot) => h.type === "item" && h.itemId === itemId)
   );
 
   const showEye = nonNativeItems.length > 0;
@@ -70,7 +63,7 @@ const ActionPanel: React.FC<ActionPanelProps> = ({
 
             {isGrabMenuOpen && (
               <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-6 py-4">
-                {nonNativeItems.map((itemId, idx) => {
+                {nonNativeItems.map((itemId: string, idx: number) => {
                   const item = ITEMS[itemId];
                   const slotScale = item.slotStyle?.scale ?? 1;
                   const slotRotation = item.slotStyle?.rotation ?? "0deg";
@@ -85,7 +78,7 @@ const ActionPanel: React.FC<ActionPanelProps> = ({
                       className="size-14 group relative flex items-center justify-center animate-spin-out opacity-0 will-change-transform"
                       style={{ animationDelay: `${idx * 150}ms` }}
                     >
-                      {/* Supernatural Aura */}
+                      {/* Aura */}
                       <div className="absolute inset-0 bg-amber-500/10 blur-xl rounded-full opacity-40 group-hover:opacity-100 group-hover:bg-amber-400/20 group-hover:scale-150 transition-all duration-700 ease-out pointer-events-none" />
 
                       <div

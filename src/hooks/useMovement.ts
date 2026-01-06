@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useRef, useCallback } from "react";
 import type { Direction, LogEntry } from "../types";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 import { useTransition } from "./useTransition";
@@ -21,9 +21,7 @@ export const useMovement = ({
   const addToLog = useCallback((text: string, type?: LogEntry["type"]) => actions.addLog(text, type), [actions]);
 
   const { playShuffleSound } = useSoundFx();
-  const [isWalking, setIsWalking] = useState(false);
-  const [walkingDirection, setWalkingDirection] = useState<Direction | null>(null);
-  const [walkStepScale, setWalkStepScale] = useState(1);
+  const { isWalking, walkingDirection } = gameState;
 
   const walkingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -50,17 +48,15 @@ export const useMovement = ({
       clearTimeout(walkingTimerRef.current);
       walkingTimerRef.current = null;
     }
-    setIsWalking(false);
-    setWalkingDirection(null);
-    setWalkStepScale(1);
-  }, []);
+    actions.setWalking(false);
+    actions.setWalkingDirection(null);
+  }, [actions]);
 
   const startWalking = useCallback((direction: Direction, shouldMute: boolean = false) => {
     stopWalking();
-    setIsWalking(true);
-    setWalkingDirection(direction);
+    actions.setWalking(true);
+    actions.setWalkingDirection(direction);
 
-    let stepCounter = 0;
     const baseInterval = MOVEMENT_SETTINGS.TRANSITION_BASE_INTERVAL;
 
     const scheduleNextStep = () => {
@@ -68,26 +64,23 @@ export const useMovement = ({
       const nextDelay = baseInterval + variance;
 
       walkingTimerRef.current = setTimeout(() => {
-        setWalkStepScale(stepCounter % 2 === 0 ? -1 : 1);
         if (!shouldMute) {
           playShuffleSound();
         }
-        stepCounter++;
         scheduleNextStep();
       }, nextDelay);
     };
 
     scheduleNextStep();
-  }, [playShuffleSound, stopWalking]);
+  }, [playShuffleSound, stopWalking, actions]);
 
   const performStandardMoveSteps = useCallback((direction: Direction, stepCount: number, startDelay: number, stepInterval: number, onComplete: () => void) => {
     stopWalking();
-    setIsWalking(true);
-    setWalkingDirection(direction);
+    actions.setWalking(true);
+    actions.setWalkingDirection(direction);
 
     for (let i = 0; i < stepCount; i++) {
       setTimeout(() => {
-        setWalkStepScale(i % 2 === 0 ? -1 : 1);
         playShuffleSound();
       }, startDelay + (i * stepInterval));
     }
@@ -96,7 +89,7 @@ export const useMovement = ({
       stopWalking();
       onComplete();
     }, startDelay + (stepCount * stepInterval));
-  }, [playShuffleSound, stopWalking]);
+  }, [playShuffleSound, stopWalking, actions]);
 
   const handleMove = useCallback((direction: Direction) => {
     const nextRoomId = currentRoom.exits[direction];
@@ -158,7 +151,6 @@ export const useMovement = ({
   return {
     isWalking,
     walkingDirection,
-    walkStepScale,
     activeTransitionVideo,
     activeTransitionVolume,
     isShutterActive,

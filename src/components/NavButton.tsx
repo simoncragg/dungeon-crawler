@@ -1,15 +1,17 @@
-
-import type { Room, Direction } from "../types";
+import { useGameStore } from "../store/useGameStore";
+import type { Direction } from "../types";
 
 interface NavButtonProps {
   direction: Direction;
-  currentRoom: Room;
-  isWalking: boolean;
   onMove: (dir: Direction) => void;
 }
 
-const NavButton = ({ direction, currentRoom, isWalking, onMove }: NavButtonProps) => {
+const NavButton = ({ direction, onMove }: NavButtonProps) => {
+  const { gameState } = useGameStore();
+  const { rooms, currentRoomId, perceivedRoomId, isWalking } = gameState;
+  const currentRoom = rooms[perceivedRoomId] || rooms[currentRoomId];
   const isAvailable = !!currentRoom.exits[direction] && !isWalking;
+
   return (
     <button
       onClick={() => onMove(direction)}

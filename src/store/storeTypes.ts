@@ -19,6 +19,8 @@ export interface GameStore {
         reorderInventory: (fromIndex: number, toIndex: number) => void;
         consumeItem: (itemId: string) => void;
         useConsumable: (itemId: string, effect: (state: GameState) => Partial<GameState>, logMessage: string) => void;
+        clearDropAnimation: () => void;
+        setDropAnimating: (itemId: string) => void;
 
         // Exploration Actions
         move: (nextRoomId: string) => void;
@@ -26,6 +28,11 @@ export interface GameStore {
         unlockDoor: (direction: Direction) => void;
         setRoomAudio: (roomId: string, audioLoop: SoundAsset | undefined) => void;
         clearUnlockHighlight: () => void;
+        setWalking: (isWalking: boolean) => void;
+        setWalkingDirection: (direction: Direction | null) => void;
+        setShutter: (active: boolean) => void;
+        setTransitionVideo: (video: string | null, volume?: number) => void;
+        setDebugMode: (enabled: boolean) => void;
 
         // Combat Actions
         startCombat: () => void;
@@ -45,8 +52,5 @@ export interface GameStore {
         setQuestLog: (log: LogEntry[]) => void;
         setPerceivedRoomId: (roomId: string) => void;
 
-        // Inventory Actions (Additional)
-        clearDropAnimation: () => void;
-        setDropAnimating: (itemId: string) => void;
     };
 }

@@ -1,31 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useGameStore } from "../store/useGameStore";
 import { Footprints } from "lucide-react";
 
-import type { Room, Direction } from "../types";
+import type { Direction } from "../types";
 import NavButton from "./NavButton";
 
 interface DirectionPadProps {
-  currentRoom: Room;
-  isWalking: boolean;
-  facingDirection: Direction;
-  walkStepScale: number;
   onMove: (direction: Direction) => void;
 }
 
-const DirectionPad: React.FC<DirectionPadProps> = ({
-  currentRoom,
-  isWalking,
-  facingDirection,
-  walkStepScale,
-  onMove,
-}) => {
+const DirectionPad: React.FC<DirectionPadProps> = ({ onMove }) => {
+  const { gameState } = useGameStore();
+  const {
+    rooms,
+    currentRoomId,
+    perceivedRoomId,
+    walkingDirection,
+    isWalking
+  } = gameState;
+
+  const [walkStepScale, setWalkStepScale] = useState(1);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isWalking) {
+      interval = setInterval(() => {
+        setWalkStepScale(s => s * -1);
+      }, 300);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+      setWalkStepScale(1);
+    };
+  }, [isWalking]);
+
+  const currentRoom = rooms[perceivedRoomId] || rooms[currentRoomId];
+  const facingDirection = walkingDirection || currentRoom.facing;
+
   const renderNavButton = (direction: Direction) => (
-    <NavButton
-      direction={direction}
-      currentRoom={currentRoom}
-      isWalking={isWalking}
-      onMove={onMove}
-    />
+    <NavButton direction={direction} onMove={onMove} />
   );
 
   return (
