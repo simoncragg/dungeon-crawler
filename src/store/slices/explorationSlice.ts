@@ -94,15 +94,19 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
     clearUnlockHighlight: () => set((state) => ({
         gameState: { ...state.gameState, unlockedDirection: null }
     })),
+
     setWalking: (isWalking) => set((state) => ({
         gameState: { ...state.gameState, isWalking }
     })),
+
     setWalkingDirection: (direction) => set((state) => ({
         gameState: { ...state.gameState, walkingDirection: direction }
     })),
+
     setShutter: (active) => set((state) => ({
         gameState: { ...state.gameState, isShutterActive: active }
     })),
+
     setTransitionVideo: (video, volume) => set((state) => ({
         gameState: {
             ...state.gameState,
@@ -110,6 +114,7 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
             activeTransitionVolume: volume ?? 0.4
         }
     })),
+
     setDebugMode: (enabled) => set((state) => ({
         gameState: { ...state.gameState, isDebugMode: enabled }
     })),
