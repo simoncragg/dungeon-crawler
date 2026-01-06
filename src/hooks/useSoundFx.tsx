@@ -1,5 +1,6 @@
 import { getAudioContext, getBuffer, setBuffer, decodeAudioData } from "../utils/audioSystem";
 import type { SoundAsset } from "../types";
+import { AUDIO_SETTINGS, MOVEMENT_SETTINGS } from "../data/constants";
 
 const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => {
   const existing = getBuffer(key);
@@ -106,7 +107,7 @@ let currentAmbient: AmbientTrack | null = null;
 const playAmbientLoop = async (audioLoop: SoundAsset | null, fadeDuration: number | null = null) => {
   if (currentAmbient?.url === audioLoop?.path && !currentAmbient?.isFadingOut) return;
 
-  const crossFadeDuration = fadeDuration ?? 1.0;
+  const crossFadeDuration = fadeDuration ?? MOVEMENT_SETTINGS.TRANSITION_CROSSFADE_DURATION;
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -120,7 +121,7 @@ const playAmbientLoop = async (audioLoop: SoundAsset | null, fadeDuration: numbe
     return;
   }
 
-  const targetVolume = audioLoop.volume ?? 0.3;
+  const targetVolume = audioLoop.volume ?? AUDIO_SETTINGS.DEFAULT_AMBIENT_VOLUME;
   const startVolume = crossFadeDuration > 0 ? 0 : targetVolume;
   const result = await playAudioFromUrl(audioLoop.path, startVolume, true);
 
@@ -164,7 +165,7 @@ const fadeOutAmbientLoop = (track: AmbientTrack, duration: number, ctx: AudioCon
   }
 };
 
-const playNarration = (url: string, volume: number = 1.0, onEnded?: () => void) => {
+const playNarration = (url: string, volume: number = AUDIO_SETTINGS.DEFAULT_NARRATION_VOLUME, onEnded?: () => void) => {
   let sourceNode: AudioBufferSourceNode | null = null;
   let isCancelled = false;
 
@@ -204,12 +205,12 @@ const playNarration = (url: string, volume: number = 1.0, onEnded?: () => void) 
   };
 };
 
-const playSoundFile = (audioAsset: string | SoundAsset, volume: number = 0.5) => {
+const playSoundFile = (audioAsset: string | SoundAsset, volume: number = AUDIO_SETTINGS.DEFAULT_SFX_VOLUME) => {
   let source: AudioBufferSourceNode | null = null;
   let isCancelled = false;
 
   const path = typeof audioAsset === "string" ? `/audio/${audioAsset}` : audioAsset.path;
-  const finalVolume = typeof audioAsset === "string" ? volume : (audioAsset.volume ?? 0.5);
+  const finalVolume = typeof audioAsset === "string" ? volume : (audioAsset.volume ?? AUDIO_SETTINGS.DEFAULT_SFX_VOLUME);
 
   playAudioFromUrl(path, finalVolume).then((result) => {
     if (isCancelled) {

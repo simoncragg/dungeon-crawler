@@ -3,6 +3,7 @@ import { useState, useCallback, useRef } from "react";
 import type { Room, SoundAsset } from "../types";
 import { shouldHideSceneTitle } from "../utils/transitionUtils";
 import { useGameStore } from "../store/useGameStore";
+import { SHUTTER_SETTINGS, TRANSITION_SETTINGS } from "../data/constants";
 
 interface UseTransitionProps {
     currentRoom: Room;
@@ -27,13 +28,13 @@ export const useTransition = ({
 
     const triggerShutter = useCallback((onShut: () => void) => {
         actions.setShutter(true);
-        setTimeout(() => onShut(), 200);
-        setTimeout(() => actions.setShutter(false), 400);
+        setTimeout(() => onShut(), SHUTTER_SETTINGS.MIDPOINT);
+        setTimeout(() => actions.setShutter(false), SHUTTER_SETTINGS.DURATION);
     }, [actions]);
 
     const startTransition = useCallback((video: string | SoundAsset, nextRoomId?: string, onEyesOpen?: () => void, onEyesShut?: () => void) => {
         const path = typeof video === 'string' ? video : video.path;
-        const volume = typeof video === 'string' ? 0.4 : (video.volume ?? 0.4);
+        const volume = typeof video === 'string' ? TRANSITION_SETTINGS.DEFAULT_VOLUME : (video.volume ?? TRANSITION_SETTINGS.DEFAULT_VOLUME);
 
         actions.setTransitionVideo(path, volume);
         setPendingMove(nextRoomId ? { nextRoomId } : null);
@@ -79,7 +80,7 @@ export const useTransition = ({
         }
 
         const timeLeft = video.duration - video.currentTime;
-        if (timeLeft <= 0.2) {
+        if (timeLeft <= TRANSITION_SETTINGS.VIDEO_END_THRESHOLD) {
             resetTransition();
         }
     }, [activeTransitionVideo, performCinematicReveal, resetTransition]);

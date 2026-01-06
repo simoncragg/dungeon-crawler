@@ -103,7 +103,7 @@ export const useMovement = ({
     if (isLocked) {
       const lockedExit = currentRoom.lockedExits?.[direction];
       if (lockedExit) {
-        performStandardMoveSteps(direction, MOVEMENT_SETTINGS.LOCKED_STEP_COUNT, 300, MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL, () => {
+        performStandardMoveSteps(direction, MOVEMENT_SETTINGS.LOCKED_STEP_COUNT, MOVEMENT_SETTINGS.START_DELAY, MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL, () => {
           addToLog(lockedExit.lockedMessage, "warning");
         });
       }
@@ -134,7 +134,7 @@ export const useMovement = ({
       const stepCount = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_COUNT : MOVEMENT_SETTINGS.STANDARD_STEP_COUNT;
       const stepInterval = isFleeing ? MOVEMENT_SETTINGS.FLEEING_STEP_INTERVAL : MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL;
 
-      performStandardMoveSteps(direction, stepCount, 300, stepInterval, () => {
+      performStandardMoveSteps(direction, stepCount, MOVEMENT_SETTINGS.START_DELAY, stepInterval, () => {
         triggerShutter(() => {
           actions.move(nextRoomId!);
           actions.setPerceivedRoomId(nextRoomId!);

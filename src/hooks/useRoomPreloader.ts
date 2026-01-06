@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { preloadRoomAssets } from '../utils/assetLoader';
 import { WORLD, DIRECTIONS } from '../data/gameData';
 import type { Direction } from '../types';
+import { SYSTEM_SETTINGS } from '../data/constants';
 
 export const useRoomPreloader = (currentRoomId: string, inventoryItems: (string | null)[]) => {
   const preloadedRooms = useRef<Set<string>>(new Set());
@@ -38,7 +39,7 @@ export const useRoomPreloader = (currentRoomId: string, inventoryItems: (string 
         if ("requestIdleCallback" in window) {
           requestIdleCallback(preLoadFn);
         } else {
-          setTimeout(preLoadFn, 100);
+          setTimeout(preLoadFn, SYSTEM_SETTINGS.PRELOADER_IDLE_FALLBACK);
         }
       }
     });

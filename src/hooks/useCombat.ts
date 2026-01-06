@@ -10,6 +10,7 @@ import {
   isSuccessfulParry,
   resolveCombatTurn
 } from "../utils/combatUtils";
+import { COMBAT_SETTINGS } from "../data/constants";
 
 export const useCombat = () => {
   const {
@@ -31,7 +32,7 @@ export const useCombat = () => {
 
   const playBattleMusic = React.useCallback(() => {
     if (stopBattleMusicRef.current) stopBattleMusicRef.current();
-    stopBattleMusicRef.current = playSoundFile("battle-music.mp3", 0.3) || null;
+    stopBattleMusicRef.current = playSoundFile("battle-music.mp3", COMBAT_SETTINGS.BATTLE_MUSIC_VOLUME) || null;
   }, [playSoundFile]);
 
   const stopBattleMusic = React.useCallback(() => {
@@ -97,8 +98,8 @@ export const useCombat = () => {
     });
 
     const hitDelay = getLungeDelay(playerAction, successfulParry);
-    const resultDelay = playerAction === "RIPOSTE" ? 200 :
-      (playerAction === "ATTACK" || playerAction === "BLOCK" || (playerAction === "IDLE" && outcome.playerDamageTaken > 0)) ? 500 : 800;
+    const resultDelay = playerAction === "RIPOSTE" ? COMBAT_SETTINGS.RESULT_DELAY_RIPOSTE :
+      (playerAction === "ATTACK" || playerAction === "BLOCK" || (playerAction === "IDLE" && outcome.playerDamageTaken > 0)) ? COMBAT_SETTINGS.RESULT_DELAY_STANDARD : COMBAT_SETTINGS.RESULT_DELAY_IDLE;
 
     if (hitDelay >= 0) {
       setTimeout(() => {
@@ -136,7 +137,7 @@ export const useCombat = () => {
 
         if (currentEnemyHp <= 0) {
           stopBattleMusic();
-          setTimeout(() => playSoundFile("enemy-defeat.mp3"), 500);
+          setTimeout(() => playSoundFile("enemy-defeat.mp3"), COMBAT_SETTINGS.DEFEAT_DELAY);
           actions.setEnemyAction("DEFEAT");
           setTimeout(() => {
             const dropItem = enemy.drop ? ITEMS[enemy.drop] : null;
@@ -153,13 +154,13 @@ export const useCombat = () => {
               feedbackMessage: dropMsg || undefined,
               damageDealt: enemyDamageTaken
             });
-          }, 1500);
+          }, COMBAT_SETTINGS.ENEMY_DROP_DELAY);
         }
       }
 
       setTimeout(() => {
         actions.combatRoundEnd();
-      }, 2000);
+      }, COMBAT_SETTINGS.ROUND_END_DELAY);
     }, resultDelay);
   }, [gameState, playSoundFile, isReadyForCombatInput, stopBattleMusic, clearCombatTimers, triggerEnemyResponse, actions]);
 
@@ -177,7 +178,7 @@ export const useCombat = () => {
         playSoundFile("swing.mp3");
         telegraphTimerRef.current = setTimeout(() => {
           handleCombatAction("IDLE");
-        }, 600);
+        }, COMBAT_SETTINGS.TELEGRAPH_DURATION);
       }
       if (idleTimerRef.current) {
         clearTimeout(idleTimerRef.current);
@@ -185,7 +186,7 @@ export const useCombat = () => {
       }
     } else if (enemyAction === "IDLE") {
       if (!idleTimerRef.current) {
-        const delay = Math.random() * 2000 + 1000; // 1-3 seconds
+        const delay = Math.random() * (COMBAT_SETTINGS.IDLE_MAX - COMBAT_SETTINGS.IDLE_MIN) + COMBAT_SETTINGS.IDLE_MIN;
         idleTimerRef.current = setTimeout(() => {
           actions.setEnemyAction("TELEGRAPH");
         }, delay);

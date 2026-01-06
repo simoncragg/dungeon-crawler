@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { UI_SETTINGS } from "../data/constants";
 
 interface SceneTitleProps {
     title: string;
@@ -12,11 +13,11 @@ export default function SceneTitle({ title, forceHide }: SceneTitleProps) {
     useEffect(() => {
         if (hasBeenHidden) return;
 
-        const showTimer = setTimeout(() => setIsVisible(true), 100);
+        const showTimer = setTimeout(() => setIsVisible(true), UI_SETTINGS.SCENE_TITLE_FADE_IN);
         const hideTimer = setTimeout(() => {
             setIsVisible(false);
             setHasBeenHidden(true);
-        }, 3000);
+        }, UI_SETTINGS.SCENE_TITLE_DISPLAY_DURATION);
 
         return () => {
             clearTimeout(showTimer);
@@ -24,7 +25,6 @@ export default function SceneTitle({ title, forceHide }: SceneTitleProps) {
         };
     }, [hasBeenHidden]);
 
-    // Derive visibility to respond instantly to forceHide
     const show = isVisible && !forceHide;
 
     return (

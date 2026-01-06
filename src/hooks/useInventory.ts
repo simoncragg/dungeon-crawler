@@ -3,6 +3,7 @@ import type { LogEntry, Direction, SoundAsset, Item, Hotspot } from "../types";
 import { ITEMS } from "../data/gameData";
 import useSoundFx from "./useSoundFx";
 import { useGameStore } from "../store/useGameStore";
+import { UI_SETTINGS } from "../data/constants";
 
 interface UseInventoryProps {
   startTransition: (video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => void;
@@ -141,13 +142,13 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
                 startTransition(
                   useVideo,
                   undefined,
-                  () => setTimeout(() => addToLog(unlockMessage, "success"), 400),
+                  () => setTimeout(() => addToLog(unlockMessage, "success"), UI_SETTINGS.LOG_DELAY_SHORT),
                   () => performUnlock(item, matchingDirection)
                 );
               });
             } else {
               performUnlock(item, matchingDirection);
-              setTimeout(() => addToLog(unlockMessage, "success"), 2500);
+              setTimeout(() => addToLog(unlockMessage, "success"), UI_SETTINGS.LOG_DELAY_LONG);
             }
             return;
           } else if (targetDirection) {
