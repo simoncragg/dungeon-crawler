@@ -6,7 +6,7 @@ import { useGameStore } from "../store/useGameStore";
 
 interface UseInventoryProps {
   startTransition: (video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => void;
-  triggerShutter: () => void;
+  triggerShutter: (onShut: () => void) => void;
 }
 
 export const useInventory = ({ startTransition, triggerShutter }: UseInventoryProps) => {
@@ -137,13 +137,14 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
             actions.consumeItem(item.id);
 
             if (useVideo) {
-              triggerShutter();
-              startTransition(
-                useVideo,
-                undefined,
-                () => setTimeout(() => addToLog(unlockMessage, "success"), 400),
-                () => performUnlock(item, matchingDirection)
-              );
+              triggerShutter(() => {
+                startTransition(
+                  useVideo,
+                  undefined,
+                  () => setTimeout(() => addToLog(unlockMessage, "success"), 400),
+                  () => performUnlock(item, matchingDirection)
+                );
+              });
             } else {
               performUnlock(item, matchingDirection);
               setTimeout(() => addToLog(unlockMessage, "success"), 2500);

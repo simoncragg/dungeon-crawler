@@ -118,7 +118,14 @@ export const useMovement = ({
           transitionVideo,
           nextRoomId!,
           undefined,
-          () => actions.updateMapPosition(nextRoomId!)
+          () => {
+            if (nextRoomId) {
+              actions.move(nextRoomId);
+              actions.setPerceivedRoomId(nextRoomId);
+              actions.updateMapPosition(nextRoomId);
+              processRoomEntry(nextRoomId);
+            }
+          }
         );
       });
       startWalking(direction, true);
@@ -139,14 +146,9 @@ export const useMovement = ({
   }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, actions, processRoomEntry, triggerShutter]);
 
   const handleTransitionEnd = useCallback(() => {
-    if (pendingMove) {
-      actions.move(pendingMove.nextRoomId);
-      actions.setPerceivedRoomId(pendingMove.nextRoomId);
-      processRoomEntry(pendingMove.nextRoomId);
-    }
     resetTransition();
     stopWalking();
-  }, [pendingMove, processRoomEntry, resetTransition, stopWalking, actions]);
+  }, [resetTransition, stopWalking]);
 
   return {
     isWalking,

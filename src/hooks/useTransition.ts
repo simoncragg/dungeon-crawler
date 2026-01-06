@@ -20,84 +20,69 @@ export const useTransition = ({
     const { activeTransitionVideo, activeTransitionVolume, isShutterActive } = gameState;
 
     const [pendingMove, setPendingMove] = useState<{ nextRoomId: string } | null>(null);
-    const [onMidpointAction, setOnMidpointAction] = useState<{ fn: () => void } | null>(null);
-    const [onCompleteAction, setOnCompleteAction] = useState<{ fn: () => void } | null>(null);
-    const midpointReachedRef = useRef(false);
+    const [onEyesOpen, setOnEyesOpen] = useState<{ fn: () => void } | null>(null);
+    const [onEyesShut, setOnEyesShut] = useState<{ fn: () => void } | null>(null);
+    const videoMidpointReachedRef = useRef(false);
+    const blinkMidpointReachedRef = useRef(false);
 
-
-    const triggerShutter = useCallback((onMidpoint?: () => void, nextRoomId?: string) => {
+    const triggerShutter = useCallback((onShut: () => void) => {
         actions.setShutter(true);
-
-        setTimeout(() => {
-            const targetRoomId = nextRoomId || pendingMove?.nextRoomId;
-            if (targetRoomId) {
-                actions.setPerceivedRoomId(targetRoomId);
-            }
-
-            if (onMidpoint) onMidpoint();
-        }, 200);
-
-        setTimeout(() => {
-            actions.setShutter(false);
-        }, 400);
-    }, [pendingMove, actions]);
-
-    const startTransition = useCallback((video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => {
-        if (typeof video === 'string') {
-            actions.setTransitionVideo(video, 0.4);
-        } else {
-            actions.setTransitionVideo(video.path, video.volume ?? 0.4);
-        }
-
-        if (nextRoomId) {
-            setPendingMove({ nextRoomId });
-        } else {
-            setPendingMove(null);
-        }
-
-        if (onMidpoint) {
-            setOnMidpointAction({ fn: onMidpoint });
-        } else {
-            setOnMidpointAction(null);
-        }
-
-        if (onComplete) {
-            setOnCompleteAction({ fn: onComplete });
-        } else {
-            setOnCompleteAction(null);
-        }
-
-        midpointReachedRef.current = false;
+        setTimeout(() => onShut(), 200);
+        setTimeout(() => actions.setShutter(false), 400);
     }, [actions]);
 
-    const handleVideoTimeUpdate = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
-        if (activeTransitionVideo) {
-            const video = e.currentTarget;
-            if (video.currentTime > video.duration / 2 && !midpointReachedRef.current) {
-                midpointReachedRef.current = true;
+    const startTransition = useCallback((video: string | SoundAsset, nextRoomId?: string, onEyesOpen?: () => void, onEyesShut?: () => void) => {
+        const path = typeof video === 'string' ? video : video.path;
+        const volume = typeof video === 'string' ? 0.4 : (video.volume ?? 0.4);
 
-                if (pendingMove) {
-                    actions.setPerceivedRoomId(pendingMove.nextRoomId);
-                }
+        actions.setTransitionVideo(path, volume);
+        setPendingMove(nextRoomId ? { nextRoomId } : null);
+        setOnEyesShut(onEyesShut ? { fn: onEyesShut } : null);
+        setOnEyesOpen(onEyesOpen ? { fn: onEyesOpen } : null);
 
-                if (onMidpointAction) onMidpointAction.fn();
-            }
-        }
-    }, [activeTransitionVideo, pendingMove, onMidpointAction, actions]);
+        videoMidpointReachedRef.current = false;
+        blinkMidpointReachedRef.current = false;
+    }, [actions, setPendingMove, setOnEyesShut, setOnEyesOpen]);
 
-    const resetTransition = useCallback(() => {
-        const completeFn = onCompleteAction?.fn;
-
-        triggerShutter(() => {
-            if (completeFn) completeFn();
-            setPendingMove(null);
-        });
-
+    const finalizeTransition = useCallback((oneOffCallback?: () => void) => {
         actions.setTransitionVideo(null);
-        setOnMidpointAction(null);
-        setOnCompleteAction(null);
-        midpointReachedRef.current = false;
-    }, [triggerShutter, onCompleteAction, actions]);
+
+        if (onEyesShut) onEyesShut.fn();
+        if (oneOffCallback) oneOffCallback();
+        if (onEyesOpen) onEyesOpen.fn();
+
+        setPendingMove(null);
+        setOnEyesShut(null);
+        setOnEyesOpen(null);
+    }, [actions, onEyesShut, onEyesOpen, setPendingMove, setOnEyesShut, setOnEyesOpen]);
+
+    const resetTransition = useCallback((onEyesShut?: () => void) => {
+        if (blinkMidpointReachedRef.current) return;
+        blinkMidpointReachedRef.current = true;
+        triggerShutter(() => finalizeTransition(onEyesShut));
+    }, [triggerShutter, finalizeTransition]);
+
+    const performCinematicReveal = useCallback(() => {
+        if (videoMidpointReachedRef.current) return;
+        videoMidpointReachedRef.current = true;
+
+        if (pendingMove) {
+            actions.setPerceivedRoomId(pendingMove.nextRoomId);
+        }
+    }, [pendingMove, actions]);
+    const handleVideoTimeUpdate = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
+        if (!activeTransitionVideo) return;
+
+        const video = e.currentTarget;
+        if (video.currentTime > video.duration / 2) {
+            performCinematicReveal();
+        }
+
+        const timeLeft = video.duration - video.currentTime;
+        if (timeLeft <= 0.2) {
+            resetTransition();
+        }
+    }, [activeTransitionVideo, performCinematicReveal, resetTransition]);
 
     const perceivedRoomId = useGameStore(state => state.gameState.perceivedRoomId);
     const visibleRoom = rooms[perceivedRoomId] || currentRoom;
