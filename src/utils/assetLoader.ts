@@ -13,7 +13,7 @@ const getExitAssets = (room: Room, assets: Set<string>, inventoryItems: (string 
     Object.values(room.lockedExits).forEach(locked => {
       if (inventoryItems.includes(locked.keyId)) {
         if (locked.unlockImage) assets.add(locked.unlockImage);
-        if (locked.unlockVideoLoop) assets.add(getAssetPath(locked.unlockVideoLoop));
+        if (locked.unlockVideo) assets.add(getAssetPath(locked.unlockVideo));
         if (locked.unlockAudioLoop) assets.add(getAssetPath(locked.unlockAudioLoop));
       }
     });

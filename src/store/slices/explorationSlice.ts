@@ -50,13 +50,13 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
 
             if (lockedExit?.unlockImage) {
                 newImage = lockedExit.unlockImage;
-                if (!lockedExit.unlockVideoLoop) {
+                if (!lockedExit.unlockVideo) {
                     newVideoLoop = undefined;
                 }
             }
 
-            if (lockedExit?.unlockVideoLoop) {
-                newVideoLoop = lockedExit.unlockVideoLoop;
+            if (lockedExit?.unlockVideo) {
+                newVideoLoop = lockedExit.unlockVideo;
             }
 
             newRooms[state.gameState.currentRoomId] = {

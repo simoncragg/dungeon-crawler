@@ -140,7 +140,7 @@ export type Room = {
   description: string;
   exits: Partial<Record<Direction, string>>;
   items: string[];
-  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string; unlockMessage?: string; unlockVideoLoop?: SoundAsset; unlockAudioLoop?: SoundAsset }>>;
+  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string; unlockMessage?: string; unlockVideo?: SoundAsset; unlockAudioLoop?: SoundAsset }>>;
   coordinates: { x: number; y: number };
   shortName?: string;
   image: string;

@@ -130,7 +130,7 @@ export const WORLD: Record<string, Room> = {
       north: {
         keyId: "glowing-gem",
         lockedMessage: "A magical barrier blocks the way. Needs a gem.",
-        unlockVideoLoop: { path: "/video/scenes/dark-hallway-2.mp4", volume: 0.0 },
+        unlockVideo: { path: "/video/scenes/dark-hallway-2.mp4", volume: 0.0 },
         unlockMessage: "The magical barrier has been lifted!",
         unlockAudioLoop: { path: "/audio/dripping-water.mp3" }
       },
