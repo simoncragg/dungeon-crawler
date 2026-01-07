@@ -7,11 +7,11 @@ import { createInventorySlice } from "./slices/inventorySlice";
 import { createCombatSlice } from "./slices/combatSlice";
 
 export const useGameStore = create<GameStore>()((...a) => ({
-    gameState: INITIAL_STATE,
-    actions: {
-        ...createNarrativeSlice(...a),
-        ...createExplorationSlice(...a),
-        ...createInventorySlice(...a),
-        ...createCombatSlice(...a),
-    },
+  gameState: INITIAL_STATE,
+  actions: {
+    ...createNarrativeSlice(...a),
+    ...createExplorationSlice(...a),
+    ...createInventorySlice(...a),
+    ...createCombatSlice(...a),
+  },
 }));

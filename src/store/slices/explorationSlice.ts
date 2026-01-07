@@ -2,119 +2,119 @@ import type { StateCreator } from "zustand";
 import type { GameStore } from "../storeTypes";
 
 export type ExplorationSlice = Pick<GameStore["actions"],
-    | "move"
-    | "updateMapPosition"
-    | "unlockDoor"
-    | "setRoomAudio"
-    | "clearUnlockHighlight"
-    | "setWalking"
-    | "setWalkingDirection"
-    | "setShutter"
-    | "setTransitionVideo"
-    | "setDebugMode"
+  | "move"
+  | "updateMapPosition"
+  | "unlockDoor"
+  | "setRoomAudio"
+  | "clearUnlockHighlight"
+  | "setWalking"
+  | "setWalkingDirection"
+  | "setShutter"
+  | "setTransitionVideo"
+  | "setDebugMode"
 >;
 
 export const createExplorationSlice: StateCreator<GameStore, [], [], ExplorationSlice> = (set) => ({
-    move: (nextRoomId) => set((state) => ({
-        gameState: {
-            ...state.gameState,
-            currentRoomId: nextRoomId,
-            mapOverrideRoomId: undefined,
-            visitedRooms: Array.from(new Set([...state.gameState.visitedRooms, nextRoomId])),
-            feedback: null,
-            isEnemyRevealed: false,
-            recentDropId: null,
-            isDropAnimating: false,
-            isFirstVisit: !state.gameState.visitedRooms.includes(nextRoomId)
+  move: (nextRoomId) => set((state) => ({
+    gameState: {
+      ...state.gameState,
+      currentRoomId: nextRoomId,
+      mapOverrideRoomId: undefined,
+      visitedRooms: Array.from(new Set([...state.gameState.visitedRooms, nextRoomId])),
+      feedback: null,
+      isEnemyRevealed: false,
+      recentDropId: null,
+      isDropAnimating: false,
+      isFirstVisit: !state.gameState.visitedRooms.includes(nextRoomId)
+    }
+  })),
+
+  updateMapPosition: (roomId) => set((state) => ({
+    gameState: {
+      ...state.gameState,
+      mapOverrideRoomId: roomId
+    }
+  })),
+
+  unlockDoor: (direction) => set((state) => {
+    const newRooms = { ...state.gameState.rooms };
+    const currentRoom = newRooms[state.gameState.currentRoomId];
+    const lockedExit = currentRoom.lockedExits?.[direction];
+
+    if (currentRoom.lockedExits) {
+      const newLockedExits = { ...currentRoom.lockedExits };
+      delete newLockedExits[direction];
+
+      let newImage = currentRoom.image;
+      let newVideoLoop = currentRoom.videoLoop;
+
+      if (lockedExit?.unlockImage) {
+        newImage = lockedExit.unlockImage;
+        if (!lockedExit.unlockVideo) {
+          newVideoLoop = undefined;
         }
-    })),
+      }
 
-    updateMapPosition: (roomId) => set((state) => ({
-        gameState: {
-            ...state.gameState,
-            mapOverrideRoomId: roomId
-        }
-    })),
+      if (lockedExit?.unlockVideo) {
+        newVideoLoop = lockedExit.unlockVideo;
+      }
 
-    unlockDoor: (direction) => set((state) => {
-        const newRooms = { ...state.gameState.rooms };
-        const currentRoom = newRooms[state.gameState.currentRoomId];
-        const lockedExit = currentRoom.lockedExits?.[direction];
+      newRooms[state.gameState.currentRoomId] = {
+        ...currentRoom,
+        lockedExits: newLockedExits,
+        image: newImage,
+        videoLoop: newVideoLoop,
+        audioLoop: lockedExit?.unlockAudioLoop || currentRoom.audioLoop
+      };
+    }
 
-        if (currentRoom.lockedExits) {
-            const newLockedExits = { ...currentRoom.lockedExits };
-            delete newLockedExits[direction];
+    return {
+      gameState: {
+        ...state.gameState,
+        rooms: newRooms,
+        unlockedDirection: lockedExit?.unlockVideo ? null : direction
+      }
+    };
+  }),
 
-            let newImage = currentRoom.image;
-            let newVideoLoop = currentRoom.videoLoop;
+  setRoomAudio: (roomId, audioLoop) => set((state) => {
+    const newRooms = { ...state.gameState.rooms };
+    newRooms[roomId] = {
+      ...newRooms[roomId],
+      audioLoop: audioLoop || undefined
+    };
+    return {
+      gameState: {
+        ...state.gameState,
+        rooms: newRooms
+      }
+    };
+  }),
 
-            if (lockedExit?.unlockImage) {
-                newImage = lockedExit.unlockImage;
-                if (!lockedExit.unlockVideo) {
-                    newVideoLoop = undefined;
-                }
-            }
+  clearUnlockHighlight: () => set((state) => ({
+    gameState: { ...state.gameState, unlockedDirection: null }
+  })),
 
-            if (lockedExit?.unlockVideo) {
-                newVideoLoop = lockedExit.unlockVideo;
-            }
+  setWalking: (isWalking) => set((state) => ({
+    gameState: { ...state.gameState, isWalking }
+  })),
 
-            newRooms[state.gameState.currentRoomId] = {
-                ...currentRoom,
-                lockedExits: newLockedExits,
-                image: newImage,
-                videoLoop: newVideoLoop,
-                audioLoop: lockedExit?.unlockAudioLoop || currentRoom.audioLoop
-            };
-        }
+  setWalkingDirection: (direction) => set((state) => ({
+    gameState: { ...state.gameState, walkingDirection: direction }
+  })),
 
-        return {
-            gameState: {
-                ...state.gameState,
-                rooms: newRooms,
-                unlockedDirection: lockedExit?.unlockVideo ? null : direction
-            }
-        };
-    }),
+  setShutter: (active) => set((state) => ({
+    gameState: { ...state.gameState, isShutterActive: active }
+  })),
 
-    setRoomAudio: (roomId, audioLoop) => set((state) => {
-        const newRooms = { ...state.gameState.rooms };
-        newRooms[roomId] = {
-            ...newRooms[roomId],
-            audioLoop: audioLoop || undefined
-        };
-        return {
-            gameState: {
-                ...state.gameState,
-                rooms: newRooms
-            }
-        };
-    }),
+  setTransitionVideo: (video) => set((state) => ({
+    gameState: {
+      ...state.gameState,
+      activeTransitionVideo: video
+    }
+  })),
 
-    clearUnlockHighlight: () => set((state) => ({
-        gameState: { ...state.gameState, unlockedDirection: null }
-    })),
-
-    setWalking: (isWalking) => set((state) => ({
-        gameState: { ...state.gameState, isWalking }
-    })),
-
-    setWalkingDirection: (direction) => set((state) => ({
-        gameState: { ...state.gameState, walkingDirection: direction }
-    })),
-
-    setShutter: (active) => set((state) => ({
-        gameState: { ...state.gameState, isShutterActive: active }
-    })),
-
-    setTransitionVideo: (video) => set((state) => ({
-        gameState: {
-            ...state.gameState,
-            activeTransitionVideo: video
-        }
-    })),
-
-    setDebugMode: (enabled) => set((state) => ({
-        gameState: { ...state.gameState, isDebugMode: enabled }
-    })),
+  setDebugMode: (enabled) => set((state) => ({
+    gameState: { ...state.gameState, isDebugMode: enabled }
+  })),
 });
