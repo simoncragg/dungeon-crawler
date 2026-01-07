@@ -15,6 +15,11 @@ export type SoundAsset = {
   volume?: number;
 };
 
+export type VideoAsset = {
+  path: string;
+  volume?: number;
+};
+
 export type NarrationAsset = SoundAsset & {
   text?: string;
 };
@@ -48,8 +53,7 @@ export type GameState = {
   isWalking: boolean;
   walkingDirection: Direction | null;
   isShutterActive: boolean;
-  activeTransitionVideo: string | null;
-  activeTransitionVolume: number;
+  activeTransitionVideo: VideoAsset | null;
   isDebugMode: boolean;
 };
 
@@ -90,16 +94,16 @@ export type Item = {
   glow?: GlowEffect;
   overlayConfig?: WeaponOverlayConfig;
   sounds?: {
-    take?: string;
-    attack?: string;
-    block?: string;
-    crit?: string;
-    clash?: string;
-    windup?: string;
-    unequip?: string;
+    take?: SoundAsset;
+    attack?: SoundAsset;
+    block?: SoundAsset;
+    crit?: SoundAsset;
+    clash?: SoundAsset;
+    windup?: SoundAsset;
+    unequip?: SoundAsset;
     use?: SoundAsset;
   };
-  useVideos?: Record<string, string | SoundAsset>;
+  useVideos?: Record<string, VideoAsset>;
 };
 
 export type EquippedItem = Item & {
@@ -140,14 +144,14 @@ export type Room = {
   description: string;
   exits: Partial<Record<Direction, string>>;
   items: string[];
-  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string; unlockMessage?: string; unlockVideo?: SoundAsset; unlockAudioLoop?: SoundAsset }>>;
+  lockedExits?: Partial<Record<Direction, { keyId: string; lockedMessage: string; unlockImage?: string; unlockMessage?: string; unlockVideo?: VideoAsset; unlockAudioLoop?: SoundAsset }>>;
   coordinates: { x: number; y: number };
   shortName?: string;
   image: string;
-  videoLoop?: SoundAsset;
+  videoLoop?: VideoAsset;
   heldItemBrightness?: number;
   narration?: NarrationAsset;
-  transitionVideos?: Partial<Record<Direction, string | SoundAsset>>;
+  transitionVideos?: Partial<Record<Direction, VideoAsset>>;
   audioLoop?: SoundAsset;
   enemy?: {
     id: string;
@@ -198,7 +202,7 @@ export interface CombatOutcome {
   logType: LogEntry["type"];
   combatResult: CombatResult | null;
   riposteAvailable: boolean;
-  soundToPlay: string;
+  soundToPlay: SoundAsset;
   finalEnemyAction: CombatAction;
   successfulParry: boolean;
 }
@@ -254,5 +258,5 @@ export type GameAction =
   | { type: "CONSUME_ITEM"; itemId: string }
   | { type: "SET_WALKING"; isWalking: boolean }
   | { type: "SET_SHUTTER"; active: boolean }
-  | { type: "SET_TRANSITION_VIDEO"; video: string | null; volume?: number }
+  | { type: "SET_TRANSITION_VIDEO"; video: VideoAsset | null }
   | { type: "SET_DEBUG_MODE"; enabled: boolean }

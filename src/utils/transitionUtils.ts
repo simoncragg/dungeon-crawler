@@ -1,9 +1,11 @@
+import type { VideoAsset } from "../types";
+
 /**
  * Logic to determine if the Scene Title should be hidden.
  */
 export const shouldHideSceneTitle = (
     feedbackMessage: string | null | undefined,
-    activeTransitionVideo: string | null,
+    activeTransitionVideo: VideoAsset | null,
     activeTitleId: string,
     pendingMoveId: string | undefined,
     isWalking: boolean,

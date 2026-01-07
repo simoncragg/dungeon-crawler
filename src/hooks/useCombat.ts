@@ -32,7 +32,7 @@ export const useCombat = () => {
 
   const playBattleMusic = React.useCallback(() => {
     if (stopBattleMusicRef.current) stopBattleMusicRef.current();
-    stopBattleMusicRef.current = playSoundFile("battle-music.mp3", COMBAT_SETTINGS.BATTLE_MUSIC_VOLUME) || null;
+    stopBattleMusicRef.current = playSoundFile({ path: "battle-music.mp3" }, { volume: COMBAT_SETTINGS.BATTLE_MUSIC_VOLUME }) || null;
   }, [playSoundFile]);
 
   const stopBattleMusic = React.useCallback(() => {
@@ -71,7 +71,7 @@ export const useCombat = () => {
     clearCombatTimers();
 
     if (isWindupAction(playerAction)) {
-      playSoundFile(playerWeapon?.sounds?.windup ?? "sword-combat-windup.mp3");
+      playSoundFile(playerWeapon?.sounds?.windup ?? { path: "sword-combat-windup.mp3" });
     }
 
     actions.setCombatProcessing(true, playerAction);
@@ -137,7 +137,7 @@ export const useCombat = () => {
 
         if (currentEnemyHp <= 0) {
           stopBattleMusic();
-          setTimeout(() => playSoundFile("enemy-defeat.mp3"), COMBAT_SETTINGS.DEFEAT_DELAY);
+          setTimeout(() => playSoundFile({ path: "enemy-defeat.mp3" }), COMBAT_SETTINGS.DEFEAT_DELAY);
           actions.setEnemyAction("DEFEAT");
           setTimeout(() => {
             const dropItem = enemy.drop ? ITEMS[enemy.drop] : null;
@@ -175,7 +175,7 @@ export const useCombat = () => {
 
     if (enemyAction === "TELEGRAPH") {
       if (!telegraphTimerRef.current) {
-        playSoundFile("swing.mp3");
+        playSoundFile({ path: "swing.mp3" });
         telegraphTimerRef.current = setTimeout(() => {
           handleCombatAction("IDLE");
         }, COMBAT_SETTINGS.TELEGRAPH_DURATION);

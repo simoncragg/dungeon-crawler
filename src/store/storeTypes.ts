@@ -5,7 +5,8 @@ import type {
     CombatAction,
     CombatResult,
     Direction,
-    SoundAsset
+    SoundAsset,
+    VideoAsset
 } from "../types";
 
 export interface GameStore {
@@ -31,7 +32,7 @@ export interface GameStore {
         setWalking: (isWalking: boolean) => void;
         setWalkingDirection: (direction: Direction | null) => void;
         setShutter: (active: boolean) => void;
-        setTransitionVideo: (video: string | null, volume?: number) => void;
+        setTransitionVideo: (video: VideoAsset | null) => void;
         setDebugMode: (enabled: boolean) => void;
 
         // Combat Actions

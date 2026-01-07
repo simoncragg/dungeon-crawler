@@ -28,7 +28,6 @@ export default function Game() {
     handleCombatAction,
     videoRef,
     activeTransitionVideo,
-    activeTransitionVolume,
     handleTransitionEnd,
     handleVideoTimeUpdate,
     isShutterActive,
@@ -54,13 +53,13 @@ export default function Game() {
 
   useEffect(() => {
     if (activeTransitionVideo && transitionVideoRef.current) {
-      transitionVideoRef.current.volume = activeTransitionVolume;
+      transitionVideoRef.current.volume = activeTransitionVideo.volume ?? 0.4;
       transitionVideoRef.current.currentTime = 0;
       transitionVideoRef.current.play().catch(err => {
         console.warn("Transition video play failed:", err);
       });
     }
-  }, [activeTransitionVolume, activeTransitionVideo]);
+  }, [activeTransitionVideo]);
 
 
   useEffect(() => {
@@ -120,7 +119,7 @@ export default function Game() {
             {activeTransitionVideo && (
               <video
                 ref={transitionVideoRef}
-                src={getPreloadedUrl(activeTransitionVideo)}
+                src={getPreloadedUrl(activeTransitionVideo.path)}
                 autoPlay
                 muted={false}
                 preload="auto"

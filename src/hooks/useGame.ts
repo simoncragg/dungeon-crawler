@@ -53,7 +53,7 @@ export const useGame = () => {
           addToLog(`A ${enemyName} blocks your path!`, "danger");
           actions.setEnemyRevealed(true);
           actions.setQuestLogOpen(false);
-          playSoundFile("danger.mp3");
+          playSoundFile({ path: "danger.mp3" });
         }
       }, 400);
     }, 800);
@@ -119,7 +119,7 @@ export const useGame = () => {
     if (currentRoom.narration && gameState.isFirstVisit) {
       let audioStop: (() => void) | null = null;
       const timeoutId = setTimeout(() => {
-        audioStop = playNarration(currentRoom.narration!.path, currentRoom.narration!.volume);
+        audioStop = playNarration(currentRoom.narration!);
       }, 2000);
 
       return () => {
@@ -141,7 +141,7 @@ export const useGame = () => {
       if (ITEMS[gameState.latestDrop.itemId]) {
         lastProcessedDropTime.current = gameState.latestDrop.timestamp;
 
-        playSoundFile("enemy-item-drop.mp3");
+        playSoundFile({ path: "enemy-item-drop.mp3" });
 
         const timer = setTimeout(() => {
           actions.clearDropAnimation();
@@ -155,9 +155,10 @@ export const useGame = () => {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.volume = currentRoom.videoLoop?.volume ?? 0.4;
+      const volume = currentRoom.videoLoop?.volume ?? 0.4;
+      videoRef.current.volume = volume;
     }
-  }, [currentRoom.videoLoop?.path, currentRoom.videoLoop?.volume]);
+  }, [currentRoom.videoLoop]);
 
 
   const { visibleRoom, ...movementRest } = movement;

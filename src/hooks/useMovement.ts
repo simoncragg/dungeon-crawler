@@ -1,8 +1,10 @@
 import { useRef, useCallback } from "react";
+
 import type { Direction, LogEntry } from "../types";
+
+import useSoundFx from "./useSoundFx";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 import { useTransition } from "./useTransition";
-import useSoundFx from "./useSoundFx";
 import { useGameStore } from "../store/useGameStore";
 
 interface UseMovementProps {
@@ -27,7 +29,6 @@ export const useMovement = ({
 
   const {
     activeTransitionVideo,
-    activeTransitionVolume,
     pendingMove,
     isShutterActive,
     sceneTitleProps,
@@ -154,7 +155,6 @@ export const useMovement = ({
     isWalking,
     walkingDirection,
     activeTransitionVideo,
-    activeTransitionVolume,
     isShutterActive,
     sceneTitleProps,
     handleMove,

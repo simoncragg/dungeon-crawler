@@ -1,5 +1,6 @@
 import { getAudioContext, getBuffer, setBuffer, decodeAudioData } from "../utils/audioSystem";
-import type { SoundAsset } from "../types";
+import type { SoundAsset, NarrationAsset } from "../types";
+
 import { AUDIO_SETTINGS, MOVEMENT_SETTINGS } from "../data/constants";
 
 const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => {
@@ -16,6 +17,7 @@ const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => 
   setBuffer(key, buffer);
   return buffer;
 };
+
 
 const playShuffleSound = () => {
   const ctx = getAudioContext();
@@ -116,7 +118,7 @@ const playAmbientLoop = async (audioLoop: SoundAsset | null, fadeDuration: numbe
     fadeOutAmbientLoop(previousAmbient, crossFadeDuration, ctx);
   }
 
-  if (!audioLoop?.path) {
+  if (!audioLoop) {
     currentAmbient = null;
     return;
   }
@@ -165,11 +167,13 @@ const fadeOutAmbientLoop = (track: AmbientTrack, duration: number, ctx: AudioCon
   }
 };
 
-const playNarration = (url: string, volume: number = AUDIO_SETTINGS.DEFAULT_NARRATION_VOLUME, onEnded?: () => void) => {
+const playNarration = (asset: NarrationAsset, onEnded?: () => void) => {
   let sourceNode: AudioBufferSourceNode | null = null;
   let isCancelled = false;
 
-  playAudioFromUrl(url, volume).then((result) => {
+  const volume = asset.volume ?? AUDIO_SETTINGS.DEFAULT_NARRATION_VOLUME;
+
+  playAudioFromUrl(asset.path, volume).then((result) => {
     if (isCancelled) {
       if (result) {
         try {
@@ -205,14 +209,17 @@ const playNarration = (url: string, volume: number = AUDIO_SETTINGS.DEFAULT_NARR
   };
 };
 
-const playSoundFile = (audioAsset: string | SoundAsset, volume: number = AUDIO_SETTINGS.DEFAULT_SFX_VOLUME) => {
+const playSoundFile = (
+  audioAsset: SoundAsset,
+  options: { volume?: number } = {}
+) => {
   let source: AudioBufferSourceNode | null = null;
   let isCancelled = false;
 
-  const path = typeof audioAsset === "string" ? `/audio/${audioAsset}` : audioAsset.path;
-  const finalVolume = typeof audioAsset === "string" ? volume : (audioAsset.volume ?? AUDIO_SETTINGS.DEFAULT_SFX_VOLUME);
+  const path = audioAsset.path.startsWith("/") ? audioAsset.path : `/audio/${audioAsset.path}`;
+  const finalVolume = options.volume ?? audioAsset.volume ?? AUDIO_SETTINGS.DEFAULT_SFX_VOLUME;
 
-  playAudioFromUrl(path, finalVolume).then((result) => {
+  playAudioFromUrl(path, finalVolume, false).then((result) => {
     if (isCancelled) {
       if (result) {
         try {
@@ -240,7 +247,11 @@ const playSoundFile = (audioAsset: string | SoundAsset, volume: number = AUDIO_S
   };
 };
 
-const playAudioFromUrl = async (url: string, volume: number = 1.0, loop: boolean = false): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
+const playAudioFromUrl = async (
+  url: string,
+  volume: number = 1.0,
+  loop: boolean = false
+): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
   const ctx = getAudioContext();
   if (!ctx) return null;
 
@@ -266,8 +277,8 @@ const playAudioFromUrl = async (url: string, volume: number = 1.0, loop: boolean
     gain.gain.value = volume;
 
     source.connect(gain);
-    gain.connect(ctx.destination);
 
+    gain.connect(ctx.destination);
     source.start(0);
 
     return { source, gain };

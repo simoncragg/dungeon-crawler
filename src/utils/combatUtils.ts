@@ -5,7 +5,8 @@ import type {
   EquippedWeapon,
   PlayerCombatAction,
   CombatOutcome,
-  ResolveCombatTurnParams
+  ResolveCombatTurnParams,
+  SoundAsset
 } from "../types";
 import { ITEMS } from "../data/gameData";
 
@@ -51,14 +52,14 @@ export const calculateDamage = (atk: number, def: number = 0) => {
 export const getCombatSound = (
   type: "attack" | "crit" | "block" | "clash",
   playerWeapon: EquippedWeapon | EquippedItem | null
-) => {
+): SoundAsset => {
   const sounds = playerWeapon?.sounds;
   switch (type) {
-    case "attack": return sounds?.attack ?? "sword-combat-attack.mp3";
-    case "crit": return sounds?.crit ?? "sword-combat-crit.wav";
-    case "block": return sounds?.block ?? "sword-combat-block.wav";
-    case "clash": return sounds?.clash ?? "sword-combat-clash.wav";
-    default: return "";
+    case "attack": return sounds?.attack ?? { path: "sword-combat-attack.mp3" };
+    case "crit": return sounds?.crit ?? { path: "sword-combat-crit.wav" };
+    case "block": return sounds?.block ?? { path: "sword-combat-block.wav" };
+    case "clash": return sounds?.clash ?? { path: "sword-combat-clash.wav" };
+    default: return { path: "" };
   }
 };
 
@@ -184,7 +185,7 @@ export const resolveParryFail = (
     logMsg,
     logType: "damage",
     combatResult: { type: "miss", message: logMsg },
-    soundToPlay: "crit-damage.mp3"
+    soundToPlay: { path: "crit-damage.mp3" }
   };
 };
 
@@ -279,7 +280,7 @@ export const resolveIdle = (
       logMsg,
       logType: "danger",
       combatResult: { type: "miss", message: logMsg },
-      soundToPlay: "crit-damage.mp3"
+      soundToPlay: { path: "crit-damage.mp3" }
     };
   } else {
     return {
@@ -305,7 +306,7 @@ export const resolveCombatTurn = ({
     logType: "combat",
     combatResult: null,
     riposteAvailable: false,
-    soundToPlay: "",
+    soundToPlay: { path: "" },
     finalEnemyAction: enemyAction,
     successfulParry
   };

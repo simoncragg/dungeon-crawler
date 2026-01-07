@@ -1,12 +1,12 @@
 import React, { useCallback } from "react";
-import type { LogEntry, Direction, SoundAsset, Item, Hotspot } from "../types";
+import type { LogEntry, Direction, VideoAsset, Item, Hotspot } from "../types";
 import { ITEMS } from "../data/gameData";
 import useSoundFx from "./useSoundFx";
 import { useGameStore } from "../store/useGameStore";
 import { UI_SETTINGS } from "../data/constants";
 
 interface UseInventoryProps {
-  startTransition: (video: string | SoundAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => void;
+  startTransition: (video: VideoAsset, nextRoomId?: string, onComplete?: () => void, onMidpoint?: () => void) => void;
   triggerShutter: (onShut: () => void) => void;
 }
 
@@ -44,7 +44,7 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
     }
 
     const item = ITEMS[itemId];
-    playSoundFile(item.sounds?.take ?? "equip.mp3");
+    playSoundFile(item.sounds?.take ?? { path: "equip.mp3" });
     actions.equipItem(itemId, itemIndex, item.type as "weapon" | "armor", `You equip the ${item.name}.`);
   };
 
@@ -55,7 +55,7 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
       return;
     }
     const item = ITEMS[itemId];
-    playSoundFile(item.sounds?.unequip ?? "unequip.mp3");
+    playSoundFile(item.sounds?.unequip ?? { path: "unequip.mp3" });
     actions.unequipItem(itemId, undefined, emptySlotIndex, `Unequipped ${item.name}.`);
   };
 
@@ -82,7 +82,7 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
     if (item.sounds?.take) {
       playSoundFile(item.sounds.take);
     } else if (item.type === "weapon") {
-      playSoundFile("sword-take.wav");
+      playSoundFile({ path: "sword-take.wav" });
     } else {
       playItemSound();
     }
@@ -183,7 +183,7 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
     const itemId = gameState.inventory.items[inventoryIndex];
     if (itemId) {
       const item = ITEMS[itemId];
-      playSoundFile(item.sounds?.take ?? "equip.mp3");
+      playSoundFile(item.sounds?.take ?? { path: "equip.mp3" });
     }
     actions.equipItem(undefined, inventoryIndex, slotType);
   };
@@ -192,7 +192,7 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
     const itemId = gameState.equippedItems[slotType];
     if (itemId) {
       const item = ITEMS[itemId];
-      playSoundFile(item.sounds?.unequip ?? "unequip.mp3");
+      playSoundFile(item.sounds?.unequip ?? { path: "unequip.mp3" });
     }
     actions.unequipItem(undefined, slotType, inventoryIndex);
   };

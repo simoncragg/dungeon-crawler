@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 
-import type { Room, SoundAsset } from "../types";
+import type { Room, VideoAsset } from "../types";
 import { shouldHideSceneTitle } from "../utils/transitionUtils";
 import { useGameStore } from "../store/useGameStore";
 import { SHUTTER_SETTINGS, TRANSITION_SETTINGS } from "../data/constants";
@@ -18,7 +18,7 @@ export const useTransition = ({
     feedback,
 }: UseTransitionProps) => {
     const { gameState, actions } = useGameStore();
-    const { activeTransitionVideo, activeTransitionVolume, isShutterActive } = gameState;
+    const { activeTransitionVideo, isShutterActive } = gameState;
 
     const [pendingMove, setPendingMove] = useState<{ nextRoomId: string } | null>(null);
     const [onEyesOpen, setOnEyesOpen] = useState<{ fn: () => void } | null>(null);
@@ -32,11 +32,8 @@ export const useTransition = ({
         setTimeout(() => actions.setShutter(false), SHUTTER_SETTINGS.DURATION);
     }, [actions]);
 
-    const startTransition = useCallback((video: string | SoundAsset, nextRoomId?: string, onEyesOpen?: () => void, onEyesShut?: () => void) => {
-        const path = typeof video === 'string' ? video : video.path;
-        const volume = typeof video === 'string' ? TRANSITION_SETTINGS.DEFAULT_VOLUME : (video.volume ?? TRANSITION_SETTINGS.DEFAULT_VOLUME);
-
-        actions.setTransitionVideo(path, volume);
+    const startTransition = useCallback((video: VideoAsset, nextRoomId?: string, onEyesOpen?: () => void, onEyesShut?: () => void) => {
+        actions.setTransitionVideo(video);
         setPendingMove(nextRoomId ? { nextRoomId } : null);
         setOnEyesShut(onEyesShut ? { fn: onEyesShut } : null);
         setOnEyesOpen(onEyesOpen ? { fn: onEyesOpen } : null);
@@ -103,7 +100,6 @@ export const useTransition = ({
 
     return {
         activeTransitionVideo,
-        activeTransitionVolume,
         pendingMove,
         isShutterActive,
         sceneTitleProps,

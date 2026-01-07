@@ -107,11 +107,10 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
         gameState: { ...state.gameState, isShutterActive: active }
     })),
 
-    setTransitionVideo: (video, volume) => set((state) => ({
+    setTransitionVideo: (video) => set((state) => ({
         gameState: {
             ...state.gameState,
-            activeTransitionVideo: video,
-            activeTransitionVolume: volume ?? 0.4
+            activeTransitionVideo: video
         }
     })),
 

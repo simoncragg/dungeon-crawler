@@ -36,6 +36,5 @@ export const INITIAL_STATE: GameState = {
   walkingDirection: null,
   isShutterActive: false,
   activeTransitionVideo: null,
-  activeTransitionVolume: 0.4,
   isDebugMode: false
 };

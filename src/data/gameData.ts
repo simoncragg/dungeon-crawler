@@ -27,12 +27,12 @@ export const ITEMS: Record<string, Item> = {
     },
     stats: { attack: 10, defense: 0, parryChance: 0.4, critChance: 0.2 },
     sounds: {
-      take: "sword-take.wav",
-      attack: "sword-combat-attack.mp3",
-      block: "sword-combat-block.wav",
-      crit: "sword-combat-crit.wav",
-      clash: "sword-combat-clash.wav",
-      windup: "sword-combat-windup.mp3",
+      take: { path: "sword-take.wav" },
+      attack: { path: "sword-combat-attack.mp3" },
+      block: { path: "sword-combat-block.wav" },
+      crit: { path: "sword-combat-crit.wav" },
+      clash: { path: "sword-combat-clash.wav" },
+      windup: { path: "sword-combat-windup.mp3" },
     },
     modalStyle: { scale: 1.35, rotation: "-55deg" },
     slotStyle: { scale: 1.4, rotation: "-45deg" },
@@ -159,8 +159,8 @@ export const WORLD: Record<string, Room> = {
     ],
     transitionVideos: {
       north: { path: "/video/scenes/transition-from-dark-hallway-to-forest.mp4", volume: 1.0 },
-      east: "/video/scenes/transition-from-dark-hallway-to-archives.mp4",
-      west: "/video/scenes/transition-from-dark-hallway-to-armory.mp4"
+      east: { path: "/video/scenes/transition-from-dark-hallway-to-archives.mp4" },
+      west: { path: "/video/scenes/transition-from-dark-hallway-to-armory.mp4" }
     },
     facing: "north"
   },

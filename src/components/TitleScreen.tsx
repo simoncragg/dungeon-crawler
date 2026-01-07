@@ -21,7 +21,7 @@ export default function TitleScreen({ onStart, progress, loaded }: TitleScreenPr
   }
 
   const handleEnter = () => {
-    playSoundFile("boom.mp3", 1.0);
+    playSoundFile({ path: "boom.mp3" }, { volume: 1.0 });
     setIsExiting(true);
   };
 
