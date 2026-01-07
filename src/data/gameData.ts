@@ -27,7 +27,7 @@ export const ITEMS: Record<string, Item> = {
     },
     stats: { attack: 10, defense: 0, parryChance: 0.4, critChance: 0.2 },
     sounds: {
-      take: { path: "sword-take.wav" },
+      take: { path: "sword-take.wav", volume: 0.4 },
       attack: { path: "sword-combat-attack.mp3" },
       block: { path: "sword-combat-block.wav" },
       crit: { path: "sword-combat-crit.wav" },
@@ -99,7 +99,7 @@ export const WORLD: Record<string, Room> = {
     image: "/images/scenes/damp-cell-1376w.png",
     videoLoop: {
       path: "/video/scenes/damp-cell.mp4",
-      volume: 0.2
+      volume: 0.1
     },
     audioLoop: { path: "/audio/dripping-water.mp3" },
     heldItemBrightness: 0.3,

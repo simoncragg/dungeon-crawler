@@ -44,7 +44,7 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
     }
 
     const item = ITEMS[itemId];
-    playSoundFile(item.sounds?.take ?? { path: "equip.mp3" });
+    playSoundFile(item.sounds?.take ?? { path: "equip.mp3", volume: 0.4 });
     actions.equipItem(itemId, itemIndex, item.type as "weapon" | "armor", `You equip the ${item.name}.`);
   };
 
@@ -55,7 +55,7 @@ export const useInventory = ({ startTransition, triggerShutter }: UseInventoryPr
       return;
     }
     const item = ITEMS[itemId];
-    playSoundFile(item.sounds?.unequip ?? { path: "unequip.mp3" });
+    playSoundFile(item.sounds?.unequip ?? { path: "unequip.mp3", volume: 0.4 });
     actions.unequipItem(itemId, undefined, emptySlotIndex, `Unequipped ${item.name}.`);
   };
 
