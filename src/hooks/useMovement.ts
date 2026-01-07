@@ -22,7 +22,7 @@ export const useMovement = ({
   const currentRoom = gameState.rooms[gameState.currentRoomId];
   const addToLog = useCallback((text: string, type?: LogEntry["type"]) => actions.addLog(text, type), [actions]);
 
-  const { playShuffleSound } = useSoundFx();
+  const { playShuffleSound, playSoundFile } = useSoundFx();
   const { isWalking, walkingDirection } = gameState;
 
   const walkingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -105,6 +105,7 @@ export const useMovement = ({
       const lockedExit = currentRoom.lockedExits?.[direction];
       if (lockedExit) {
         performStandardMoveSteps(direction, MOVEMENT_SETTINGS.LOCKED_STEP_COUNT, MOVEMENT_SETTINGS.START_DELAY, MOVEMENT_SETTINGS.STANDARD_STEP_INTERVAL, () => {
+          playSoundFile({ path: "locked.mp3" }, { reverb: { wet: 0.8, decay: 2.0 } });
           addToLog(lockedExit.lockedMessage, "warning");
         });
       }
@@ -144,7 +145,7 @@ export const useMovement = ({
         });
       });
     }
-  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, actions, processRoomEntry, triggerShutter]);
+  }, [currentRoom, startTransition, startWalking, performStandardMoveSteps, addToLog, actions, processRoomEntry, triggerShutter, playSoundFile]);
 
   const handleTransitionEnd = useCallback(() => {
     resetTransition();

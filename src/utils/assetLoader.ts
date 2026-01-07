@@ -101,6 +101,7 @@ const getGlobalAssets = (assets: Set<string>) => {
   assets.add("/audio/narration/intro.mp3");
 
   assets.add("/audio/inspect.mp3");
+  assets.add("/audio/locked.mp3");
   assets.add("/audio/equip.mp3");
   assets.add("/audio/unequip.mp3");
 

@@ -18,6 +18,50 @@ const createNoiseBuffer = (ctx: AudioContext, duration: number, key: string) => 
   return buffer;
 };
 
+const createReverbImpulse = (ctx: AudioContext, duration: number, decay: number) => {
+  const sampleRate = ctx.sampleRate;
+  const length = sampleRate * duration;
+  const impulse = ctx.createBuffer(2, length, sampleRate);
+
+  // RT60 is the time it takes for the sound to decay by 60dB.
+  // 60dB decay means a factor of 10^-3 (0.001).
+  // e^(-t / tau) = 0.001 => tau = decay / ln(1000) approx decay / 6.91
+  const tau = decay / 6.91;
+
+  for (let channel = 0; channel < 2; channel++) {
+    const data = impulse.getChannelData(channel);
+    for (let i = 0; i < length; i++) {
+      const t = i / sampleRate;
+      // Exponential decay: e^(-t / tau)
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-t / tau);
+    }
+  }
+
+  return impulse;
+};
+
+const createReverbConvolver = (ctx: AudioContext, reverb: { wet: number; decay: number }) => {
+  const convolver = ctx.createConvolver();
+  // Duration should be at least the decay time to capture the full tail
+  const duration = Math.max(0.5, reverb.decay);
+  const reverbKey = `reverb-${duration}-${reverb.decay}`;
+
+  let impulse = getBuffer(reverbKey);
+  if (!impulse) {
+    impulse = createReverbImpulse(ctx, duration, reverb.decay);
+    setBuffer(reverbKey, impulse);
+  }
+  convolver.buffer = impulse;
+
+  const wetGain = ctx.createGain();
+  wetGain.gain.value = reverb.wet;
+
+  const dryGain = ctx.createGain();
+  dryGain.gain.value = 1.0;
+
+  return { convolver, wetGain, dryGain };
+};
+
 
 const playShuffleSound = () => {
   const ctx = getAudioContext();
@@ -211,7 +255,7 @@ const playNarration = (asset: NarrationAsset, onEnded?: () => void) => {
 
 const playSoundFile = (
   audioAsset: SoundAsset,
-  options: { volume?: number } = {}
+  options: { volume?: number; reverb?: { wet: number; decay: number } } = {}
 ) => {
   let source: AudioBufferSourceNode | null = null;
   let isCancelled = false;
@@ -219,7 +263,7 @@ const playSoundFile = (
   const path = audioAsset.path.startsWith("/") ? audioAsset.path : `/audio/${audioAsset.path}`;
   const finalVolume = options.volume ?? audioAsset.volume ?? AUDIO_SETTINGS.DEFAULT_SFX_VOLUME;
 
-  playAudioFromUrl(path, finalVolume, false).then((result) => {
+  playAudioFromUrl(path, finalVolume, false, options.reverb).then((result) => {
     if (isCancelled) {
       if (result) {
         try {
@@ -250,7 +294,8 @@ const playSoundFile = (
 const playAudioFromUrl = async (
   url: string,
   volume: number = 1.0,
-  loop: boolean = false
+  loop: boolean = false,
+  reverb?: { wet: number; decay: number }
 ): Promise<{ source: AudioBufferSourceNode, gain: GainNode } | null> => {
   const ctx = getAudioContext();
   if (!ctx) return null;
@@ -276,7 +321,18 @@ const playAudioFromUrl = async (
     const gain = ctx.createGain();
     gain.gain.value = volume;
 
-    source.connect(gain);
+    if (reverb) {
+      const { convolver, wetGain, dryGain } = createReverbConvolver(ctx, reverb);
+
+      source.connect(dryGain);
+      dryGain.connect(gain);
+
+      source.connect(convolver);
+      convolver.connect(wetGain);
+      wetGain.connect(gain);
+    } else {
+      source.connect(gain);
+    }
 
     gain.connect(ctx.destination);
     source.start(0);
