@@ -139,7 +139,7 @@ export const WORLD: Record<string, Room> = {
     image: "/images/scenes/dark-hallway-1376w.png",
     videoLoop: {
       path: "/video/scenes/dark-hallway.mp4",
-      volume: 0.5
+      volume: 0.2
     },
     heldItemBrightness: 0.4,
     narration: {
