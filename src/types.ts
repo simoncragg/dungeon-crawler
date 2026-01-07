@@ -54,6 +54,7 @@ export type GameState = {
   walkingDirection: Direction | null;
   isShutterActive: boolean;
   activeTransitionVideo: VideoAsset | null;
+  walkingInterval?: number;
   isDebugMode: boolean;
 };
 

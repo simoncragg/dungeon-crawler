@@ -51,12 +51,14 @@ export const useMovement = ({
     }
     actions.setWalking(false);
     actions.setWalkingDirection(null);
+    actions.setWalkingInterval(undefined);
   }, [actions]);
 
   const startWalking = useCallback((direction: Direction, shouldMute: boolean = false) => {
     stopWalking();
     actions.setWalking(true);
     actions.setWalkingDirection(direction);
+    actions.setWalkingInterval(MOVEMENT_SETTINGS.TRANSITION_BASE_INTERVAL);
 
     const baseInterval = MOVEMENT_SETTINGS.TRANSITION_BASE_INTERVAL;
 
@@ -79,6 +81,7 @@ export const useMovement = ({
     stopWalking();
     actions.setWalking(true);
     actions.setWalkingDirection(direction);
+    actions.setWalkingInterval(stepInterval);
 
     for (let i = 0; i < stepCount; i++) {
       setTimeout(() => {

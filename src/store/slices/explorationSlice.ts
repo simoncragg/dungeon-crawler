@@ -11,6 +11,7 @@ export type ExplorationSlice = Pick<GameStore["actions"],
   | "setWalkingDirection"
   | "setShutter"
   | "setTransitionVideo"
+  | "setWalkingInterval"
   | "setDebugMode"
 >;
 
@@ -111,6 +112,13 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
     gameState: {
       ...state.gameState,
       activeTransitionVideo: video
+    }
+  })),
+
+  setWalkingInterval: (interval: number | undefined) => set((state) => ({
+    gameState: {
+      ...state.gameState,
+      walkingInterval: interval
     }
   })),
 

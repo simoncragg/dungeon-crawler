@@ -33,6 +33,7 @@ export interface GameStore {
     setWalkingDirection: (direction: Direction | null) => void;
     setShutter: (active: boolean) => void;
     setTransitionVideo: (video: VideoAsset | null) => void;
+    setWalkingInterval: (interval: number | undefined) => void;
     setDebugMode: (enabled: boolean) => void;
 
     // Combat Actions

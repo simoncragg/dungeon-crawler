@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useGameStore } from "../store/useGameStore";
 import { Footprints } from "lucide-react";
-
 import type { Direction } from "../types";
 import NavButton from "./NavButton";
 
@@ -16,23 +15,22 @@ const DirectionPad: React.FC<DirectionPadProps> = ({ onMove }) => {
     currentRoomId,
     perceivedRoomId,
     walkingDirection,
-    isWalking
+    isWalking,
+    walkingInterval
   } = gameState;
 
   const [walkStepScale, setWalkStepScale] = useState(1);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
-    if (isWalking) {
-      interval = setInterval(() => {
-        setWalkStepScale(s => s * -1);
-      }, 300);
+    if (isWalking && walkingInterval) {
+      interval = setInterval(() => setWalkStepScale(s => s * -1), walkingInterval);
     }
     return () => {
       if (interval) clearInterval(interval);
       setWalkStepScale(1);
     };
-  }, [isWalking]);
+  }, [isWalking, walkingInterval]);
 
   const currentRoom = rooms[perceivedRoomId] || rooms[currentRoomId];
   const facingDirection = walkingDirection || currentRoom.facing;
