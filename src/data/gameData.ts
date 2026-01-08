@@ -25,7 +25,7 @@ export const ITEMS: Record<string, Item> = {
       bottom: "-28%",
       rotation: "-15deg",
     },
-    stats: { attack: 10, defense: 0, parryChance: 0.4, critChance: 0.2 },
+    stats: { attack: 10, defense: 0, parryChance: 0.5, critChance: 0.2 },
     sounds: {
       take: { path: "sword-take.wav", volume: 0.4 },
       attack: { path: "sword-combat-attack.mp3" },
