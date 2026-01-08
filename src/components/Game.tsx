@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 
 import GameHUD from "./GameHUD";
+import Enemy from "./Enemy";
 import ItemModal from "./ItemModal";
 import QuestLog from "./QuestLog";
 import RoomHotspots from "./RoomHotspots";
@@ -139,27 +140,14 @@ export default function Game() {
           />
 
           {/* Enemy Sprite */}
-          {
-            currentRoom.enemy && (isEnemyRevealed || inCombat) && (
-              <div className="absolute inset-0 z-20 flex items-end justify-center pointer-events-none">
-                <div
-                  key="enemy-sprite"
-                  className={`transition-all duration-1000 ease-in drop-shadow-2xl ${gameState.combat?.enemyAction === 'DAMAGE' ? 'drop-shadow-[0_0_20px_rgba(255,0,0,0.8)]' :
-                    gameState.combat?.enemyAction === 'STAGGER_HIT' ? 'drop-shadow-[0_0_30px_rgba(255,0,0,0.9)] brightness-125' :
-                      gameState.combat?.enemyAction === 'DEFEAT' ? 'animate-defeat' :
-                        gameState.combat?.enemyAction === 'STAGGER' ? 'animate-stagger' :
-                          (['IDLE', 'TELEGRAPH', 'BLOCK'].includes(gameState.combat?.enemyAction || '') || !gameState.combat) ? 'animate-breathe' : ''
-                    }`}
-                >
-                  <img
-                    src={getPreloadedUrl(gameState.combat?.enemyImage || `/images/enemies/${currentRoom.enemy.id}-idle.png`)}
-                    alt={currentRoom.enemy.name}
-                    className="h-[80vh] object-contain transition-all duration-100"
-                  />
-                </div>
-              </div>
-            )
-          }
+          {currentRoom.enemy && (
+            <Enemy
+              enemy={currentRoom.enemy}
+              isEnemyRevealed={isEnemyRevealed}
+              inCombat={!!inCombat}
+              combat={gameState.combat}
+            />
+          )}
 
           {/* Weapon Overlay - Visuals */}
           <div className="absolute inset-0 z-25 pointer-events-none transition-opacity duration-500 opacity-100">
