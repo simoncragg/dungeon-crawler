@@ -23,6 +23,7 @@ export const useCombat = () => {
   const telegraphTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stopBattleMusicRef = useRef<(() => void) | null>(null);
   const isDyingRef = useRef(false);
+  const lastPlayedEnemyActionRef = useRef<string | null>(null);
 
   const clearCombatTimers = React.useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -190,7 +191,10 @@ export const useCombat = () => {
 
     if (enemyAction === "TELEGRAPH") {
       if (!telegraphTimerRef.current) {
-        playSoundFile({ path: "swing.mp3" });
+        if (lastPlayedEnemyActionRef.current !== "TELEGRAPH") {
+          playSoundFile({ path: "swing.mp3" });
+          lastPlayedEnemyActionRef.current = "TELEGRAPH";
+        }
         telegraphTimerRef.current = setTimeout(() => {
           handleCombatAction("IDLE");
         }, COMBAT_SETTINGS.TELEGRAPH_DURATION);
@@ -200,6 +204,7 @@ export const useCombat = () => {
         idleTimerRef.current = null;
       }
     } else if (enemyAction === "IDLE") {
+      lastPlayedEnemyActionRef.current = null;
       if (!idleTimerRef.current) {
         const delay = Math.random() * (COMBAT_SETTINGS.IDLE_MAX - COMBAT_SETTINGS.IDLE_MIN) + COMBAT_SETTINGS.IDLE_MIN;
         idleTimerRef.current = setTimeout(() => {
@@ -207,6 +212,7 @@ export const useCombat = () => {
         }, delay);
       }
     } else {
+      lastPlayedEnemyActionRef.current = null;
       clearCombatTimers();
     }
 
