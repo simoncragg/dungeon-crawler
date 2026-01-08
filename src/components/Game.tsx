@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 
 import GameHUD from "./GameHUD";
 import Enemy from "./Enemy";
+import GameOver from "./GameOver";
 import ItemModal from "./ItemModal";
 import QuestLog from "./QuestLog";
 import RoomHotspots from "./RoomHotspots";
@@ -165,6 +166,8 @@ export default function Game() {
               : "bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/30"
               }`}
           />
+
+          {gameState.isGameOver && <GameOver />}
         </div>
       </div>
 

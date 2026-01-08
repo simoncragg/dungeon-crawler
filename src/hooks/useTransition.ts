@@ -23,6 +23,7 @@ export const useTransition = ({
   const [pendingMove, setPendingMove] = useState<{ nextRoomId: string } | null>(null);
   const [onEyesOpen, setOnEyesOpen] = useState<{ fn: () => void } | null>(null);
   const [onEyesShut, setOnEyesShut] = useState<{ fn: () => void } | null>(null);
+  const [onMidpoint, setOnMidpoint] = useState<{ fn: () => void } | null>(null);
   const videoMidpointReachedRef = useRef(false);
   const blinkMidpointReachedRef = useRef(false);
 
@@ -32,15 +33,16 @@ export const useTransition = ({
     setTimeout(() => actions.setShutter(false), SHUTTER_SETTINGS.DURATION);
   }, [actions]);
 
-  const startTransition = useCallback((video: VideoAsset, nextRoomId?: string, onEyesOpen?: () => void, onEyesShut?: () => void) => {
+  const startTransition = useCallback((video: VideoAsset, nextRoomId?: string, onEyesOpen?: () => void, onEyesShut?: () => void, onMidpoint?: () => void) => {
     actions.setTransitionVideo(video);
     setPendingMove(nextRoomId ? { nextRoomId } : null);
     setOnEyesShut(onEyesShut ? { fn: onEyesShut } : null);
     setOnEyesOpen(onEyesOpen ? { fn: onEyesOpen } : null);
+    setOnMidpoint(onMidpoint ? { fn: onMidpoint } : null);
 
     videoMidpointReachedRef.current = false;
     blinkMidpointReachedRef.current = false;
-  }, [actions, setPendingMove, setOnEyesShut, setOnEyesOpen]);
+  }, [actions, setPendingMove, setOnEyesShut, setOnEyesOpen, setOnMidpoint]);
 
   const finalizeTransition = useCallback((oneOffCallback?: () => void) => {
     actions.setTransitionVideo(null);
@@ -52,7 +54,8 @@ export const useTransition = ({
     setPendingMove(null);
     setOnEyesShut(null);
     setOnEyesOpen(null);
-  }, [actions, onEyesShut, onEyesOpen, setPendingMove, setOnEyesShut, setOnEyesOpen]);
+    setOnMidpoint(null);
+  }, [actions, onEyesShut, onEyesOpen, setPendingMove, setOnEyesShut, setOnEyesOpen, setOnMidpoint]);
 
   const resetTransition = useCallback((onEyesShut?: () => void) => {
     if (blinkMidpointReachedRef.current) return;
@@ -67,7 +70,10 @@ export const useTransition = ({
     if (pendingMove) {
       actions.setPerceivedRoomId(pendingMove.nextRoomId);
     }
-  }, [pendingMove, actions]);
+    if (onMidpoint) {
+      onMidpoint.fn();
+    }
+  }, [pendingMove, actions, onMidpoint]);
   const handleVideoTimeUpdate = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
     if (!activeTransitionVideo) return;
 

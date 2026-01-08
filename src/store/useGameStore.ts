@@ -5,6 +5,7 @@ import { createNarrativeSlice } from "./slices/narrativeSlice";
 import { createExplorationSlice } from "./slices/explorationSlice";
 import { createInventorySlice } from "./slices/inventorySlice";
 import { createCombatSlice } from "./slices/combatSlice";
+import { createSystemSlice } from "./slices/systemSlice";
 
 export const useGameStore = create<GameStore>()((...a) => ({
   gameState: INITIAL_STATE,
@@ -13,5 +14,6 @@ export const useGameStore = create<GameStore>()((...a) => ({
     ...createExplorationSlice(...a),
     ...createInventorySlice(...a),
     ...createCombatSlice(...a),
+    ...createSystemSlice(...a),
   },
 }));

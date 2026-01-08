@@ -112,10 +112,14 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
       feedback = getFeedback(logMessage, "damage");
     }
 
+    const isDying = playerDied || state.gameState.isGameOver;
     let enemyAction = state.gameState.combat?.enemyAction || "IDLE";
     let enemyImage = state.gameState.combat?.enemyImage || "";
 
-    if (state.gameState.combat && damageDealt > 0 && (enemyAction === "IDLE" || enemyAction === "STAGGER")) {
+    if (isDying) {
+      enemyAction = "IDLE";
+      enemyImage = state.gameState.combat ? getEnemyImage(state.gameState.combat.enemyId, "IDLE") : "";
+    } else if (state.gameState.combat && damageDealt > 0 && (enemyAction === "IDLE" || enemyAction === "STAGGER")) {
       enemyAction = "DAMAGE";
       enemyImage = getEnemyImage(state.gameState.combat.enemyId, "DAMAGE");
     } else if (state.gameState.combat) {

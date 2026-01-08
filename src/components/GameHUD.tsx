@@ -59,7 +59,7 @@ export default function GameHUD({
         {/* Quest Log Button */}
         <button
           onClick={() => actions.setQuestLogOpen(true)}
-          className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 p-2 bg-black/50 hover:bg-black/70 text-emerald-400 hover:text-emerald-300 rounded-full border border-emerald-900/50 transition-all hover:scale-110 shadow-lg backdrop-blur-sm ${!gameState.isQuestLogOpen && !inCombat ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-90"}`}
+          className={`absolute top-4 left-1/2 -translate-x-1/2 z-50 p-2 bg-black/50 hover:bg-black/70 text-emerald-400 hover:text-emerald-300 rounded-full border border-emerald-900/50 transition-all hover:scale-110 shadow-lg backdrop-blur-sm ${!gameState.isQuestLogOpen && (!inCombat || gameState.isGameOver) ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-90"}`}
           aria-label="Quest Log"
         >
           <BookOpen size={24} />
@@ -101,7 +101,7 @@ export default function GameHUD({
         </div>
 
         {/* Combat Interface */}
-        {gameState.combat && gameState.combat.inCombat && currentRoom.enemy && (
+        {gameState.combat && gameState.combat.inCombat && currentRoom.enemy && !gameState.isGameOver && (
           <CombatOverlay
             enemy={currentRoom.enemy}
             onAction={onCombatAction}
@@ -109,11 +109,13 @@ export default function GameHUD({
         )}
 
         {/* Scene Title */}
-        <div className="absolute bottom-0 w-full flex flex-col justify-end pointer-events-none pb-32 px-4">
-          <div className="flex flex-col items-center justify-end">
-            <SceneTitle key={sceneTitleProps.id} {...sceneTitleProps} />
+        {!gameState.isGameOver && (
+          <div className="absolute bottom-0 w-full flex flex-col justify-end pointer-events-none pb-32 px-4">
+            <div className="flex flex-col items-center justify-end">
+              <SceneTitle key={sceneTitleProps.id} {...sceneTitleProps} />
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
     </div>

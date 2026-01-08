@@ -22,6 +22,7 @@ export const useCombat = () => {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const telegraphTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stopBattleMusicRef = useRef<(() => void) | null>(null);
+  const isDyingRef = useRef(false);
 
   const clearCombatTimers = React.useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -43,6 +44,7 @@ export const useCombat = () => {
   }, []);
 
   const startCombat = React.useCallback(() => {
+    isDyingRef.current = false;
     playBattleMusic();
     actions.startCombat();
   }, [playBattleMusic, actions]);
@@ -63,7 +65,7 @@ export const useCombat = () => {
   }, [actions]);
 
   const handleCombatAction = React.useCallback((playerAction: PlayerCombatAction) => {
-    if (!isReadyForCombatInput()) return;
+    if (!isReadyForCombatInput() || gameState.health <= 0) return;
 
     const playerWeaponId = gameState.equippedItems.weapon;
     const playerWeapon = playerWeaponId ? (ITEMS[playerWeaponId] as EquippedWeapon) : null;
@@ -135,6 +137,20 @@ export const useCombat = () => {
           playerDied: gameState.health - playerDamageTaken <= 0
         });
 
+        if (gameState.health - playerDamageTaken <= 0) {
+          if (isDyingRef.current) return;
+          isDyingRef.current = true;
+
+          clearCombatTimers();
+          stopBattleMusic();
+
+          setTimeout(() => {
+            actions.setGameOver(true);
+          }, COMBAT_SETTINGS.DEFEAT_DELAY);
+
+          return;
+        }
+
         if (currentEnemyHp <= 0) {
           stopBattleMusic();
           setTimeout(() => playSoundFile({ path: "enemy-defeat.mp3" }), COMBAT_SETTINGS.DEFEAT_DELAY);
@@ -165,7 +181,7 @@ export const useCombat = () => {
   }, [gameState, playSoundFile, isReadyForCombatInput, stopBattleMusic, clearCombatTimers, triggerEnemyResponse, actions]);
 
   React.useEffect(() => {
-    if (!gameState.combat || !gameState.combat.inCombat || gameState.combat.isProcessing) {
+    if (!gameState.combat || !gameState.combat.inCombat || gameState.combat.isProcessing || gameState.health <= 0) {
       clearCombatTimers();
       return;
     }

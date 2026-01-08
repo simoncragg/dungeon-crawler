@@ -53,6 +53,7 @@ export interface GameStore {
     clearFeedback: () => void;
     setQuestLog: (log: LogEntry[]) => void;
     setPerceivedRoomId: (roomId: string) => void;
-
+    restartGame: () => void;
+    setGameOver: (isGameOver: boolean) => void;
   };
 }
