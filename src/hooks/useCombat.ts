@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import type { CombatAction, EquippedWeapon, PlayerCombatAction } from "../types";
 import { ITEMS } from "../data/gameData";
 import useSoundFx from "./useSoundFx";
@@ -25,36 +25,36 @@ export const useCombat = () => {
   const isDyingRef = useRef(false);
   const lastPlayedEnemyActionRef = useRef<string | null>(null);
 
-  const clearCombatTimers = React.useCallback(() => {
+  const clearCombatTimers = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     if (telegraphTimerRef.current) clearTimeout(telegraphTimerRef.current);
     idleTimerRef.current = null;
     telegraphTimerRef.current = null;
   }, []);
 
-  const playBattleMusic = React.useCallback(() => {
+  const playBattleMusic = useCallback(() => {
     if (stopBattleMusicRef.current) stopBattleMusicRef.current();
     stopBattleMusicRef.current = playSoundFile({ path: "battle-music.mp3" }, { volume: COMBAT_SETTINGS.BATTLE_MUSIC_VOLUME }) || null;
   }, [playSoundFile]);
 
-  const stopBattleMusic = React.useCallback(() => {
+  const stopBattleMusic = useCallback(() => {
     if (stopBattleMusicRef.current) {
       stopBattleMusicRef.current();
       stopBattleMusicRef.current = null;
     }
   }, []);
 
-  const startCombat = React.useCallback(() => {
+  const startCombat = useCallback(() => {
     isDyingRef.current = false;
     playBattleMusic();
     actions.startCombat();
   }, [playBattleMusic, actions]);
 
-  const isReadyForCombatInput = React.useCallback(() => {
+  const isReadyForCombatInput = useCallback(() => {
     return !!gameState.combat && !gameState.combat.isProcessing;
   }, [gameState.combat]);
 
-  const triggerEnemyResponse = React.useCallback((action: CombatAction, playerAction: string, successfulParry: boolean) => {
+  const triggerEnemyResponse = useCallback((action: CombatAction, playerAction: string, successfulParry: boolean) => {
     const delay = getLungeDelay(playerAction, successfulParry);
     if (delay > 0) {
       setTimeout(() => {
@@ -65,7 +65,7 @@ export const useCombat = () => {
     }
   }, [actions]);
 
-  const handleCombatAction = React.useCallback((playerAction: PlayerCombatAction) => {
+  const handleCombatAction = useCallback((playerAction: PlayerCombatAction) => {
     if (!isReadyForCombatInput() || gameState.health <= 0) return;
 
     const playerWeaponId = gameState.equippedItems.weapon;
@@ -181,7 +181,7 @@ export const useCombat = () => {
     }, resultDelay);
   }, [gameState, playSoundFile, isReadyForCombatInput, stopBattleMusic, clearCombatTimers, triggerEnemyResponse, actions]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!gameState.combat || !gameState.combat.inCombat || gameState.combat.isProcessing || gameState.health <= 0) {
       clearCombatTimers();
       return;

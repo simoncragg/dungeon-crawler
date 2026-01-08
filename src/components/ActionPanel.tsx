@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, EyeClosed, Sword } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -18,9 +18,9 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ onTakeItem, onAttack }) => {
   const { rooms, currentRoomId, perceivedRoomId, isWalking, isEnemyRevealed, isDropAnimating } = gameState;
   const currentRoom = rooms[perceivedRoomId] || rooms[currentRoomId];
 
-  const [isGrabMenuOpen, setIsGrabMenuOpen] = React.useState(false);
+  const [isGrabMenuOpen, setIsGrabMenuOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isDropAnimating) setIsGrabMenuOpen(true);
   }, [isDropAnimating]);
 
