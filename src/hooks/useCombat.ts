@@ -217,7 +217,7 @@ export const useCombat = () => {
     }
 
     return () => clearCombatTimers();
-  }, [gameState.combat, handleCombatAction, clearCombatTimers, playSoundFile, actions]);
+  }, [gameState.combat, gameState.health, handleCombatAction, clearCombatTimers, playSoundFile, actions]);
 
   return {
     startCombat,
