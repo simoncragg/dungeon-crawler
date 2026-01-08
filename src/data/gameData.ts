@@ -175,7 +175,7 @@ export const WORLD: Record<string, Room> = {
       name: "Skeleton Guard",
       maxHp: 100,
       hp: 100,
-      attack: 10,
+      attack: 25,
       defense: 5,
       description: "A skeleton in rusted armor blocks the room!",
       defeatMessage: "The skeleton falls apart, bones scattering across the floor.",
