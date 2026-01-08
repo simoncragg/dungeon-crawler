@@ -164,7 +164,6 @@ export const useCombat = () => {
     }, resultDelay);
   }, [gameState, playSoundFile, isReadyForCombatInput, stopBattleMusic, clearCombatTimers, triggerEnemyResponse, actions]);
 
-  // Manage idle and telegraph timers via effects
   React.useEffect(() => {
     if (!gameState.combat || !gameState.combat.inCombat || gameState.combat.isProcessing) {
       clearCombatTimers();

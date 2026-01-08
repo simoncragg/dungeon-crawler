@@ -148,7 +148,7 @@ export default function Game() {
                     gameState.combat?.enemyAction === 'STAGGER_HIT' ? 'drop-shadow-[0_0_30px_rgba(255,0,0,0.9)] brightness-125' :
                       gameState.combat?.enemyAction === 'DEFEAT' ? 'animate-defeat' :
                         gameState.combat?.enemyAction === 'STAGGER' ? 'animate-stagger' :
-                          (gameState.combat?.enemyAction === 'IDLE' || !gameState.combat) ? 'animate-idle' : ''
+                          (['IDLE', 'TELEGRAPH', 'BLOCK'].includes(gameState.combat?.enemyAction || '') || !gameState.combat) ? 'animate-breathe' : ''
                     }`}
                 >
                   <img

@@ -114,7 +114,7 @@ button:disabled {
   animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
 }
 
-@keyframes idle {
+@keyframes breathe {
 
   0%,
   100% {
@@ -126,8 +126,8 @@ button:disabled {
   }
 }
 
-.animate-idle {
-  animation: idle 3s ease-in-out infinite;
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
 }
 
 
@@ -242,20 +242,6 @@ button:disabled {
 
 .animate-stagger {
   animation: stagger 3.2s ease-in-out infinite;
-}
-
-@keyframes breathe {
-  0% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-5px) translateX(1px);
-  }
-
-  100% {
-    transform: translateY(0);
-  }
 }
 
 @keyframes strike {

@@ -64,7 +64,7 @@ export default function RoomHotspots({
         if (isRecentDropId && isDropAnimating) {
           itemAnimClass = "animate-float-up z-50";
         } else if (isRecentDropId && isEnemyDrop) {
-          itemAnimClass = "animate-idle";
+          itemAnimClass = "animate-breathe";
         }
 
         const isUnlockedHighlight = hotspot.type === "door" && hotspot.direction === unlockedDirection;
