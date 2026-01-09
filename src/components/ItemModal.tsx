@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
 import { ITEMS } from "../data/gameData";
 import { getPreloadedUrl } from "../utils/assetLoader";
@@ -19,10 +19,6 @@ interface ItemModalProps {
 const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onUnequip, onDrop, canUnequip, isDroppable = true, isUsable = true }) => {
   const item = ITEMS[itemId];
   const [isTall, setIsTall] = useState(false);
-
-  useEffect(() => {
-    setIsTall(false);
-  }, [itemId]);
 
   if (!item) return null;
 
