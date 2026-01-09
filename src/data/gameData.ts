@@ -81,6 +81,9 @@ export const ITEMS: Record<string, Item> = {
     slotStyle: { scale: 0.9 },
     modalStyle: { scale: 0.6 },
     glow: { color: "#10b981", blur: "48px", pulse: true, intensity: 3 },
+    sounds: {
+      take: { path: "/audio/glowing-gem-take.mp3", volume: 0.4 },
+    },
     useVideos: {
       "hallway": { path: "/video/scenes/use-gem-in-dark-hallway.mp4", volume: 0.8 }
     }
