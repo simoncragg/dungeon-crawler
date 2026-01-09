@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Eye, EyeClosed, Sword } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -20,9 +20,9 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ onTakeItem, onAttack }) => {
 
   const [isGrabMenuOpen, setIsGrabMenuOpen] = useState(false);
 
-  useEffect(() => {
-    if (isDropAnimating) setIsGrabMenuOpen(true);
-  }, [isDropAnimating]);
+  if (isDropAnimating && !isGrabMenuOpen) {
+    setIsGrabMenuOpen(true);
+  }
 
   const handleInspect = () => {
     setIsGrabMenuOpen(!isGrabMenuOpen);
