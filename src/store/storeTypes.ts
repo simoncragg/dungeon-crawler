@@ -55,5 +55,6 @@ export interface GameStore {
     setPerceivedRoomId: (roomId: string) => void;
     restartGame: () => void;
     setGameOver: (isGameOver: boolean) => void;
+    setGameCompleted: (isGameCompleted: boolean) => void;
   };
 }

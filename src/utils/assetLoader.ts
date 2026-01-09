@@ -112,6 +112,7 @@ const getGlobalAssets = (assets: Set<string>) => {
   assets.add("/audio/enemy-item-drop.mp3");
   assets.add("/audio/swing.mp3");
   assets.add("/audio/sword-take.wav");
+  assets.add("/audio/stage-complete.mp3");
 };
 
 export const getInitialAssets = (): string[] => {

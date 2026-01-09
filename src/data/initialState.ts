@@ -38,5 +38,6 @@ export const INITIAL_STATE: GameState = {
   activeTransitionVideo: null,
   walkingInterval: undefined,
   isDebugMode: false,
-  isGameOver: false
+  isGameOver: false,
+  isGameCompleted: false
 };

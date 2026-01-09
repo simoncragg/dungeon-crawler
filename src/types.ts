@@ -57,6 +57,7 @@ export type GameState = {
   walkingInterval?: number;
   isDebugMode: boolean;
   isGameOver: boolean;
+  isGameCompleted: boolean;
 };
 
 export type WeaponOverlayConfig = {
@@ -262,4 +263,5 @@ export type GameAction =
   | { type: "SET_SHUTTER"; active: boolean }
   | { type: "SET_TRANSITION_VIDEO"; video: VideoAsset | null }
   | { type: "SET_DEBUG_MODE"; enabled: boolean }
+  | { type: "SET_GAME_COMPLETED"; completed: boolean }
   | { type: "RESTART_GAME" }

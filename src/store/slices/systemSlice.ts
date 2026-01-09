@@ -5,6 +5,7 @@ import type { GameStore } from "../storeTypes";
 export type SystemSlice = {
     restartGame: () => void;
     setGameOver: (isGameOver: boolean) => void;
+    setGameCompleted: (isGameCompleted: boolean) => void;
 };
 
 export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (set) => ({
@@ -17,5 +18,8 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
     },
     setGameOver: (isGameOver) => set((state) => ({
         gameState: { ...state.gameState, isGameOver }
+    })),
+    setGameCompleted: (isGameCompleted) => set((state) => ({
+        gameState: { ...state.gameState, isGameCompleted }
     })),
 });

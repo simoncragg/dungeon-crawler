@@ -451,3 +451,19 @@ button:disabled {
 .delay-1000 {
   animation-delay: 1000ms;
 }
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.drop-shadow-title {
+  filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4)) drop-shadow(0 0 20px rgba(16, 185, 129, 0.2));
+}

@@ -13,6 +13,7 @@ import { useGame } from "../hooks/useGame";
 import { useGameStore } from "../store/useGameStore";
 import { getPreloadedUrl } from "../utils/assetLoader";
 import { isAppleMobile } from "../utils/gameUtils";
+import StageComplete from "./StageComplete";
 
 export default function Game() {
   const { gameState, actions } = useGameStore();
@@ -171,6 +172,7 @@ export default function Game() {
           />
 
           {gameState.isGameOver && <GameOver />}
+          {gameState.isGameCompleted && <StageComplete />}
         </div>
       </div>
 

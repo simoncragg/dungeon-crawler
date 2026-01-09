@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+
 import type { LogEntry } from "../types";
+import { ITEMS } from "../data/gameData";
 import { MOVEMENT_SETTINGS } from "../data/constants";
 
-import { ITEMS } from "../data/gameData";
-import { useGameStore } from "../store/useGameStore";
 import useSoundFx from "./useSoundFx";
-import { useRoomPreloader } from "./useRoomPreloader";
-import { useMovement } from "./useMovement";
 import { useCombat } from "./useCombat";
+import { useGameStore } from "../store/useGameStore";
 import { useInventory } from "./useInventory";
+import { useMovement } from "./useMovement";
+import { useRoomPreloader } from "./useRoomPreloader";
 
 export const useGame = () => {
 
@@ -37,10 +38,16 @@ export const useGame = () => {
   const processRoomEntry = useCallback((nextRoomId: string) => {
     const nextRoom = gameState.rooms[nextRoomId];
 
+    if (nextRoomId === "forest") {
+      playSoundFile({ path: "stage-complete.mp3" }, { volume: 0.8 });
+      setTimeout(() => {
+        actions.setGameCompleted(true);
+      }, 1000);
+    }
+
     setTimeout(() => {
       addToLog(nextRoom.name, "room-title");
 
-      // Secondary delay for description to let the title breathe and sync with item fade-in
       setTimeout(() => {
         addToLog(nextRoom.description, "room-description");
 
