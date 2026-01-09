@@ -69,6 +69,9 @@ export const ITEMS: Record<string, Item> = {
     slotStyle: { scale: 0.9 },
     modalStyle: { scale: 0.8, rotation: "0deg" },
     glow: { color: "#ef4444", offsetY: "4px", blur: "10px", intensity: 1 },
+    sounds: {
+      take: { path: "/audio/potion-take.mp3", volume: 0.4 },
+    },
     effect: (state) => ({ health: Math.min(state.health + 50, state.maxHealth) }),
   },
   "glowing-gem": {
