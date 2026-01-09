@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { X } from "lucide-react";
+import useSoundFx from "../hooks/useSoundFx";
 import type { LogEntry } from "../types";
 
 interface QuestLogProps {
@@ -8,7 +9,12 @@ interface QuestLogProps {
 }
 
 export default function QuestLog({ questLog, onClose }: QuestLogProps) {
+  const { playSoundFile } = useSoundFx();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    playSoundFile({ path: "inspect.mp3" }, { volume: 0.5 });
+  }, [playSoundFile]);
 
   useEffect(() => {
     if (scrollRef.current) {

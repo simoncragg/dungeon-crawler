@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { X } from "lucide-react";
 import { ITEMS } from "../data/gameData";
 import { getPreloadedUrl } from "../utils/assetLoader";
+import useSoundFx from "../hooks/useSoundFx";
+import { useEffect } from "react";
 
 interface ItemModalProps {
   itemId: string;
@@ -17,8 +19,13 @@ interface ItemModalProps {
 }
 
 const ItemModal: React.FC<ItemModalProps> = ({ itemId, isEquipped, onClose, onUse, onEquip, onUnequip, onDrop, canUnequip, isDroppable = true, isUsable = true }) => {
+  const { playSoundFile } = useSoundFx();
   const item = ITEMS[itemId];
   const [isTall, setIsTall] = useState(false);
+
+  useEffect(() => {
+    playSoundFile({ path: "inspect.mp3" }, { volume: 0.5 });
+  }, [playSoundFile]);
 
   if (!item) return null;
 

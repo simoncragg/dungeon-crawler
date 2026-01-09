@@ -1,12 +1,14 @@
+import type { LucideIcon } from "lucide-react";
 import React, { useState } from "react";
 import { Eye, EyeClosed, Sword } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 
-import { ITEMS } from "../data/gameData";
-import { useGameStore } from "../store/useGameStore";
 import type { Hotspot } from "../types";
+import { ITEMS } from "../data/gameData";
+
 import ActionButton from "./ActionButton";
 import ActionIcon from "./ActionIcon";
+import useSoundFx from "../hooks/useSoundFx";
+import { useGameStore } from "../store/useGameStore";
 
 interface ActionPanelProps {
   onTakeItem: (itemId: string) => void;
@@ -14,6 +16,7 @@ interface ActionPanelProps {
 }
 
 const ActionPanel: React.FC<ActionPanelProps> = ({ onTakeItem, onAttack }) => {
+  const { playSoundFile } = useSoundFx();
   const { gameState } = useGameStore();
   const { rooms, currentRoomId, perceivedRoomId, isWalking, isEnemyRevealed, isDropAnimating } = gameState;
   const currentRoom = rooms[perceivedRoomId] || rooms[currentRoomId];
@@ -25,6 +28,7 @@ const ActionPanel: React.FC<ActionPanelProps> = ({ onTakeItem, onAttack }) => {
   }
 
   const handleInspect = () => {
+    playSoundFile({ path: "inspect.mp3", volume: 0.4 });
     setIsGrabMenuOpen(!isGrabMenuOpen);
   };
 
