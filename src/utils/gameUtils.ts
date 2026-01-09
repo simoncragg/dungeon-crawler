@@ -13,3 +13,11 @@ export const getEnemyImage = (enemyId: string, action: CombatAction = "IDLE") =>
   }
   return `/images/enemies/${enemyId}-${action.toLowerCase()}.png`;
 };
+
+export const isAppleMobile = () => {
+  if (typeof window === 'undefined') return false;
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 2)
+  );
+};

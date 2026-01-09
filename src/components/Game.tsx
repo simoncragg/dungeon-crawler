@@ -12,6 +12,7 @@ import WeaponOverlay from "./WeaponOverlay";
 import { useGame } from "../hooks/useGame";
 import { useGameStore } from "../store/useGameStore";
 import { getPreloadedUrl } from "../utils/assetLoader";
+import { isAppleMobile } from "../utils/gameUtils";
 
 export default function Game() {
   const { gameState, actions } = useGameStore();
@@ -113,6 +114,8 @@ export default function Game() {
                 autoPlay
                 loop
                 playsInline
+                muted={isAppleMobile()}
+                preload="auto"
                 className="absolute inset-0 w-full h-full object-cover"
               />
             )}
