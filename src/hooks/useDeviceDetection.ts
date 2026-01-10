@@ -6,10 +6,12 @@ import { useState, useEffect } from "react";
  */
 export const useDeviceDetection = () => {
     const [isMobile, setIsMobile] = useState(false);
+    const [isPhone, setIsPhone] = useState(false);
+    const [isLandscape, setIsLandscape] = useState(false);
 
     useEffect(() => {
         const checkDevice = () => {
-            const userAgent = (navigator.userAgent || navigator.vendor || window.opera) || "";
+            const userAgent = (navigator.userAgent || navigator.vendor || (window as any).opera) || "";
 
             // Detection for iPhone, iPod, and Android phones
             const isMobileUA = /android|iphone|ipod/i.test(userAgent.toLowerCase());
@@ -17,12 +19,17 @@ export const useDeviceDetection = () => {
             // Check for touch points - mobile emulation usually sets this
             const hasTouch = navigator.maxTouchPoints > 0;
 
-            // Phones have at least one small dimension (usually < 500px)
-            // Even in landscape, the height of a phone is small.
-            // iPad mini's smallest dimension is 768px, so < 600px is a safe bet for "phones".
-            const isPhoneSized = Math.min(window.innerWidth, window.innerHeight) < 600;
+            // Dimensions check
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const smallestDimension = Math.min(width, height);
 
-            setIsMobile(isMobileUA || (hasTouch && isPhoneSized));
+            // iPad mini's smallest dimension is 768px, so < 600px is a safe bet for "phones".
+            const isPhoneSize = smallestDimension < 600;
+
+            setIsMobile(isMobileUA || (hasTouch && smallestDimension < 1024));
+            setIsPhone(isMobileUA || (hasTouch && isPhoneSize));
+            setIsLandscape(width > height);
         };
 
         checkDevice();
@@ -30,5 +37,5 @@ export const useDeviceDetection = () => {
         return () => window.removeEventListener("resize", checkDevice);
     }, []);
 
-    return { isMobile };
+    return { isMobile, isPhone, isLandscape };
 };
