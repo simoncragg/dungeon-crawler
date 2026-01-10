@@ -1,43 +1,50 @@
-import { useGameStore } from "../store/useGameStore";
 import { BookOpen } from "lucide-react";
-import SceneTitle from "./SceneTitle";
 
-import WorldMap from "./WorldMap";
-import EquippedItems from "./EquippedItems";
-import Inventory from "./Inventory";
-import ActionPanel from "./ActionPanel";
-import DirectionPad from "./DirectionPad";
-import PlayerStats from "./PlayerStats";
-import FeedbackOverlay from "./FeedbackOverlay";
-import CombatOverlay from "./CombatOverlay";
-
-import { useMediaQuery } from "../hooks/useMediaQuery";
 import type { PlayerCombatAction, Direction } from "../types";
 
+import ActionPanel from "./ActionPanel";
+import CombatOverlay from "./CombatOverlay";
+import DirectionPad from "./DirectionPad";
+import EquippedItems from "./EquippedItems";
+import FeedbackOverlay from "./FeedbackOverlay";
+import Inventory from "./Inventory";
+import PlayerStats from "./PlayerStats";
+import SceneTitle from "./SceneTitle";
+import WorldMap from "./WorldMap";
+
+import { useDeviceDetection } from "../hooks/useDeviceDetection";
+import { useGameStore } from "../store/useGameStore";
+import { useMediaQuery } from "../hooks/useMediaQuery";
+
 interface GameHUDProps {
+  sceneTitleProps: { id: string; title: string; forceHide: boolean };
+  backDirection: Direction | undefined;
   onMove: (dir: Direction) => void;
   onTakeItem: (id: string) => void;
   onAttack: () => void;
   onCombatAction: (action: PlayerCombatAction) => void;
   setViewingItemId: (id: string | null) => void;
-  sceneTitleProps: { id: string; title: string; forceHide: boolean };
 }
 
 export default function GameHUD({
+  sceneTitleProps,
+  backDirection,
   onMove,
   onTakeItem,
   onAttack,
   onCombatAction,
   setViewingItemId,
-  sceneTitleProps
 }: GameHUDProps) {
   const isWideScreen = useMediaQuery('(min-aspect-ratio: 16/9)');
+  const { isMobile } = useDeviceDetection();
   const { gameState, actions } = useGameStore();
 
-  const currentRoom = gameState.rooms[gameState.currentRoomId];
+  const currentRoom = gameState.rooms[gameState.perceivedRoomId] || gameState.rooms[gameState.currentRoomId];
   const inCombat = gameState.combat?.inCombat || false;
   const showStats = !gameState.isQuestLogOpen;
   const { feedback } = gameState;
+
+  const canGoBack = !!backDirection && !inCombat && !gameState.isQuestLogOpen && !gameState.isWalking && !gameState.isShutterActive;
 
   return (
     <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center">
@@ -68,10 +75,12 @@ export default function GameHUD({
         {/* Controls Layer */}
         <div className={`absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ${showStats && !inCombat ? "opacity-100" : "opacity-0"}`}>
 
-          {/* Direction Pad */}
-          <div className="absolute bottom-12 left-8 w-32 h-32 pointer-events-auto">
-            <DirectionPad onMove={onMove} />
-          </div>
+          {/* Direction Pad - Hidden on mobile phones */}
+          {!isMobile && (
+            <div className="absolute bottom-12 left-8 w-32 h-32 pointer-events-auto">
+              <DirectionPad onMove={onMove} />
+            </div>
+          )}
 
           {/* Action Panel */}
           <div className="absolute top-8 right-4 w-64 pointer-events-auto">
@@ -92,13 +101,24 @@ export default function GameHUD({
           </div>
         </div>
 
-        {/* World Map */}
-        <div className={`absolute bottom-4 right-4 z-30 opacity-80 hover:opacity-100 transition-opacity pointer-events-auto ${inCombat ? 'hidden' : ''}`}>
-          <WorldMap
-            currentRoomId={gameState.mapOverrideRoomId || gameState.currentRoomId}
-            visitedRooms={gameState.visitedRooms || []}
+        {/* World Map - Hidden on mobile phones */}
+        {!isMobile && (
+          <div className={`absolute bottom-4 right-4 z-30 opacity-80 hover:opacity-100 transition-opacity pointer-events-auto ${inCombat ? 'hidden' : ''}`}>
+            <WorldMap
+              currentRoomId={gameState.mapOverrideRoomId || gameState.currentRoomId}
+              visitedRooms={gameState.visitedRooms || []}
+            />
+          </div>
+        )}
+
+        {/* Back Hotspot */}
+        {canGoBack && (
+          <button
+            onClick={() => backDirection && onMove(backDirection)}
+            className="absolute bottom-0 left-0 w-full h-[15%] z-10 pointer-events-auto cursor-default peer"
+            aria-label="Go Back"
           />
-        </div>
+        )}
 
         {/* Combat Interface */}
         {gameState.combat && gameState.combat.inCombat && currentRoom.enemy && !gameState.isGameOver && (

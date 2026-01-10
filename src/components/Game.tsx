@@ -37,6 +37,7 @@ export default function Game() {
     isShutterActive,
     handleDropOnHotspot,
     visibleRoom,
+    backDirection,
     sceneTitleProps
   } = useGame();
 
@@ -178,12 +179,13 @@ export default function Game() {
 
       {/* --- HUD LAYER (UI & Controls) --- */}
       <GameHUD
+        sceneTitleProps={sceneTitleProps}
+        backDirection={backDirection}
         onMove={handleMove}
         onTakeItem={takeItem}
         onAttack={startCombat}
         onCombatAction={handleCombatAction}
         setViewingItemId={setViewingItemId}
-        sceneTitleProps={sceneTitleProps}
       />
 
       {/* --- MODALS (Global Overlay) --- */}

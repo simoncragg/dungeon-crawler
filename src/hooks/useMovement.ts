@@ -155,6 +155,17 @@ export const useMovement = ({
     stopWalking();
   }, [resetTransition, stopWalking]);
 
+  const OPPOSITE_DIRECTIONS: Record<Direction, Direction> = {
+    north: "south",
+    south: "north",
+    east: "west",
+    west: "east"
+  };
+
+  const facing = currentRoom.facing;
+  const inverseFacing = OPPOSITE_DIRECTIONS[facing];
+  const backDirection = currentRoom.exits[inverseFacing] ? inverseFacing : undefined;
+
   return {
     isWalking,
     walkingDirection,
@@ -167,6 +178,7 @@ export const useMovement = ({
     startTransition,
     triggerShutter,
     pendingMove,
-    visibleRoom
+    visibleRoom,
+    backDirection
   };
 };
